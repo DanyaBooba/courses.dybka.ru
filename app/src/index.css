@@ -1,0 +1,56 @@
+@font-face {
+    font-family: 'Geologica';
+    src: url('/fonts/Geologica/Geologica-Light.woff2') format('woff2');
+    font-weight: 300 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Geologica';
+    src: url('/fonts/Geologica/Geologica-Bold.woff2') format('woff2');
+    font-weight: 600 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+::selection {
+    background: var(--dd-palette-primary-200, #c4d3ff);
+    color: var(--dd-palette-text-primary, #16182b);
+}
+
+/* Мягкий скроллбар */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--dd-palette-page-border, rgba(0, 0, 0, 0.12)) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--dd-palette-page-border, rgba(0, 0, 0, 0.12));
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+}
