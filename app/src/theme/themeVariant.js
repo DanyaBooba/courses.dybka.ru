@@ -1,12 +1,13 @@
 import { extendTheme } from '@mui/joy/styles'
 
-const fontFamily = "'Geologica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+const bodyFont = "'Geologica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+const displayFont = "'Literata', 'PT Serif', Georgia, 'Times New Roman', serif"
 
 const themeVariant = extendTheme({
     cssVarPrefix: 'dd',
     fontFamily: {
-        body: fontFamily,
-        display: fontFamily,
+        body: bodyFont,
+        display: displayFont,
         code: "'SF Mono', ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace",
     },
     radius: {
@@ -90,6 +91,15 @@ const themeVariant = extendTheme({
         },
     },
     components: {
+        JoyTypography: {
+            styleOverrides: {
+                // Заголовки набираем антиквой, остальной текст — Geologica
+                root: ({ ownerState }) =>
+                    ['h1', 'h2', 'h3', 'h4'].includes(ownerState.level)
+                        ? { fontFamily: displayFont, letterSpacing: '-0.015em' }
+                        : {},
+            },
+        },
         JoyButton: {
             styleOverrides: {
                 root: { fontWeight: 700, borderRadius: '999px' },

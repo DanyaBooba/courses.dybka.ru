@@ -13,6 +13,21 @@ const appear = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
 }
 
+// Пятно уезжает в один из углов — какой именно, зависит от id курса,
+// чтобы сетка карточек не выглядела одинаковой.
+const spots = [
+    { top: '-18%', right: '-12%' },
+    { bottom: '-20%', left: '-14%' },
+    { top: '-16%', left: '-10%' },
+    { bottom: '-18%', right: '-12%' },
+]
+
+function spotFor(id) {
+    let hash = 0
+    for (let i = 0; i < id.length; i += 1) hash = (hash * 31 + id.charCodeAt(i)) % 997
+    return spots[hash % spots.length]
+}
+
 export default function CourseCard({ course }) {
     const { mode, systemMode } = useColorScheme()
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
@@ -20,13 +35,13 @@ export default function CourseCard({ course }) {
     const skin = accent[resolved] || accent.light
 
     const firstLesson = course.pages?.[0]?.slug ?? '1'
+    const spot = spotFor(course.id)
 
     return (
         <Box
             component={motion.div}
             variants={appear}
-            whileHover={{ y: -4 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+            whileHover="hover"
             sx={{
                 position: 'relative',
                 display: 'flex',
@@ -34,28 +49,46 @@ export default function CourseCard({ course }) {
                 p: { xs: 2.5, sm: 3 },
                 borderRadius: 'xl',
                 minHeight: 300,
+                overflow: 'hidden',
                 background: skin.gradient,
                 border: '1px solid',
                 borderColor: 'page.border',
                 boxShadow: (theme) => theme.vars.palette.page.cardShadow,
+                transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: (theme) => theme.vars.palette.page.cardShadowHover,
+                },
             }}
         >
+            {/* Вся карточка — ссылка на курс; кнопки лежат выше по z-index */}
+            <Box
+                component={RouterLink}
+                to={`/course/${course.id}`}
+                aria-label={`Открыть курс: ${course.title}`}
+                sx={{ position: 'absolute', inset: 0, zIndex: 1, borderRadius: 'inherit' }}
+            />
+
             <Box
                 aria-hidden
+                component={motion.div}
+                variants={{
+                    hover: { scale: 1.2, opacity: 0.72, transition: { duration: 0.6, ease: 'easeOut' } },
+                }}
                 sx={{
                     position: 'absolute',
-                    top: -40,
-                    right: -30,
-                    width: 180,
-                    height: 180,
+                    ...spot,
+                    width: 190,
+                    height: 190,
                     borderRadius: '50%',
                     background: skin.glow,
-                    filter: 'blur(10px)',
+                    opacity: 0.42,
+                    filter: 'blur(26px)',
                     pointerEvents: 'none',
                 }}
             />
 
-            <Box sx={{ position: 'relative', flex: 1 }}>
+            <Box sx={{ position: 'relative', flex: 1, pointerEvents: 'none' }}>
                 <Typography
                     level="body-xs"
                     sx={{ color: skin.text, opacity: 0.75, letterSpacing: '0.08em', textTransform: 'uppercase' }}
@@ -63,10 +96,7 @@ export default function CourseCard({ course }) {
                     {course.level}
                 </Typography>
 
-                <Typography
-                    level="h3"
-                    sx={{ mt: 1, fontWeight: 700, color: skin.text, letterSpacing: '-0.02em' }}
-                >
+                <Typography level="h3" sx={{ mt: 1, fontWeight: 700, color: skin.text }}>
                     {course.title}
                 </Typography>
 
@@ -93,7 +123,7 @@ export default function CourseCard({ course }) {
                 </Box>
             </Box>
 
-            <Box sx={{ position: 'relative', mt: 3, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            <Box sx={{ position: 'relative', zIndex: 2, mt: 3, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 <Button
                     component={RouterLink}
                     to={`/course/${course.id}/${firstLesson}`}

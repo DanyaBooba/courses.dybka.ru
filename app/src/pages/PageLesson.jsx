@@ -3,9 +3,9 @@ import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom'
 import Box from '@mui/joy/Box'
 import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
-import Button from '@mui/joy/Button'
-import LinearProgress from '@mui/joy/LinearProgress'
 import { useColorScheme } from '@mui/joy/styles'
+import { motion } from 'framer-motion'
+import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
 
 import PageShell from '../components/Layout/PageShell'
 import ContentBlocks from '../components/Content/ContentBlocks'
@@ -53,19 +53,25 @@ export default function PageLesson() {
 
     return (
         <PageShell>
-            <LinearProgress
-                determinate
-                value={progress}
-                variant="soft"
+            {/* Прогресс курса: плавно доезжает до новой отметки */}
+            <Box
+                aria-hidden
                 sx={{
-                    '--LinearProgress-thickness': '3px',
-                    '--LinearProgress-radius': '0px',
-                    '&::before': { background: accent.solid },
                     position: 'sticky',
                     top: 0,
                     zIndex: 1050,
+                    height: '3px',
+                    bgcolor: 'page.border',
                 }}
-            />
+            >
+                <Box
+                    component={motion.div}
+                    initial={false}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    sx={{ height: '100%', bgcolor: accent.solid, borderRadius: '0 999px 999px 0' }}
+                />
+            </Box>
 
             <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 }, pt: { xs: 3, md: 5 } }}>
                 <Box
@@ -88,19 +94,31 @@ export default function PageLesson() {
                             level="body-sm"
                             sx={{
                                 display: { xs: 'inline-flex', md: 'none' },
+                                alignItems: 'center',
+                                gap: 0.75,
                                 mb: 2,
+                                px: 1.25,
+                                py: 0.5,
+                                borderRadius: '999px',
+                                bgcolor: 'background.level1',
                                 textDecoration: 'none',
-                                color: 'text.tertiary',
+                                color: 'text.secondary',
                             }}
                         >
-                            ← {course.title}
+                            <CaretLeftIcon size={18} weight="bold" />
+                            {course.title}
                         </Typography>
 
                         <Typography
                             level="body-xs"
-                            sx={{ textTransform: 'uppercase', letterSpacing: '0.1em', color: accent.solid, fontWeight: 700 }}
+                            sx={{
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                                color: accent.solid,
+                                fontWeight: 700,
+                            }}
                         >
-                            {page.slug === 'end' ? 'Завершение' : `Урок ${index + 1} из ${course.pages.length - 1}`}
+                            Урок {index + 1} из {course.pages.length}
                         </Typography>
 
                         <Typography
@@ -109,7 +127,6 @@ export default function PageLesson() {
                                 mt: 1.5,
                                 mb: 4,
                                 fontWeight: 700,
-                                letterSpacing: '-0.03em',
                                 lineHeight: 1.15,
                                 fontSize: { xs: '30px', sm: '38px', md: '44px' },
                             }}
@@ -143,11 +160,23 @@ export default function PageLesson() {
                                         borderColor: 'page.border',
                                         bgcolor: 'background.surface',
                                         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                                        '&:hover': { transform: 'translateY(-2px)', boxShadow: (theme) => theme.vars.palette.page.cardShadow },
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)',
+                                            boxShadow: (theme) => theme.vars.palette.page.cardShadow,
+                                        },
                                     }}
                                 >
-                                    <Typography level="body-xs" sx={{ color: 'text.tertiary' }}>
-                                        ← Предыдущий урок
+                                    <Typography
+                                        level="body-xs"
+                                        sx={{
+                                            color: 'text.tertiary',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                        }}
+                                    >
+                                        <CaretLeftIcon size={16} weight="bold" />
+                                        Предыдущий урок
                                     </Typography>
                                     <Typography sx={{ mt: 0.5, fontWeight: 700, color: 'text.primary' }}>
                                         {prev.short}
@@ -165,18 +194,33 @@ export default function PageLesson() {
                                         p: 2.5,
                                         borderRadius: 'lg',
                                         textDecoration: 'none',
-                                        textAlign: 'right',
                                         background: skin.gradient,
                                         border: '1px solid',
                                         borderColor: 'page.border',
                                         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                                        '&:hover': { transform: 'translateY(-2px)', boxShadow: (theme) => theme.vars.palette.page.cardShadow },
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)',
+                                            boxShadow: (theme) => theme.vars.palette.page.cardShadow,
+                                        },
                                     }}
                                 >
-                                    <Typography level="body-xs" sx={{ color: skin.text, opacity: 0.7 }}>
-                                        {next.slug === 'end' ? 'Завершить курс →' : 'Следующий урок →'}
+                                    <Typography
+                                        level="body-xs"
+                                        sx={{
+                                            color: skin.text,
+                                            opacity: 0.7,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'flex-end',
+                                            gap: 0.5,
+                                        }}
+                                    >
+                                        Следующий урок
+                                        <CaretRightIcon size={16} weight="bold" />
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontWeight: 700, color: skin.text }}>
+                                    <Typography
+                                        sx={{ mt: 0.5, fontWeight: 700, color: skin.text, textAlign: 'right' }}
+                                    >
                                         {next.short}
                                     </Typography>
                                 </Box>
@@ -189,19 +233,6 @@ export default function PageLesson() {
                         >
                             Подсказка: листайте уроки с клавиатуры — alt + ← и alt + →
                         </Typography>
-
-                        {page.slug === 'end' && (
-                            <Box sx={{ mt: 4, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                                <Button component={RouterLink} to="/" variant="soft" color="neutral">
-                                    Вернуться к курсам
-                                </Button>
-                                {page.certificate && (
-                                    <Button component="a" href={page.certificate} download>
-                                        Скачать сертификат
-                                    </Button>
-                                )}
-                            </Box>
-                        )}
                     </Box>
                 </Box>
 

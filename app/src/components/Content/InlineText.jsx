@@ -17,7 +17,7 @@ function Code({ children }) {
                 borderRadius: 'xs',
                 bgcolor: 'primary.softBg',
                 color: 'primary.softColor',
-                whiteSpace: 'nowrap',
+                overflowWrap: 'anywhere',
             }}
         >
             {children}

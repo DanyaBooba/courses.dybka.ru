@@ -1,5 +1,8 @@
 import Box from '@mui/joy/Box'
 import Typography from '@mui/joy/Typography'
+import IconButton from '@mui/joy/IconButton'
+import Tooltip from '@mui/joy/Tooltip'
+import { ArrowLeftIcon, CaretLeftIcon, GithubLogoIcon, InfoIcon } from '@phosphor-icons/react'
 import { Link as RouterLink } from 'react-router-dom'
 
 const linkSx = {
@@ -16,25 +19,56 @@ const linkSx = {
     '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
 }
 
-export default function LessonSidebar({ course, activeSlug, accent, onNavigate }) {
+/**
+ * Список уроков курса. `bare` — вариант для нижней панели на телефонах:
+ * без карточки-обёртки и без круглой кнопки возврата в шапке (ссылка
+ * «На главную» переезжает вниз, к остальным ссылкам).
+ */
+export default function LessonSidebar({
+    course,
+    activeSlug,
+    accent,
+    onNavigate,
+    bare = false,
+}) {
+    const wrapperSx = bare
+        ? {}
+        : {
+              p: 2,
+              borderRadius: 'lg',
+              bgcolor: 'background.surface',
+              border: '1px solid',
+              borderColor: 'page.border',
+              boxShadow: (theme) => theme.vars.palette.page.cardShadow,
+          }
+
     return (
-        <Box
-            sx={{
-                p: 2,
-                borderRadius: 'lg',
-                bgcolor: 'background.surface',
-                border: '1px solid',
-                borderColor: 'page.border',
-                boxShadow: (theme) => theme.vars.palette.page.cardShadow,
-            }}
-        >
-            <Box sx={{ px: 1, pb: 1.5 }}>
-                <Typography level="title-sm" sx={{ fontWeight: 700 }}>
-                    {course.title}
-                </Typography>
-                <Typography level="body-xs" sx={{ mt: 0.25, color: 'text.tertiary' }}>
-                    {course.duration}
-                </Typography>
+        <Box sx={wrapperSx}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, px: bare ? 0 : 1, pb: 1.5 }}>
+                {!bare && (
+                    <Tooltip title="На главную" variant="soft" size="sm">
+                        <IconButton
+                            component={RouterLink}
+                            to="/"
+                            aria-label="На главную"
+                            variant="outlined"
+                            color="neutral"
+                            size="sm"
+                            sx={{ borderRadius: '999px', flexShrink: 0, borderColor: 'page.border' }}
+                        >
+                            <CaretLeftIcon size={22} weight="bold" />
+                        </IconButton>
+                    </Tooltip>
+                )}
+
+                <Box sx={{ minWidth: 0 }}>
+                    <Typography level="title-sm" sx={{ fontWeight: 700 }}>
+                        {course.title}
+                    </Typography>
+                    <Typography level="body-xs" sx={{ mt: 0.25, color: 'text.tertiary' }}>
+                        {course.pages.length} уроков
+                    </Typography>
+                </Box>
             </Box>
 
             <Box
@@ -44,14 +78,13 @@ export default function LessonSidebar({ course, activeSlug, accent, onNavigate }
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 0.25,
-                    maxHeight: { md: 'calc(100vh - 300px)' },
-                    overflowY: { md: 'auto' },
+                    maxHeight: bare ? 'none' : { md: 'calc(100vh - 300px)' },
+                    overflowY: bare ? 'visible' : { md: 'auto' },
                     pr: 0.5,
                 }}
             >
                 {course.pages.map((page, index) => {
                     const active = page.slug === activeSlug
-                    const isEnd = page.slug === 'end'
                     return (
                         <Box
                             key={page.slug}
@@ -95,55 +128,40 @@ export default function LessonSidebar({ course, activeSlug, accent, onNavigate }
                                     fontWeight: 700,
                                 }}
                             >
-                                {isEnd ? '★' : index + 1}
+                                {index + 1}
                             </Box>
-                            <Box>{page.short}</Box>
+                            <Box sx={{ minWidth: 0 }}>{page.short}</Box>
                         </Box>
                     )
                 })}
             </Box>
 
             <Box
-                sx={{
-                    mt: 1.5,
-                    pt: 1.5,
-                    borderTop: '1px solid',
-                    borderColor: 'page.border',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 0.25,
-                }}
-            >
-                <Box
-                    component={RouterLink}
-                    to={`/course/${course.id}`}
-                    onClick={onNavigate}
-                    sx={linkSx}
+                    sx={{
+                        mt: 1.5,
+                        pt: 1.5,
+                        borderTop: '1px solid',
+                        borderColor: 'page.border',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 0.25,
+                    }}
                 >
-                    <Box aria-hidden sx={{ opacity: 0.7 }}>
-                        ℹ
-                    </Box>
+                <Box component={RouterLink} to={`/course/${course.id}`} onClick={onNavigate} sx={linkSx}>
+                    <InfoIcon size={22} />
                     О курсе
                 </Box>
 
-                <Box component={RouterLink} to="/" onClick={onNavigate} sx={linkSx}>
-                    <Box aria-hidden sx={{ opacity: 0.7 }}>
-                        ←
+                {bare && (
+                    <Box component={RouterLink} to="/" onClick={onNavigate} sx={linkSx}>
+                        <ArrowLeftIcon size={22} />
+                        На главную
                     </Box>
-                    На главную
-                </Box>
+                )}
 
                 {course.github && (
-                    <Box
-                        component="a"
-                        href={course.github}
-                        target="_blank"
-                        rel="noreferrer"
-                        sx={linkSx}
-                    >
-                        <Box aria-hidden sx={{ opacity: 0.7 }}>
-                            ↗
-                        </Box>
+                    <Box component="a" href={course.github} target="_blank" rel="noreferrer" sx={linkSx}>
+                        <GithubLogoIcon size={22} />
                         Исходники на GitHub
                     </Box>
                 )}

@@ -5,8 +5,8 @@ import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
 import Button from '@mui/joy/Button'
 import Chip from '@mui/joy/Chip'
-import Link from '@mui/joy/Link'
 import { useColorScheme } from '@mui/joy/styles'
+import { ArrowLeftIcon, GithubLogoIcon } from '@phosphor-icons/react'
 
 import PageShell from '../components/Layout/PageShell'
 import ContentBlocks from '../components/Content/ContentBlocks'
@@ -74,14 +74,27 @@ export default function PageCourse() {
                     />
 
                     <Box sx={{ position: 'relative', maxWidth: 720 }}>
-                        <Link
+                        <Typography
                             component={RouterLink}
                             to="/"
                             level="body-sm"
-                            sx={{ color: skin.text, opacity: 0.75, textDecoration: 'none' }}
+                            sx={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 0.75,
+                                px: 1.5,
+                                py: 0.75,
+                                borderRadius: '999px',
+                                bgcolor: skin.chip,
+                                color: skin.text,
+                                textDecoration: 'none',
+                                transition: 'filter 0.18s ease',
+                                '&:hover': { filter: 'brightness(1.08)' },
+                            }}
                         >
-                            ← Все курсы
-                        </Link>
+                            <ArrowLeftIcon size={20} weight="bold" />
+                            Все курсы
+                        </Typography>
 
                         <Typography
                             level="h1"
@@ -140,6 +153,7 @@ export default function PageCourse() {
                                         color: skin.text,
                                         '&:hover': { bgcolor: skin.chip, filter: 'brightness(1.06)' },
                                     }}
+                                    startDecorator={<GithubLogoIcon size={22} />}
                                 >
                                     GitHub
                                 </Button>
@@ -238,26 +252,6 @@ export default function PageCourse() {
                             ))}
                         </Box>
 
-                        {course.certificate && (
-                            <Box
-                                sx={{
-                                    mt: 2,
-                                    p: 2,
-                                    borderRadius: 'sm',
-                                    bgcolor: 'background.level1',
-                                    display: 'flex',
-                                    gap: 1.5,
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Box aria-hidden sx={{ fontSize: '20px' }}>
-                                    📜
-                                </Box>
-                                <Typography level="body-xs">
-                                    В конце курса вы получите памятный сертификат.
-                                </Typography>
-                            </Box>
-                        )}
                     </Box>
                 </Box>
             </Container>

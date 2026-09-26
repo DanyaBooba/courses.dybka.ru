@@ -5,6 +5,7 @@ import Sheet from '@mui/joy/Sheet'
 import Table from '@mui/joy/Table'
 import Button from '@mui/joy/Button'
 import Tooltip from '@mui/joy/Tooltip'
+import { CheckIcon, HashIcon, LightbulbIcon } from '@phosphor-icons/react'
 
 import InlineText from './InlineText'
 import slugify from './slugify'
@@ -72,7 +73,7 @@ function Heading({ level, content }) {
                         '&:focus-visible': { opacity: 1 },
                     }}
                 >
-                    {copied ? '✓' : '#'}
+                    {copied ? <CheckIcon size={20} weight="bold" /> : <HashIcon size={20} weight="bold" />}
                 </Box>
             </Tooltip>
         </Typography>
@@ -126,8 +127,8 @@ function Note({ content }) {
                 bgcolor: 'page.noteBg',
             }}
         >
-            <Box aria-hidden sx={{ fontSize: '22px', lineHeight: 1.4 }}>
-                💡
+            <Box aria-hidden sx={{ flexShrink: 0, mt: '2px', color: 'page.noteBar' }}>
+                <LightbulbIcon size={26} weight="fill" />
             </Box>
             <Typography sx={{ lineHeight: 1.7, color: 'text.primary' }}>
                 <InlineText text={content} />
@@ -184,6 +185,7 @@ function CodeBlock({ content, language }) {
                 overflow: 'hidden',
                 borderColor: 'page.border',
                 bgcolor: 'background.level1',
+                maxWidth: '100%',
             }}
         >
             <Box
@@ -210,6 +212,7 @@ function CodeBlock({ content, language }) {
                     m: 0,
                     p: 2.5,
                     overflowX: 'auto',
+                    maxWidth: '100%',
                     fontFamily: 'code',
                     fontSize: '14px',
                     lineHeight: 1.65,

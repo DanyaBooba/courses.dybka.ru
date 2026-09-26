@@ -3,10 +3,11 @@ import Box from '@mui/joy/Box'
 import Typography from '@mui/joy/Typography'
 import IconButton from '@mui/joy/IconButton'
 import { useReducedMotion } from 'framer-motion'
+import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
 
 import { getAccent } from '../../theme/accents'
 
-const SPIN_SPEED = 0.0026 // радиан за кадр при свободном вращении
+const SPIN_SPEED = 0.0007 // радиан за кадр при свободном вращении
 const SNAP_EASING = 0.12
 
 /** Приводит угол к диапазону (-π, π] — нужно для поворота по короткой дуге. */
@@ -28,6 +29,7 @@ export default function CourseOrbit({ courses, colorScheme = 'light', selectedIn
     const angle = useRef(0)
     const target = useRef(null) // null — свободное вращение
     const drag = useRef(null)
+    const lastDragDistance = useRef(0)
     const hovered = useRef(false)
 
     const step = (Math.PI * 2) / Math.max(courses.length, 1)
@@ -79,7 +81,7 @@ export default function CourseOrbit({ courses, colorScheme = 'light', selectedIn
                     angle.current += delta * SNAP_EASING
                 }
             } else if (!reduced && !drag.current && !hovered.current && selectedIndex === null) {
-                angle.current += SPIN_SPEED
+                angle.current -= SPIN_SPEED
             }
 
             layout()
@@ -117,8 +119,8 @@ export default function CourseOrbit({ courses, colorScheme = 'light', selectedIn
     const onPointerDown = (event) => {
         if (event.pointerType === 'mouse' && event.button !== 0) return
         drag.current = { startX: event.clientX, startAngle: angle.current, moved: 0 }
+        lastDragDistance.current = 0
         target.current = null
-        event.currentTarget.setPointerCapture?.(event.pointerId)
     }
 
     const onPointerMove = (event) => {
@@ -130,6 +132,7 @@ export default function CourseOrbit({ courses, colorScheme = 'light', selectedIn
     }
 
     const onPointerUp = () => {
+        lastDragDistance.current = drag.current?.moved ?? 0
         drag.current = null
     }
 
@@ -173,7 +176,8 @@ export default function CourseOrbit({ courses, colorScheme = 'light', selectedIn
                             component="button"
                             type="button"
                             onClick={() => {
-                                if (drag.current && drag.current.moved > 6) return
+                                // отличаем нажатие от перетаскивания орбиты
+                                if (lastDragDistance.current > 8) return
                                 onSelect?.(index)
                             }}
                             aria-label={`Курс: ${course.title}`}
@@ -238,7 +242,7 @@ export default function CourseOrbit({ courses, colorScheme = 'light', selectedIn
                     onClick={() => rotateBy(step)}
                     sx={{ borderRadius: '999px', borderColor: 'page.border' }}
                 >
-                    ←
+                    <CaretLeftIcon size={22} weight="bold" />
                 </IconButton>
                 <IconButton
                     variant="outlined"
@@ -248,7 +252,7 @@ export default function CourseOrbit({ courses, colorScheme = 'light', selectedIn
                     onClick={() => rotateBy(-step)}
                     sx={{ borderRadius: '999px', borderColor: 'page.border' }}
                 >
-                    →
+                    <CaretRightIcon size={22} weight="bold" />
                 </IconButton>
             </Box>
         </Box>

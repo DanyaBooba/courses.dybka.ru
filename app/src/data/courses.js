@@ -50,19 +50,19 @@ import fullstackReactNode from './courses/fullstack-react-node'
 
 const courses = [
     unityFirstGame,
-    htmlCssFirstSite,
-    vanillaJavascript,
-    phpMysql,
-    gulpWorkflow,
-    webMedia,
     unityAr,
     unityVr,
-    mobileApp,
-    storePublishing,
+    htmlCssFirstSite,
+    vanillaJavascript,
+    gulpWorkflow,
     reactSite,
     nodejsApi,
-    laravelSite,
     fullstackReactNode,
+    laravelSite,
+    mobileApp,
+    storePublishing,
+    phpMysql,
+    webMedia,
 ]
 
 export default courses

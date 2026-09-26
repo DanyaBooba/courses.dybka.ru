@@ -116,20 +116,20 @@ export default function PageIndex() {
                         variants={stagger}
                         initial="hidden"
                         animate="visible"
-                        sx={{ mt: { xs: 3, md: 4 }, mx: 'auto', maxWidth: 720, textAlign: 'center' }}
+                        sx={{ mt: { xs: 3, md: 4 }, mx: 'auto', maxWidth: 840, textAlign: 'center' }}
                     >
                         <Typography
                             component={motion.h1}
                             variants={rise}
                             level="h1"
                             sx={{
-                                fontWeight: 700,
+                                fontWeight: 800,
                                 letterSpacing: '-0.035em',
                                 lineHeight: 1.08,
                                 fontSize: { xs: '36px', sm: '48px', md: '58px' },
                             }}
                         >
-                            Учитесь программировать{' '}
+                            Учитесь программировать<br />
                             <Box
                                 component="span"
                                 sx={{
@@ -153,8 +153,7 @@ export default function PageIndex() {
                                 color: 'text.secondary',
                             }}
                         >
-                            Курсы Даниила Дыбки: игры на Unity, сайты, основы программирования. Всё бесплатно, с открытым
-                            исходным кодом и без единой формы регистрации.
+                            Курсы авторской разработки без использования ИИ: игры на Unity, сайты, основы программирования. Всё бесплатно, с открытым исходным кодом и без единой формы регистрации.
                         </Typography>
 
                         <Box
@@ -195,7 +194,7 @@ export default function PageIndex() {
                         Курсы
                     </Typography>
                     <Typography component={motion.p} variants={rise} sx={{ mt: 1, color: 'text.secondary' }}>
-                        Выбирайте курс и начинайте прямо сейчас — прогресс никуда не денется.
+                        Выбирайте курс и начинайте прямо сейчас.
                     </Typography>
 
                     <Box

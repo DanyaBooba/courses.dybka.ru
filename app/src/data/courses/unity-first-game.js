@@ -15,7 +15,7 @@ export default {
         email: 'daniil@dybka.ru',
         telegram: 'https://ddybka.t.me',
     },
-    certificate: '/courses/unity-first-game/certificate.jpg',
+    certificate: null,
     about: [
         {
             block: 'p',
@@ -68,14 +68,6 @@ export default {
         {
             block: 'p',
             content: 'Для разработки проектов вам потребуется компьютер: macOS 10.13.6 +, Windows 7 +.',
-        },
-        {
-            block: 'h2',
-            content: 'Окончание курса',
-        },
-        {
-            block: 'p',
-            content: 'После окончания курса вам будет предоставлен сертификат об окончании курса.',
         },
     ],
     pages: [
@@ -278,7 +270,7 @@ export default {
                 },
                 {
                     block: 'p',
-                    content: 'Сейчас у меня актуальная версия игрового движка Unity 2021 года: 2021.3.2.27f1. Если у вас другая версия, убедитесь, что она 2021 года и можете скачивать. Я выбираю версию 2021 года из-за ее относительной стабильности и наличия поддержки всех актуальных компонентов, которые мы будем использовать в разработке.',
+                    content: 'Сейчас у меня актуальная версия игрового движка Unity 2021 года: 2021.3.27f1. Если у вас другая версия, убедитесь, что она 2021 года и можете скачивать. Я выбираю версию 2021 года из-за ее относительной стабильности и наличия поддержки всех актуальных компонентов, которые мы будем использовать в разработке.',
                 },
                 {
                     block: 'p',
@@ -532,8 +524,8 @@ export default {
                     items: [
                         'RGB 0-255: цвет задается с помощью трех ползунков: красного, зеленого и синего цвета, каждый из которых принимает значение от нуля до 255. Сочетание цветов создают новые спектры цветов.',
                         'RGB 0-1.0: такой же вариант RGB, но вместо ограничения в 255, используется ограничение в 1.0 и цвет задается с помощью десятичной дроби (0.5, 0.32, 0.1).',
-                        'HSV: цвет задается с помощью трех ползунков: первый отвечает за отношение к цвету, второй отвечает за содержание белого цвета, третий за содержание черного',
-                        'HEX: как по мне, самый удобный вариант, цвет задается через решетку, а далее идет содержание цвета от белого к черному в шестнадцатиричной системе счисления.',
+                        'HSV: цвет задается с помощью трех ползунков: первый — тон (Hue), то есть положение цвета на цветовом круге, второй — насыщенность (Saturation), третий — яркость (Value)',
+                        'HEX: как по мне, самый удобный вариант. Цвет задается через решетку, а далее идут три пары символов в шестнадцатеричной системе счисления: красный, зеленый и синий, каждая пара — значение от 00 до FF.',
                     ],
                 },
                 {
@@ -550,7 +542,7 @@ export default {
                 },
                 {
                     block: 'ol',
-                    items: ['(255,0,0)', '(1.0,0,0)', '(360, 100, 100)', '#ff0000'],
+                    items: ['(255,0,0)', '(1.0,0,0)', '(0, 100, 100)', '#ff0000'],
                 },
                 {
                     block: 'p',
@@ -1131,7 +1123,7 @@ export default {
                 },
                 {
                     block: 'p',
-                    content: 'Мы используем методы для вызова определенного кода в нужный момент времени. Методы упрощают код, и практически не являются обязательными.',
+                    content: 'Мы используем методы для вызова определенного кода в нужный момент времени. Методы разбивают логику на понятные части, а Start() и Update() Unity вызывает сама — без них скрипт ничего делать не будет.',
                 },
                 {
                     block: 'h2',
@@ -1170,7 +1162,7 @@ export default {
                 {
                     block: 'ol',
                     items: [
-                        'В одном файле скрипта должен быть один метод? Нет, не обязательно. В одном файле скрипта может содержаться любое количество классов, но обязательно должен быть «главный» класс, название которого будет соответствовать названию файла скрипта. Если обращаться к файлу скрипта — мы будем обращаться к классу с тем же названием.',
+                        'В одном файле скрипта должен быть один метод? Нет, не обязательно. Методов в классе может быть сколько угодно. Классов в одном файле C# тоже может быть несколько, но для Unity действует важное правило: класс-наследник MonoBehaviour, который вы вешаете на объект, должен называться так же, как файл. Иначе Unity не свяжет скрипт с компонентом.',
                     ],
                 },
                 {
@@ -1273,7 +1265,7 @@ export default {
                 {
                     block: 'ul',
                     items: [
-                        'Тип данных «object»: хранит в себе объект, класс. Можем использовать определенный класс как тип данных. Не имеет значения, но в методе Start() требуется присвоить значение данному полю с типом данных «object».',
+                        'Тип данных «object»: базовый тип, от которого наследуются все остальные. В такое поле можно положить значение любого типа. Значение по умолчанию — null, то есть «ничего», поэтому перед использованием полю нужно что-то присвоить.',
                     ],
                 },
                 {
@@ -1300,7 +1292,7 @@ export default {
                     block: 'ul',
                     items: [
                         'числовые типы данных: 0 или 0f',
-                        'строковые типы данных: пустая строка («»)',
+                        'строковые типы данных: null, то есть «ничего» (пустую строку нужно задавать явно)',
                         'bool: false (ложь)',
                     ],
                 },
@@ -1359,7 +1351,7 @@ export default {
                 {
                     block: 'code',
                     language: 'C#',
-                    content: 'private void Start()\n{\n    rb = GetComponent<Rigidbody2D>();\n}\n\nprivate void FixedUpdate()\n{\n    moveInput = Input.GetAxis("Horizontal");\n    rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);\n\n    if(moveInput != 0) flipValue = FlipValue(moveInput);\n    transform.eulerAngles = VectorFlip(flipValue);\n}\n\nprivate void Update()\n{\n    if (Input.GetKeyDown(KeyCode.Space)) Jump();\n}\n\nprivate void Jump()\n{\n    if(extraJump > 0) rb.velocity = Vector2.up * jumpForce;\n}\n\nprivate Vector3 VectorFlip(float count)\n{\n    Vector3 vector = new Vector3(0, count, 0);\n    return vector;\n}\n\nprivate float FlipValue(float count)\n{\n    if (count > 0) return 180;\n    return 0;\n}\n\nprivate Collider2D Ground()\n{\n    return Physics2D.OverlapCircle(groundPoint.position, 0.25f, groundLayer);\n}',
+                    content: 'private void Start()\n{\n    rb = GetComponent<Rigidbody2D>();\n}\n\nprivate void FixedUpdate()\n{\n    moveInput = Input.GetAxis("Horizontal");\n    rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);\n\n    if(moveInput != 0) flipValue = FlipValue(moveInput);\n    transform.eulerAngles = VectorFlip(flipValue);\n}\n\nprivate void Update()\n{\n    if (Input.GetKeyDown(KeyCode.Space)) Jump();\n}\n\nprivate void Jump()\n{\n    if (Ground()) rb.velocity = Vector2.up * jumpForce;\n}\n\nprivate Vector3 VectorFlip(float count)\n{\n    Vector3 vector = new Vector3(0, count, 0);\n    return vector;\n}\n\nprivate float FlipValue(float count)\n{\n    if (count < 0) return 180;\n    return 0;\n}\n\nprivate bool Ground()\n{\n    return Physics2D.OverlapCircle(groundPoint.position, 0.25f, groundLayer) != null;\n}',
                 },
                 {
                     block: 'p',
@@ -1368,13 +1360,13 @@ export default {
                 {
                     block: 'ul',
                     items: [
-                        'Start(): данный метод выполяется один раз при инициализации игры.',
+                        'Start(): данный метод выполняется один раз при инициализации игры.',
                         'FixedUpdate(): выполняется каждую секунду 50 раз.',
                         'Update(): выполняется то количество раз, сколько FPS в игре.',
                         'Jump(): метод, выполняющий прыжок в игре.',
                         'VectorFlip(): вспомогательный метод для поворота игрока.',
                         'FlipValue(): вспомогательный метод для поворота игрока.',
-                        'Ground(): метод, возвращающий параметр bool, было ли касание в игре или нет.',
+                        'Ground(): метод, возвращающий параметр bool: есть ли земля под игроком.',
                     ],
                 },
                 {
@@ -1388,7 +1380,7 @@ export default {
                 {
                     block: 'code',
                     language: 'C#',
-                    content: 'private <типданных> Ground()\n{\n    return <условие>\n}',
+                    content: 'private <тип_данных> <название_метода>()\n{\n    return <значение>;\n}',
                 },
                 {
                     block: 'p',
@@ -1437,6 +1429,14 @@ export default {
                 {
                     block: 'p',
                     content: 'Здесь мы задаем поворот игрока.',
+                },
+                {
+                    block: 'p',
+                    content: 'В методе Update() мы ловим нажатие пробела и вызываем Jump(). Внутри Jump() стоит проверка: `if (Ground()) rb.velocity = Vector2.up * jumpForce;`. Прыжок сработает только тогда, когда метод Ground() вернет «true».',
+                },
+                {
+                    block: 'p',
+                    content: 'Именно так мы решаем ту самую проблему бесконечных прыжков, о которой я говорил в начале курса. Метод Ground() проверяет маленькую окружность радиусом 0.25 вокруг объекта «groundPoint» под ногами игрока: если в эту окружность попал коллайдер со слоем «Ground» — значит, игрок стоит на земле и может прыгнуть. В воздухе окружность ничего не находит, и повторный прыжок не случится.',
                 },
                 {
                     block: 'p',
@@ -1608,7 +1608,7 @@ export default {
                 {
                     block: 'code',
                     language: 'C#',
-                    content: 'using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class PlayerTouch : MonoBehaviour\n{\n    private PlayerHealth health;\n    private float damage = 1f;\n\n    private void Start()\n    {\n        health = GetComponent<Health>();\n    }\n\n    private void OnCollisionEnter2D(Collision2D collision)\n    {\n        Debug.Log(collision.gameObject.tag);\n    }\n}',
+                    content: 'using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class PlayerTouch : MonoBehaviour\n{\n    private PlayerHealth health;\n    private float damage = 1f;\n\n    private void Start()\n    {\n        health = GetComponent<PlayerHealth>();\n    }\n\n    private void OnCollisionEnter2D(Collision2D collision)\n    {\n        Debug.Log(collision.gameObject.tag);\n    }\n}',
                 },
                 {
                     block: 'p',
@@ -1659,7 +1659,7 @@ export default {
                 },
                 {
                     block: 'p',
-                    content: 'Теперь добавим тег, отвечающий за врага. Перейдем в сцену. Выберем нашего игрока. И в поле Инспектора выберем поле «Tag» сверху. Нажмем на «Untagged», выберем «Add Tag…». Нажмем на плюс, добавим новый тег: «Enemy». Теперь заново выберем врага и дадим ему наш новый тег.',
+                    content: 'Теперь добавим тег, отвечающий за врага. Перейдем в сцену. Выберем нашего врага — объект «Enemy». И в поле Инспектора выберем поле «Tag» сверху. Нажмем на «Untagged», выберем «Add Tag…». Нажмем на плюс, добавим новый тег: «Enemy». Теперь заново выберем врага и дадим ему наш новый тег.',
                 },
                 {
                     block: 'p',
@@ -1718,7 +1718,20 @@ export default {
                 },
                 {
                     block: 'p',
-                    content: 'Теперь мы можем не только получать урон, но и пополнять здоровье. Игра теперь работает абсолютно правильно.',
+                    content: 'Теперь мы можем не только получать урон, но и пополнять здоровье. Обратите внимание на одну особенность: OnCollisionEnter2D срабатывает только в момент касания, поэтому если игрок просто стоит на враге, урон больше не наносится. Для постоянного урона понадобился бы OnCollisionStay2D с задержкой между попаданиями — попробуйте добавить это самостоятельно.',
+                },
+                {
+                    block: 'h2',
+                    content: 'Итоговый скрипт PlayerTouch',
+                },
+                {
+                    block: 'p',
+                    content: 'Мы правили этот скрипт по частям, поэтому приведу его целиком — сверьтесь со своим кодом. Обратите внимание, что поле «damage» здесь уже называется «valuechange».',
+                },
+                {
+                    block: 'code',
+                    language: 'C#',
+                    content: 'using System.Collections;\nusing System.Collections.Generic;\nusing UnityEngine;\n\npublic class PlayerTouch : MonoBehaviour\n{\n    private PlayerHealth health;\n    private float valuechange = 1f;\n\n    private void Start()\n    {\n        health = GetComponent<PlayerHealth>();\n    }\n\n    private void OnCollisionEnter2D(Collision2D collision)\n    {\n        if (collision.gameObject.CompareTag("Enemy")) health.Damage(valuechange);\n    }\n\n    private void OnTriggerEnter2D(Collider2D collider)\n    {\n        if (collider.gameObject.CompareTag("Eat"))\n        {\n            health.Eat(valuechange);\n            Destroy(collider.gameObject);\n        }\n    }\n}',
                 },
                 {
                     block: 'p',
@@ -1913,24 +1926,7 @@ export default {
                 },
                 {
                     block: 'p',
-                    content: 'Мы завершили наш курс. Перейдите к следующему уроку, чтобы получить сертификат за данный курс.',
-                },
-            ],
-        },
-        {
-            slug: 'end',
-            title: 'Поздравляем с успешным завершением курса!',
-            short: 'Завершение',
-            certificate: '/courses/unity-first-game/certificate.jpg',
-            content: [
-                {
-                    block: 'p',
-                    content: 'Хотим отблагодарить вас памятным сертификатом. Используйте его в качестве доказательства того, что вы прошли курс.',
-                },
-                {
-                    block: 'img',
-                    src: '/courses/unity-first-game/certificate.jpg',
-                    alt: 'Сертификат курса',
+                    content: 'Мы завершили курс. Теперь у вас есть готовый 2D-платформер с меню, который можно собрать под Android или Windows — развивайте его дальше.',
                 },
             ],
         },

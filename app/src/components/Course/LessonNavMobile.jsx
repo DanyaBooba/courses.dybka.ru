@@ -5,21 +5,26 @@ import IconButton from '@mui/joy/IconButton'
 import Drawer from '@mui/joy/Drawer'
 import ModalClose from '@mui/joy/ModalClose'
 import DialogTitle from '@mui/joy/DialogTitle'
+import { CaretLeftIcon, CaretRightIcon, ListIcon } from '@phosphor-icons/react'
 
 import LessonSidebar from './LessonSidebar'
 
 /**
- * Плавающая навигация по курсу для телефонов: предыдущий урок,
- * план курса и следующий урок. Закреплена справа внизу экрана.
+ * Навигация по курсу на телефонах: слева — план курса, справа под большой
+ * палец — переходы между уроками. Недоступные переходы просто не показываем.
  */
 export default function LessonNavMobile({ course, activeSlug, accent, prev, next }) {
     const [open, setOpen] = useState(false)
 
     const arrowSx = {
-        '--IconButton-size': '44px',
+        '--IconButton-size': '46px',
         borderRadius: '999px',
+        bgcolor: 'background.surface',
+        border: '1px solid',
+        borderColor: 'page.border',
         color: 'text.secondary',
-        '&:hover': { color: 'text.primary' },
+        boxShadow: (theme) => theme.vars.palette.page.cardShadow,
+        '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
     }
 
     return (
@@ -28,57 +33,55 @@ export default function LessonNavMobile({ course, activeSlug, accent, prev, next
                 sx={{
                     display: { xs: 'flex', md: 'none' },
                     position: 'fixed',
+                    left: 16,
                     right: 16,
                     bottom: 'calc(16px + env(safe-area-inset-bottom))',
                     zIndex: 1200,
                     alignItems: 'center',
-                    gap: 0.5,
-                    p: 0.5,
-                    borderRadius: '999px',
-                    bgcolor: 'background.surface',
-                    border: '1px solid',
-                    borderColor: 'page.border',
-                    boxShadow: (theme) => theme.vars.palette.page.cardShadowHover,
-                    backdropFilter: 'blur(12px)',
+                    justifyContent: 'space-between',
+                    pointerEvents: 'none',
+                    '& > *': { pointerEvents: 'auto' },
                 }}
             >
                 <IconButton
-                    component={prev ? RouterLink : 'button'}
-                    to={prev ? `/course/${course.id}/${prev.slug}` : undefined}
-                    disabled={!prev}
-                    aria-label="Предыдущий урок"
-                    variant="plain"
-                    sx={arrowSx}
-                >
-                    ←
-                </IconButton>
-
-                <IconButton
                     onClick={() => setOpen(true)}
                     aria-label="План курса"
-                    variant="solid"
                     sx={{
-                        '--IconButton-size': '48px',
+                        '--IconButton-size': '52px',
                         borderRadius: '999px',
                         bgcolor: accent.solid,
                         color: '#fff',
-                        fontSize: '18px',
+                        boxShadow: (theme) => theme.vars.palette.page.cardShadowHover,
                         '&:hover': { bgcolor: accent.solid, filter: 'brightness(0.93)' },
                     }}
                 >
-                    ☰
+                    <ListIcon size={26} weight="bold" />
                 </IconButton>
 
-                <IconButton
-                    component={next ? RouterLink : 'button'}
-                    to={next ? `/course/${course.id}/${next.slug}` : undefined}
-                    disabled={!next}
-                    aria-label="Следующий урок"
-                    variant="plain"
-                    sx={arrowSx}
-                >
-                    →
-                </IconButton>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    {prev && (
+                        <IconButton
+                            component={RouterLink}
+                            to={`/course/${course.id}/${prev.slug}`}
+                            aria-label="Предыдущий урок"
+                            variant="plain"
+                            sx={arrowSx}
+                        >
+                            <CaretLeftIcon size={24} weight="bold" />
+                        </IconButton>
+                    )}
+                    {next && (
+                        <IconButton
+                            component={RouterLink}
+                            to={`/course/${course.id}/${next.slug}`}
+                            aria-label="Следующий урок"
+                            variant="plain"
+                            sx={arrowSx}
+                        >
+                            <CaretRightIcon size={24} weight="bold" />
+                        </IconButton>
+                    )}
+                </Box>
             </Box>
 
             <Drawer
@@ -98,8 +101,9 @@ export default function LessonNavMobile({ course, activeSlug, accent, prev, next
             >
                 <ModalClose />
                 <DialogTitle sx={{ px: 2.5, pt: 2.5 }}>План курса</DialogTitle>
-                <Box sx={{ p: 2, pb: 4, overflowY: 'auto' }}>
+                <Box sx={{ px: 2.5, pb: 4, overflowY: 'auto' }}>
                     <LessonSidebar
+                        bare
                         course={course}
                         activeSlug={activeSlug}
                         accent={accent}

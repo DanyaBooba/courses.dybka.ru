@@ -12,20 +12,22 @@ export default function Footer() {
                     sx={{
                         display: 'grid',
                         alignItems: 'center',
-                        gap: 1,
+                        justifyItems: { xs: 'center', sm: 'stretch' },
+                        gap: { xs: 1, sm: 1 },
+                        // На телефонах: название, почта, копирайт
                         gridTemplateColumns: { xs: '1fr', sm: '1fr auto 1fr' },
-                        textAlign: { xs: 'center', sm: 'left' },
+                        gridTemplateAreas: {
+                            xs: '"name" "mail" "copy"',
+                            sm: '"copy name mail"',
+                        },
                     }}
                 >
-                    <Typography level="body-xs" sx={{ color: 'text.tertiary' }}>
-                        © dev.dybka.ru, {new Date().getFullYear()}
-                    </Typography>
-
                     <Typography
                         component={RouterLink}
                         to="/"
                         level="body-sm"
                         sx={{
+                            gridArea: 'name',
                             fontWeight: 700,
                             textDecoration: 'none',
                             color: 'text.primary',
@@ -39,10 +41,17 @@ export default function Footer() {
                         href="mailto:daniil@dybka.ru"
                         level="body-xs"
                         color="neutral"
-                        sx={{ justifySelf: { xs: 'center', sm: 'end' } }}
+                        sx={{ gridArea: 'mail', justifySelf: { xs: 'center', sm: 'end' } }}
                     >
                         daniil@dybka.ru
                     </Link>
+
+                    <Typography
+                        level="body-xs"
+                        sx={{ gridArea: 'copy', color: 'text.tertiary', justifySelf: { xs: 'center', sm: 'start' } }}
+                    >
+                        © dev.dybka.ru, {new Date().getFullYear()}
+                    </Typography>
                 </Box>
             </Container>
         </Box>
