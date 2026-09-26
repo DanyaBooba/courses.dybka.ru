@@ -9,63 +9,80 @@ const linkSx = {
     display: 'flex',
     alignItems: 'center',
     gap: 1.25,
-    px: 1.25,
     py: 1,
-    borderRadius: 'sm',
     fontSize: 'sm',
     textDecoration: 'none',
     color: 'text.secondary',
-    transition: 'background-color 0.18s ease, color 0.18s ease',
-    '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
+    transition: 'color 0.15s ease, padding-left 0.15s ease',
+    '&:hover': { color: 'text.primary', pl: 0.75 },
 }
 
 /**
- * Список уроков курса. `bare` — вариант для нижней панели на телефонах:
- * без карточки-обёртки и без круглой кнопки возврата в шапке (ссылка
- * «На главную» переезжает вниз, к остальным ссылкам).
+ * План курса. Без карточки-обёртки и обводки — только линейки, как в
+ * оглавлении книги. `bare` — вариант для нижней панели на телефонах: там
+ * кнопка возврата не нужна, «На главную» переезжает вниз к остальным ссылкам.
  */
 export default function LessonSidebar({
     course,
     activeSlug,
     accent,
+    ink,
     onNavigate,
     bare = false,
 }) {
-    const wrapperSx = bare
-        ? {}
-        : {
-              p: 2,
-              borderRadius: 'lg',
-              bgcolor: 'background.surface',
-              border: '1px solid',
-              borderColor: 'page.border',
-              boxShadow: (theme) => theme.vars.palette.page.cardShadow,
-          }
+    const mark = ink || accent.solid
 
     return (
-        <Box sx={wrapperSx}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, px: bare ? 0 : 1, pb: 1.5 }}>
+        <Box>
+            {/* Шапка: кнопка возврата прижата к верхнему краю, не по центру */}
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 1.5,
+                    pb: 1.25,
+                    borderBottom: '2px solid',
+                    borderColor: 'page.rule',
+                }}
+            >
                 {!bare && (
                     <Tooltip title="На главную" variant="soft" size="sm">
                         <IconButton
                             component={RouterLink}
                             to="/"
                             aria-label="На главную"
-                            variant="outlined"
-                            color="neutral"
+                            variant="plain"
                             size="sm"
-                            sx={{ borderRadius: '999px', flexShrink: 0, borderColor: 'page.border' }}
+                            sx={{
+                                flexShrink: 0,
+                                borderRadius: 0,
+                                bgcolor: 'background.level1',
+                                color: 'text.secondary',
+                                '&:hover': { bgcolor: 'primary.softBg', color: 'text.primary' },
+                            }}
                         >
-                            <CaretLeftIcon size={22} weight="bold" />
+                            <CaretLeftIcon size={20} weight="bold" />
                         </IconButton>
                     </Tooltip>
                 )}
 
                 <Box sx={{ minWidth: 0 }}>
-                    <Typography level="title-sm" sx={{ fontWeight: 700 }}>
+                    <Typography
+                        level="title-sm"
+                        sx={{ fontFamily: 'display', fontWeight: 600, lineHeight: 1.3 }}
+                    >
                         {course.title}
                     </Typography>
-                    <Typography level="body-xs" sx={{ mt: 0.25, color: 'text.tertiary' }}>
+                    <Typography
+                        sx={{
+                            mt: 0.5,
+                            fontFamily: 'code',
+                            fontSize: '11px',
+                            letterSpacing: '0.1em',
+                            textTransform: 'uppercase',
+                            color: 'text.tertiary',
+                        }}
+                    >
                         {course.pages.length} уроков
                     </Typography>
                 </Box>
@@ -77,10 +94,8 @@ export default function LessonSidebar({
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 0.25,
-                    maxHeight: bare ? 'none' : { md: 'calc(100vh - 300px)' },
+                    maxHeight: bare ? 'none' : { md: 'calc(100vh - 260px)' },
                     overflowY: bare ? 'visible' : { md: 'auto' },
-                    pr: 0.5,
                 }}
             >
                 {course.pages.map((page, index) => {
@@ -94,74 +109,65 @@ export default function LessonSidebar({
                             aria-current={active ? 'page' : undefined}
                             sx={{
                                 display: 'flex',
-                                gap: 1.25,
-                                alignItems: 'stretch',
-                                pr: 1.25,
-                                py: 1,
-                                borderRadius: 'sm',
+                                gap: 1.5,
+                                alignItems: 'baseline',
+                                py: 1.15,
+                                borderBottom: '1px solid',
+                                borderColor: 'page.border',
                                 textDecoration: 'none',
                                 fontSize: 'sm',
                                 lineHeight: 1.45,
                                 color: active ? 'text.primary' : 'text.secondary',
-                                bgcolor: active ? 'background.level1' : 'transparent',
-                                fontWeight: active ? 700 : 400,
-                                transition: 'background-color 0.18s ease, color 0.18s ease',
-                                '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
+                                fontWeight: active ? 600 : 400,
+                                transition: 'color 0.15s ease, padding-left 0.15s ease',
+                                '&:hover': { color: 'text.primary', pl: 0.75 },
                             }}
                         >
                             <Box
                                 aria-hidden
                                 sx={{
-                                    flexShrink: 0,
-                                    width: '3px',
-                                    ml: 0.75,
-                                    borderRadius: '999px',
-                                    bgcolor: active ? accent.solid : 'transparent',
-                                }}
-                            />
-                            <Box
-                                aria-hidden
-                                sx={{
-                                    fontSize: 'xs',
-                                    minWidth: 16,
-                                    color: active ? accent.solid : 'text.tertiary',
-                                    fontWeight: 700,
+                                    fontFamily: 'code',
+                                    fontSize: '11px',
+                                    minWidth: 22,
+                                    color: active ? mark : 'text.tertiary',
                                 }}
                             >
-                                {index + 1}
+                                {String(index + 1).padStart(2, '0')}
                             </Box>
-                            <Box sx={{ minWidth: 0 }}>{page.short}</Box>
+                            <Box sx={{ minWidth: 0, flex: 1 }}>{page.short}</Box>
+                            {active && (
+                                <Box
+                                    aria-hidden
+                                    sx={{
+                                        flexShrink: 0,
+                                        width: 6,
+                                        height: 6,
+                                        borderRadius: 0,
+                                        bgcolor: mark,
+                                    }}
+                                />
+                            )}
                         </Box>
                     )
                 })}
             </Box>
 
-            <Box
-                    sx={{
-                        mt: 1.5,
-                        pt: 1.5,
-                        borderTop: '1px solid',
-                        borderColor: 'page.border',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 0.25,
-                    }}
-                >
+            <Box sx={{ mt: 1.5, display: 'flex', flexDirection: 'column' }}>
                 <Box component={RouterLink} to={`/course/${course.id}`} onClick={onNavigate} sx={linkSx}>
-                    <InfoIcon size={22} />
+                    <InfoIcon size={20} />
                     О курсе
                 </Box>
 
                 {bare && (
                     <Box component={RouterLink} to="/" onClick={onNavigate} sx={linkSx}>
-                        <ArrowLeftIcon size={22} />
+                        <ArrowLeftIcon size={20} />
                         На главную
                     </Box>
                 )}
 
                 {course.github && (
                     <Box component="a" href={course.github} target="_blank" rel="noreferrer" sx={linkSx}>
-                        <GithubLogoIcon size={22} />
+                        <GithubLogoIcon size={20} />
                         Исходники на GitHub
                     </Box>
                 )}

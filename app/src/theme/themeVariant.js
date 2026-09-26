@@ -2,90 +2,112 @@ import { extendTheme } from '@mui/joy/styles'
 
 const bodyFont = "'Geologica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
 const displayFont = "'Literata', 'PT Serif', Georgia, 'Times New Roman', serif"
+const codeFont = "'SF Mono', ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace"
 
+/**
+ * Язык оформления — печатный справочник, а не «лендинг»:
+ * плотная бумага вместо белизны, чернила вместо серого, тонкие линейки
+ * вместо теней, углы почти прямые, кнопки — прямоугольные плашки.
+ * Градиентов нет нигде: ни в фоне, ни в тексте, ни в плашках.
+ */
 const themeVariant = extendTheme({
     cssVarPrefix: 'dd',
     fontFamily: {
         body: bodyFont,
         display: displayFont,
-        code: "'SF Mono', ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace",
+        code: codeFont,
     },
+    // Скруглений нет нигде: только прямые углы
     radius: {
-        xs: '8px',
-        sm: '12px',
-        md: '16px',
-        lg: '22px',
-        xl: '28px',
+        xs: '0px',
+        sm: '0px',
+        md: '0px',
+        lg: '0px',
+        xl: '0px',
     },
     colorSchemes: {
         light: {
             palette: {
-                head: { themeColor: '#fbfbfe' },
+                head: { themeColor: '#f4f1ea' },
                 primary: {
-                    50: '#eef2ff',
-                    100: '#dde5ff',
-                    200: '#bfcdff',
-                    300: '#96acff',
-                    400: '#6b86f7',
-                    500: '#3b52e8',
-                    600: '#3243cf',
-                    700: '#2a37a8',
-                    800: '#242e85',
-                    900: '#1e2569',
-                    softBg: '#e6ecff',
-                    softColor: '#2a37a8',
+                    50: '#f0eee9',
+                    100: '#e2ded4',
+                    200: '#c9c3b4',
+                    300: '#a49b85',
+                    400: '#6e6552',
+                    500: '#2c2a24',
+                    600: '#24221d',
+                    700: '#1c1b16',
+                    800: '#151410',
+                    900: '#0e0d0a',
+                    solidBg: '#24221d',
+                    solidHoverBg: '#0e0d0a',
+                    softBg: '#e6e2d8',
+                    softColor: '#24221d',
+                    plainColor: '#24221d',
                 },
                 background: {
-                    body: '#fbfbfe',
-                    surface: '#ffffff',
-                    level1: '#f4f5fb',
+                    body: '#f4f1ea',
+                    surface: '#faf8f3',
+                    level1: '#e9e5db',
                 },
                 text: {
-                    primary: '#14162a',
-                    secondary: '#4b5064',
-                    tertiary: '#787e94',
+                    primary: '#1b1a15',
+                    secondary: '#403d35',
+                    tertiary: '#736e60',
                 },
                 page: {
-                    glow1: 'rgba(124, 149, 251, 0.12)',
-                    glow2: 'rgba(255, 176, 124, 0.10)',
-                    glow3: 'rgba(120, 220, 190, 0.11)',
-                    border: 'rgba(22, 24, 43, 0.11)',
-                    cardShadow: '0 18px 44px -28px rgba(22, 24, 43, 0.35)',
-                    cardShadowHover: '0 28px 60px -26px rgba(22, 24, 43, 0.42)',
-                    headerBg: 'rgba(251, 251, 254, 0.72)',
-                    noteBg: '#fcefd2',
-                    noteBar: '#b07800',
+                    border: '#d5cfc0',
+                    rule: '#1b1a15',
+                    cardShadow: '0 8px 18px -12px rgba(27, 26, 21, 0.4)',
+                    cardShadowHover: '0 10px 22px -12px rgba(27, 26, 21, 0.5)',
+                    headerBg: '#f4f1ea',
+                    noteBg: '#ede3c6',
+                    noteBar: '#8f6508',
+                    codeBg: '#ebe7dc',
                 },
             },
         },
         dark: {
             palette: {
-                head: { themeColor: '#12131c' },
+                head: { themeColor: '#16150f' },
                 primary: {
-                    softBg: 'rgba(107, 134, 247, 0.20)',
-                    softColor: '#c3cdff',
-                    solidBg: '#4457e6',
+                    50: '#141309',
+                    100: '#1e1c13',
+                    200: '#2c2921',
+                    300: '#4c483c',
+                    400: '#8c8574',
+                    500: '#d8d2c2',
+                    600: '#e4dfd2',
+                    700: '#efebe1',
+                    800: '#f5f2ea',
+                    900: '#faf8f3',
+                    solidBg: '#e4dfd2',
+                    solidHoverBg: '#faf8f3',
+                    solidColor: '#16150f',
+                    softBg: '#262319',
+                    softColor: '#e4dfd2',
+                    plainColor: '#e4dfd2',
                 },
                 background: {
-                    body: '#12131c',
-                    surface: '#191b27',
-                    level1: '#1f2130',
+                    body: '#16150f',
+                    surface: '#1d1c14',
+                    level1: '#262419',
                 },
                 text: {
-                    primary: '#f0f1f7',
-                    secondary: '#b3b8cd',
-                    tertiary: '#8b90a6',
+                    primary: '#f2efe6',
+                    secondary: '#c3bead',
+                    tertiary: '#8d8776',
                 },
                 page: {
-                    glow1: 'rgba(91, 116, 239, 0.12)',
-                    glow2: 'rgba(224, 122, 63, 0.08)',
-                    glow3: 'rgba(47, 158, 126, 0.09)',
-                    border: 'rgba(255, 255, 255, 0.12)',
-                    cardShadow: '0 18px 44px -30px rgba(0, 0, 0, 0.9)',
-                    cardShadowHover: '0 28px 60px -28px rgba(0, 0, 0, 1)',
-                    headerBg: 'rgba(18, 19, 28, 0.72)',
-                    noteBg: 'rgba(176, 120, 0, 0.18)',
-                    noteBar: '#e0a92a',
+                    border: '#33301f',
+                    rule: '#f2efe6',
+                    cardShadow: '0 8px 18px -12px rgba(0, 0, 0, 0.8)',
+                    cardShadowHover: '0 10px 22px -12px rgba(0, 0, 0, 0.9)',
+                    headerBg: '#16150f',
+                    noteBg: '#2e2712',
+                    noteBar: '#d9a938',
+                    codeBg: '#201e15',
                 },
             },
         },
@@ -102,12 +124,35 @@ const themeVariant = extendTheme({
         },
         JoyButton: {
             styleOverrides: {
-                root: { fontWeight: 700, borderRadius: '999px' },
+                // Прямоугольная плашка без тени и без скруглений
+                root: {
+                    fontWeight: 600,
+                    borderRadius: 0,
+                    letterSpacing: '0.005em',
+                    boxShadow: 'none',
+                    '&:hover': { boxShadow: 'none' },
+                },
+            },
+        },
+        JoyIconButton: {
+            styleOverrides: {
+                root: { borderRadius: 0 },
             },
         },
         JoyChip: {
             styleOverrides: {
-                root: { fontWeight: 400 },
+                // Теги — как пометки на полях: моноширинные, углы прямые
+                root: {
+                    fontWeight: 400,
+                    borderRadius: 0,
+                    fontFamily: codeFont,
+                    letterSpacing: '0.01em',
+                },
+            },
+        },
+        JoySheet: {
+            styleOverrides: {
+                root: { backgroundImage: 'none' },
             },
         },
     },

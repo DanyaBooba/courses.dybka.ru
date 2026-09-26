@@ -13,7 +13,7 @@ import LessonSidebar from '../components/Course/LessonSidebar'
 import LessonNavMobile from '../components/Course/LessonNavMobile'
 import PageNotFound from './PageNotFound'
 import { getCourse, getPage, getNeighbours } from '../data/courses'
-import { getAccent } from '../theme/accents'
+import { getAccent, getInk } from '../theme/accents'
 
 export default function PageLesson() {
     const { id, slug } = useParams()
@@ -49,6 +49,7 @@ export default function PageLesson() {
 
     const accent = getAccent(course.accent)
     const skin = accent[resolved] || accent.light
+    const ink = getInk(accent, resolved)
     const progress = ((index + 1) / course.pages.length) * 100
 
     return (
@@ -69,11 +70,11 @@ export default function PageLesson() {
                     initial={false}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    sx={{ height: '100%', bgcolor: accent.solid, borderRadius: '0 999px 999px 0' }}
+                    sx={{ height: '100%', bgcolor: ink }}
                 />
             </Box>
 
-            <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 }, pt: { xs: 3, md: 5 } }}>
+            <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3 }, pt: { xs: 3, md: 5 } }}>
                 <Box
                     sx={{
                         display: 'grid',
@@ -83,7 +84,7 @@ export default function PageLesson() {
                     }}
                 >
                     <Box sx={{ display: { xs: 'none', md: 'block' }, position: 'sticky', top: 24 }}>
-                        <LessonSidebar course={course} activeSlug={slug} accent={accent} />
+                        <LessonSidebar course={course} activeSlug={slug} accent={accent} ink={ink} />
                     </Box>
 
                     <Box sx={{ minWidth: 0 }}>
@@ -96,10 +97,10 @@ export default function PageLesson() {
                                 display: { xs: 'inline-flex', md: 'none' },
                                 alignItems: 'center',
                                 gap: 0.75,
-                                mb: 2,
-                                px: 1.25,
+                                mb: 2.5,
+                                px: 1,
                                 py: 0.5,
-                                borderRadius: '999px',
+                                borderRadius: 0,
                                 bgcolor: 'background.level1',
                                 textDecoration: 'none',
                                 color: 'text.secondary',
@@ -110,12 +111,12 @@ export default function PageLesson() {
                         </Typography>
 
                         <Typography
-                            level="body-xs"
                             sx={{
+                                fontFamily: 'code',
+                                fontSize: '11px',
                                 textTransform: 'uppercase',
-                                letterSpacing: '0.1em',
-                                color: accent.solid,
-                                fontWeight: 700,
+                                letterSpacing: '0.12em',
+                                color: ink,
                             }}
                         >
                             Урок {index + 1} из {course.pages.length}
@@ -126,9 +127,10 @@ export default function PageLesson() {
                             sx={{
                                 mt: 1.5,
                                 mb: 4,
-                                fontWeight: 700,
-                                lineHeight: 1.15,
-                                fontSize: { xs: '30px', sm: '38px', md: '44px' },
+                                fontWeight: 500,
+                                letterSpacing: '-0.025em',
+                                lineHeight: 1.12,
+                                fontSize: { xs: '30px', sm: '38px', md: '46px' },
                             }}
                         >
                             {page.title}
@@ -153,32 +155,39 @@ export default function PageLesson() {
                                     component={RouterLink}
                                     to={`/course/${course.id}/${prev.slug}`}
                                     sx={{
-                                        p: 2.5,
-                                        borderRadius: 'lg',
+                                        p: 2.25,
+                                        borderRadius: 'md',
                                         textDecoration: 'none',
                                         border: '1px solid',
                                         borderColor: 'page.border',
-                                        bgcolor: 'background.surface',
-                                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                                        '&:hover': {
-                                            transform: 'translateY(-2px)',
-                                            boxShadow: (theme) => theme.vars.palette.page.cardShadow,
-                                        },
+                                        bgcolor: 'transparent',
+                                        transition: 'background-color 0.18s ease',
+                                        '&:hover': { bgcolor: 'background.level1' },
                                     }}
                                 >
                                     <Typography
-                                        level="body-xs"
                                         sx={{
+                                            fontFamily: 'code',
+                                            fontSize: '11px',
+                                            letterSpacing: '0.1em',
+                                            textTransform: 'uppercase',
                                             color: 'text.tertiary',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: 0.5,
+                                            gap: 0.75,
                                         }}
                                     >
-                                        <CaretLeftIcon size={16} weight="bold" />
-                                        Предыдущий урок
+                                        <CaretLeftIcon size={14} weight="bold" />
+                                        Предыдущий
                                     </Typography>
-                                    <Typography sx={{ mt: 0.5, fontWeight: 700, color: 'text.primary' }}>
+                                    <Typography
+                                        sx={{
+                                            mt: 0.75,
+                                            fontFamily: 'display',
+                                            fontWeight: 600,
+                                            color: 'text.primary',
+                                        }}
+                                    >
                                         {prev.short}
                                     </Typography>
                                 </Box>
@@ -191,35 +200,41 @@ export default function PageLesson() {
                                     component={RouterLink}
                                     to={`/course/${course.id}/${next.slug}`}
                                     sx={{
-                                        p: 2.5,
-                                        borderRadius: 'lg',
+                                        p: 2.25,
+                                        borderRadius: 'md',
                                         textDecoration: 'none',
-                                        background: skin.gradient,
+                                        bgcolor: skin.bg,
                                         border: '1px solid',
-                                        borderColor: 'page.border',
-                                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                                        '&:hover': {
-                                            transform: 'translateY(-2px)',
-                                            boxShadow: (theme) => theme.vars.palette.page.cardShadow,
-                                        },
+                                        borderColor: skin.rule,
+                                        transition: 'box-shadow 0.2s ease',
+                                        '&:hover': { boxShadow: skin.shadow },
                                     }}
                                 >
                                     <Typography
-                                        level="body-xs"
                                         sx={{
+                                            fontFamily: 'code',
+                                            fontSize: '11px',
+                                            letterSpacing: '0.1em',
+                                            textTransform: 'uppercase',
                                             color: skin.text,
                                             opacity: 0.7,
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'flex-end',
-                                            gap: 0.5,
+                                            gap: 0.75,
                                         }}
                                     >
-                                        Следующий урок
-                                        <CaretRightIcon size={16} weight="bold" />
+                                        Следующий
+                                        <CaretRightIcon size={14} weight="bold" />
                                     </Typography>
                                     <Typography
-                                        sx={{ mt: 0.5, fontWeight: 700, color: skin.text, textAlign: 'right' }}
+                                        sx={{
+                                            mt: 0.75,
+                                            fontFamily: 'display',
+                                            fontWeight: 600,
+                                            color: skin.text,
+                                            textAlign: 'right',
+                                        }}
                                     >
                                         {next.short}
                                     </Typography>
@@ -228,8 +243,13 @@ export default function PageLesson() {
                         </Box>
 
                         <Typography
-                            level="body-xs"
-                            sx={{ mt: 2, color: 'text.tertiary', display: { xs: 'none', md: 'block' } }}
+                            sx={{
+                                mt: 2,
+                                fontFamily: 'code',
+                                fontSize: '11px',
+                                color: 'text.tertiary',
+                                display: { xs: 'none', md: 'block' },
+                            }}
                         >
                             Подсказка: листайте уроки с клавиатуры — alt + ← и alt + →
                         </Typography>
@@ -240,7 +260,14 @@ export default function PageLesson() {
                 <Box sx={{ height: { xs: 72, md: 0 } }} />
             </Container>
 
-            <LessonNavMobile course={course} activeSlug={slug} accent={accent} prev={prev} next={next} />
+            <LessonNavMobile
+                course={course}
+                activeSlug={slug}
+                accent={accent}
+                ink={ink}
+                prev={prev}
+                next={next}
+            />
         </PageShell>
     )
 }

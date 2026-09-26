@@ -6,10 +6,13 @@ import { Link as RouterLink } from 'react-router-dom'
 
 export default function Footer() {
     return (
-        <Box component="footer" sx={{ mt: 10, py: 3 }}>
-            <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
+        <Box component="footer" sx={{ mt: 10 }}>
+            <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3 } }}>
                 <Box
                     sx={{
+                        py: 2.5,
+                        borderTop: '1px solid',
+                        borderColor: 'page.border',
                         display: 'grid',
                         alignItems: 'center',
                         justifyItems: { xs: 'center', sm: 'stretch' },
@@ -28,7 +31,11 @@ export default function Footer() {
                         level="body-sm"
                         sx={{
                             gridArea: 'name',
-                            fontWeight: 700,
+                            fontFamily: 'code',
+                            fontSize: '12px',
+                            letterSpacing: '0.1em',
+                            textTransform: 'uppercase',
+                            fontWeight: 600,
                             textDecoration: 'none',
                             color: 'text.primary',
                             justifySelf: 'center',
@@ -41,14 +48,23 @@ export default function Footer() {
                         href="mailto:daniil@dybka.ru"
                         level="body-xs"
                         color="neutral"
-                        sx={{ gridArea: 'mail', justifySelf: { xs: 'center', sm: 'end' } }}
+                        sx={{
+                            gridArea: 'mail',
+                            fontFamily: 'code',
+                            justifySelf: { xs: 'center', sm: 'end' },
+                        }}
                     >
                         daniil@dybka.ru
                     </Link>
 
                     <Typography
                         level="body-xs"
-                        sx={{ gridArea: 'copy', color: 'text.tertiary', justifySelf: { xs: 'center', sm: 'start' } }}
+                        sx={{
+                            gridArea: 'copy',
+                            fontFamily: 'code',
+                            color: 'text.tertiary',
+                            justifySelf: { xs: 'center', sm: 'start' },
+                        }}
                     >
                         © dev.dybka.ru, {new Date().getFullYear()}
                     </Typography>

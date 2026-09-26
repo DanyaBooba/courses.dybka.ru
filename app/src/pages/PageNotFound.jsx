@@ -13,32 +13,45 @@ export default function PageNotFound() {
 
     return (
         <PageShell>
-            <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 }, py: { xs: 10, md: 16 }, textAlign: 'center' }}>
+            <Container maxWidth="sm" sx={{ px: { xs: 2.5, sm: 3 }, py: { xs: 10, md: 16 } }}>
+                <Typography
+                    sx={{
+                        fontFamily: 'code',
+                        fontSize: '11px',
+                        letterSpacing: '0.14em',
+                        textTransform: 'uppercase',
+                        color: 'text.tertiary',
+                        pb: 1.25,
+                        borderBottom: '2px solid',
+                        borderColor: 'page.rule',
+                    }}
+                >
+                    Ошибка 404
+                </Typography>
+
                 <Typography
                     level="h1"
                     sx={{
-                        fontWeight: 700,
-                        fontSize: { xs: '80px', md: '120px' },
+                        mt: 3,
+                        fontWeight: 500,
+                        fontSize: { xs: '72px', md: '112px' },
                         letterSpacing: '-0.05em',
                         lineHeight: 1,
-                        background: 'linear-gradient(120deg, #5b74ef 0%, #9f7ef0 50%, #e07a3f 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
+                        color: 'text.primary',
                     }}
                 >
                     404
                 </Typography>
 
-                <Typography level="h2" sx={{ mt: 2, fontWeight: 700, letterSpacing: '-0.02em' }}>
+                <Typography level="h2" sx={{ mt: 1.5, fontWeight: 500, letterSpacing: '-0.02em' }}>
                     Такой страницы нет
                 </Typography>
 
-                <Typography sx={{ mt: 1.5, color: 'text.secondary' }}>
+                <Typography sx={{ mt: 1.5, color: 'text.secondary', lineHeight: 1.7 }}>
                     Возможно, адрес устарел или в нём опечатка. Загляните в список курсов.
                 </Typography>
 
-                <Button component={RouterLink} to="/" size="lg" sx={{ mt: 4 }}>
+                <Button component={RouterLink} to="/" size="lg" sx={{ mt: 4, px: 3 }}>
                     На главную
                 </Button>
             </Container>

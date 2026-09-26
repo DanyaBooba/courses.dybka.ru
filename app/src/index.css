@@ -90,24 +90,24 @@ figcaption {
 }
 
 ::selection {
-    background: var(--dd-palette-primary-200, #bfcdff);
-    color: var(--dd-palette-text-primary, #14162a);
+    background: var(--dd-palette-primary-200, #c9c3b4);
+    color: var(--dd-palette-text-primary, #1b1a15);
 }
 
-/* Мягкий скроллбар */
+/* Скроллбар — тонкая линейка, без скруглений */
 * {
     scrollbar-width: thin;
-    scrollbar-color: var(--dd-palette-page-border, rgba(0, 0, 0, 0.12)) transparent;
+    scrollbar-color: var(--dd-palette-page-border, rgba(0, 0, 0, 0.16)) transparent;
 }
 
 *::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
 }
 
 *::-webkit-scrollbar-thumb {
-    background: var(--dd-palette-page-border, rgba(0, 0, 0, 0.12));
-    border-radius: 999px;
+    background: var(--dd-palette-page-border, rgba(0, 0, 0, 0.16));
+    border-radius: 0;
     border: 3px solid transparent;
     background-clip: content-box;
 }

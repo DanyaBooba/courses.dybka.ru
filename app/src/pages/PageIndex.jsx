@@ -1,177 +1,167 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import Box from '@mui/joy/Box'
 import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
 import Button from '@mui/joy/Button'
-import { useColorScheme } from '@mui/joy/styles'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Link as RouterLink } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 import PageShell from '../components/Layout/PageShell'
 import CourseCard from '../components/CourseCard/CourseCard'
-import CourseOrbit from '../components/Hero/CourseOrbit'
 import courses from '../data/courses'
-import { getAccent } from '../theme/accents'
 
 const rise = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 }
 
 const stagger = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.08 } },
+    visible: { transition: { staggerChildren: 0.06 } },
 }
 
+const lessonsTotal = courses.reduce((sum, course) => sum + course.pages.length, 0)
+
+/** Выходные данные справочника: коротко и без обещаний. */
+const facts = [
+    { label: 'Курсов', value: String(courses.length) },
+    { label: 'Уроков', value: String(lessonsTotal) },
+    { label: 'Цена', value: 'Бесплатно' },
+    { label: 'Регистрация', value: 'Не нужна' },
+]
+
 export default function PageIndex() {
-    const { mode, systemMode } = useColorScheme()
-    const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
-
-    const [selectedIndex, setSelectedIndex] = useState(null)
-    const selected = selectedIndex === null ? null : courses[selectedIndex]
-
     useEffect(() => {
         document.title = 'dev.dybka.ru — бесплатные открытые курсы по программированию'
     }, [])
 
-    const toggle = (index) => setSelectedIndex((current) => (current === index ? null : index))
-
     return (
         <PageShell>
-            <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-                {/* Герой: орбита курсов сверху, текст по центру под ней */}
-                <Box sx={{ pt: { xs: 4, md: 6 }, pb: { xs: 6, md: 9 } }}>
-                    <CourseOrbit
-                        courses={courses}
-                        colorScheme={resolved}
-                        selectedIndex={selectedIndex}
-                        onSelect={toggle}
-                    />
-
-                    {/* Подпись к выбранному курсу */}
-                    <Box sx={{ mt: 2, minHeight: 68, display: 'grid', placeItems: 'center' }}>
-                        <AnimatePresence mode="wait">
-                            {selected ? (
-                                <Box
-                                    key={selected.id}
-                                    component={motion.div}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -8 }}
-                                    transition={{ duration: 0.28 }}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        flexWrap: 'wrap',
-                                        justifyContent: 'center',
-                                        gap: 1.5,
-                                        px: 1.75,
-                                        py: 1.25,
-                                        borderRadius: '999px',
-                                        border: '1px solid',
-                                        borderColor: 'page.border',
-                                        bgcolor: 'background.surface',
-                                    }}
-                                >
-                                    <Typography
-                                        level="body-sm"
-                                        sx={{ fontWeight: 700, color: getAccent(selected.accent).solid }}
-                                    >
-                                        {selected.title}
-                                    </Typography>
-                                    <Button
-                                        component={RouterLink}
-                                        to={`/course/${selected.id}/${selected.pages[0].slug}`}
-                                        size="sm"
-                                        sx={{
-                                            bgcolor: getAccent(selected.accent).solid,
-                                            color: '#fff',
-                                            '&:hover': {
-                                                bgcolor: getAccent(selected.accent).solid,
-                                                filter: 'brightness(0.93)',
-                                            },
-                                        }}
-                                    >
-                                        Открыть курс
-                                    </Button>
-                                </Box>
-                            ) : (
-                                <Typography
-                                    key="hint"
-                                    component={motion.p}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    level="body-xs"
-                                    sx={{ color: 'text.tertiary', textAlign: 'center' }}
-                                >
-                                    Крутите орбиту и нажмите на курс, чтобы вывести его вперёд
-                                </Typography>
-                            )}
-                        </AnimatePresence>
-                    </Box>
-
+            <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3 } }}>
+                {/* Титульный лист: выходные данные, заголовок, линейка */}
+                <Box
+                    component={motion.header}
+                    variants={stagger}
+                    initial="hidden"
+                    animate="visible"
+                    sx={{ pt: { xs: 4, md: 7 }, pb: { xs: 5, md: 7 } }}
+                >
                     <Box
                         component={motion.div}
-                        variants={stagger}
-                        initial="hidden"
-                        animate="visible"
-                        sx={{ mt: { xs: 3, md: 4 }, mx: 'auto', maxWidth: 840, textAlign: 'center' }}
+                        variants={rise}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            justifyContent: 'space-between',
+                            gap: 2,
+                            pb: 1.25,
+                            borderBottom: '2px solid',
+                            borderColor: 'page.rule',
+                            fontFamily: 'code',
+                            fontSize: '11px',
+                            letterSpacing: '0.14em',
+                            textTransform: 'uppercase',
+                        }}
                     >
-                        <Typography
-                            component={motion.h1}
-                            variants={rise}
-                            level="h1"
-                            sx={{
-                                fontWeight: 800,
-                                letterSpacing: '-0.035em',
-                                lineHeight: 1.08,
-                                fontSize: { xs: '36px', sm: '48px', md: '58px' },
-                            }}
-                        >
-                            Учитесь программировать<br />
+                        <Box component="span" sx={{ fontWeight: 600 }}>
+                            dev.dybka.ru
+                        </Box>
+                        <Box component="span" sx={{ color: 'text.tertiary' }}>
+                            Открытые курсы
+                        </Box>
+                    </Box>
+
+                    <Typography
+                        component={motion.h1}
+                        variants={rise}
+                        level="h1"
+                        sx={{
+                            mt: { xs: 3.5, md: 5 },
+                            maxWidth: 940,
+                            fontWeight: 500,
+                            letterSpacing: '-0.03em',
+                            lineHeight: 1.05,
+                            fontSize: { xs: '38px', sm: '54px', md: '72px' },
+                        }}
+                    >
+                        Учитесь программировать
+                        <br />
+                        <Box component="em" sx={{ fontStyle: 'italic', fontWeight: 400 }}>
+                            быстро, просто и со вкусом
+                        </Box>
+                    </Typography>
+
+                    <Typography
+                        component={motion.p}
+                        variants={rise}
+                        sx={{
+                            mt: { xs: 3, md: 4 },
+                            maxWidth: 620,
+                            fontSize: { xs: 'md', md: 'lg' },
+                            lineHeight: 1.7,
+                            color: 'text.secondary',
+                        }}
+                    >
+                        Курсы авторской разработки без использования ИИ: игры на Unity, сайты, основы
+                        программирования. Всё бесплатно, с открытым исходным кодом и без единой формы
+                        регистрации.
+                    </Typography>
+
+                    <Box component={motion.div} variants={rise} sx={{ mt: { xs: 3.5, md: 4.5 } }}>
+                        <Button component="a" href="#courses" size="lg" sx={{ px: 3 }}>
+                            Смотреть курсы
+                        </Button>
+                    </Box>
+
+                    {/* Выходные данные: четыре факта в линейках, как в колофоне */}
+                    <Box
+                        component={motion.dl}
+                        variants={rise}
+                        sx={{
+                            mt: { xs: 5, md: 7 },
+                            m: 0,
+                            display: 'grid',
+                            gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
+                            borderTop: '1px solid',
+                            borderColor: 'page.border',
+                        }}
+                    >
+                        {facts.map((fact) => (
                             <Box
-                                component="span"
+                                key={fact.label}
                                 sx={{
-                                    background: 'linear-gradient(100deg, #3b52e8 0%, #8a3fe0 45%, #dd5f1b 100%)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    backgroundClip: 'text',
+                                    py: 2,
+                                    pr: 2,
+                                    borderBottom: { xs: '1px solid', sm: 'none' },
+                                    borderColor: 'page.border',
                                 }}
                             >
-                                быстро, просто и со вкусом
+                                <Box
+                                    component="dt"
+                                    sx={{
+                                        fontFamily: 'code',
+                                        fontSize: '11px',
+                                        letterSpacing: '0.12em',
+                                        textTransform: 'uppercase',
+                                        color: 'text.tertiary',
+                                    }}
+                                >
+                                    {fact.label}
+                                </Box>
+                                <Box
+                                    component="dd"
+                                    sx={{
+                                        m: 0,
+                                        mt: 0.75,
+                                        fontFamily: 'display',
+                                        fontSize: { xs: '24px', md: '28px' },
+                                        lineHeight: 1.1,
+                                        letterSpacing: '-0.02em',
+                                    }}
+                                >
+                                    {fact.value}
+                                </Box>
                             </Box>
-                        </Typography>
-
-                        <Typography
-                            component={motion.p}
-                            variants={rise}
-                            sx={{
-                                mt: 3,
-                                fontSize: { xs: 'md', md: 'lg' },
-                                lineHeight: 1.7,
-                                color: 'text.secondary',
-                            }}
-                        >
-                            Курсы авторской разработки без использования ИИ: игры на Unity, сайты, основы программирования. Всё бесплатно, с открытым исходным кодом и без единой формы регистрации.
-                        </Typography>
-
-                        <Box
-                            component={motion.div}
-                            variants={rise}
-                            sx={{ mt: 4, display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: 'center' }}
-                        >
-                            <Button
-                                component={RouterLink}
-                                to={`/course/${courses[0].id}/${courses[0].pages[0].slug}`}
-                                size="lg"
-                            >
-                                Начать учиться
-                            </Button>
-                            <Button component="a" href="#courses" size="lg" variant="soft" color="neutral">
-                                Посмотреть все курсы
-                            </Button>
-                        </Box>
+                        ))}
                     </Box>
                 </Box>
 
@@ -182,31 +172,53 @@ export default function PageIndex() {
                     variants={stagger}
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.1 }}
-                    sx={{ scrollMarginTop: '24px', pt: 2 }}
+                    viewport={{ once: true, amount: 0.05 }}
+                    sx={{ scrollMarginTop: '24px', pt: { xs: 1, md: 2 } }}
                 >
-                    <Typography
-                        component={motion.h2}
+                    <Box
+                        component={motion.div}
                         variants={rise}
-                        level="h2"
-                        sx={{ fontWeight: 700, letterSpacing: '-0.02em' }}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            justifyContent: 'space-between',
+                            gap: 2,
+                            pb: 1.25,
+                            borderBottom: '2px solid',
+                            borderColor: 'page.rule',
+                        }}
                     >
-                        Курсы
-                    </Typography>
-                    <Typography component={motion.p} variants={rise} sx={{ mt: 1, color: 'text.secondary' }}>
-                        Выбирайте курс и начинайте прямо сейчас.
-                    </Typography>
+                        <Typography
+                            component="h2"
+                            level="h2"
+                            sx={{ fontWeight: 500, letterSpacing: '-0.02em' }}
+                        >
+                            Курсы
+                        </Typography>
+                        <Box
+                            component="span"
+                            sx={{
+                                fontFamily: 'code',
+                                fontSize: '11px',
+                                letterSpacing: '0.12em',
+                                textTransform: 'uppercase',
+                                color: 'text.tertiary',
+                            }}
+                        >
+                            {courses.length} шт.
+                        </Box>
+                    </Box>
 
                     <Box
                         sx={{
-                            mt: 3.5,
+                            mt: { xs: 3, md: 3.5 },
                             display: 'grid',
-                            gap: 2.5,
+                            gap: 2,
                             gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
                         }}
                     >
-                        {courses.map((course) => (
-                            <CourseCard key={course.id} course={course} />
+                        {courses.map((course, index) => (
+                            <CourseCard key={course.id} course={course} index={index} />
                         ))}
                     </Box>
                 </Box>

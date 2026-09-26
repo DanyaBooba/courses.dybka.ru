@@ -38,9 +38,14 @@ function Heading({ level, content }) {
             component={level === 2 ? 'h2' : 'h3'}
             level={level === 2 ? 'h3' : 'h4'}
             sx={{
+                // Раздел открывается тонкой линейкой — как в печатном справочнике
                 mt: level === 2 ? 5 : 4,
+                pt: level === 2 ? 2 : 0,
                 mb: 1.5,
-                fontWeight: 700,
+                borderTop: level === 2 ? '1px solid' : 'none',
+                borderColor: 'page.border',
+                fontWeight: 600,
+                letterSpacing: '-0.02em',
                 scrollMarginTop: '80px',
                 '&:hover .anchor': { opacity: 1 },
             }}
@@ -90,45 +95,49 @@ function Paragraph({ content }) {
 
 function Quote({ content }) {
     return (
-        <Sheet
-            variant="soft"
+        <Box
+            component="blockquote"
             sx={{
-                my: 3,
-                p: 2.25,
-                borderRadius: 'lg',
-                bgcolor: 'primary.softBg',
-                display: 'flex',
-                gap: 2,
-                alignItems: 'stretch',
+                my: 3.5,
+                mx: 0,
+                pl: 2.5,
+                borderLeft: '2px solid',
+                borderColor: 'page.rule',
             }}
         >
-            <Box
-                aria-hidden
-                sx={{ flexShrink: 0, width: '4px', borderRadius: '999px', bgcolor: 'primary.400' }}
-            />
-            <Typography sx={{ fontSize: 'lg', lineHeight: 1.7, color: 'text.primary' }}>
+            <Typography
+                sx={{
+                    fontFamily: 'display',
+                    fontStyle: 'italic',
+                    fontSize: 'xl',
+                    lineHeight: 1.6,
+                    color: 'text.primary',
+                }}
+            >
                 <InlineText text={content} />
             </Typography>
-        </Sheet>
+        </Box>
     )
 }
 
 function Note({ content }) {
     return (
         <Sheet
-            variant="soft"
+            variant="plain"
             sx={{
                 my: 3,
-                p: 2.5,
-                borderRadius: 'lg',
+                p: 2.25,
+                borderRadius: 'md',
                 display: 'flex',
-                gap: 2,
+                gap: 1.75,
                 alignItems: 'flex-start',
                 bgcolor: 'page.noteBg',
+                borderLeft: '2px solid',
+                borderColor: 'page.noteBar',
             }}
         >
             <Box aria-hidden sx={{ flexShrink: 0, mt: '2px', color: 'page.noteBar' }}>
-                <LightbulbIcon size={26} weight="fill" />
+                <LightbulbIcon size={22} weight="fill" />
             </Box>
             <Typography sx={{ lineHeight: 1.7, color: 'text.primary' }}>
                 <InlineText text={content} />
@@ -144,11 +153,10 @@ function Picture({ src, alt }) {
             sx={{
                 my: 4,
                 mx: 0,
-                borderRadius: 'lg',
+                borderRadius: 'md',
                 overflow: 'hidden',
                 border: '1px solid',
                 borderColor: 'page.border',
-                boxShadow: (theme) => theme.vars.palette.page.cardShadow,
                 bgcolor: 'background.level1',
             }}
         >
@@ -181,10 +189,10 @@ function CodeBlock({ content, language }) {
             variant="outlined"
             sx={{
                 my: 3,
-                borderRadius: 'lg',
+                borderRadius: 'md',
                 overflow: 'hidden',
                 borderColor: 'page.border',
-                bgcolor: 'background.level1',
+                bgcolor: 'page.codeBg',
                 maxWidth: '100%',
             }}
         >
@@ -199,10 +207,24 @@ function CodeBlock({ content, language }) {
                     borderColor: 'page.border',
                 }}
             >
-                <Typography level="body-xs" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <Typography
+                    sx={{
+                        fontFamily: 'code',
+                        fontSize: '11px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.12em',
+                        color: 'text.tertiary',
+                    }}
+                >
                     {language || 'code'}
                 </Typography>
-                <Button size="sm" variant="plain" color="neutral" onClick={copy} sx={{ fontSize: 'xs' }}>
+                <Button
+                    size="sm"
+                    variant="plain"
+                    color="neutral"
+                    onClick={copy}
+                    sx={{ fontFamily: 'code', fontSize: '11px', fontWeight: 400 }}
+                >
                     {copied ? 'Скопировано' : 'Копировать'}
                 </Button>
             </Box>

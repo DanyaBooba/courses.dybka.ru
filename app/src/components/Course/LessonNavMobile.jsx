@@ -1,28 +1,31 @@
 import { useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import Box from '@mui/joy/Box'
+import Typography from '@mui/joy/Typography'
 import IconButton from '@mui/joy/IconButton'
 import Drawer from '@mui/joy/Drawer'
-import ModalClose from '@mui/joy/ModalClose'
-import DialogTitle from '@mui/joy/DialogTitle'
-import { CaretLeftIcon, CaretRightIcon, ListIcon } from '@phosphor-icons/react'
+import { CaretLeftIcon, CaretRightIcon, ListIcon, XIcon } from '@phosphor-icons/react'
 
 import LessonSidebar from './LessonSidebar'
+
+// Единый горизонтальный отступ панели: у шапки и у содержимого он одинаковый
+const PAD = '20px'
 
 /**
  * Навигация по курсу на телефонах: слева — план курса, справа под большой
  * палец — переходы между уроками. Недоступные переходы просто не показываем.
  */
-export default function LessonNavMobile({ course, activeSlug, accent, prev, next }) {
+export default function LessonNavMobile({ course, activeSlug, accent, ink, prev, next }) {
     const [open, setOpen] = useState(false)
 
     const arrowSx = {
         '--IconButton-size': '46px',
-        borderRadius: '999px',
+        borderRadius: 0,
         bgcolor: 'background.surface',
         border: '1px solid',
         borderColor: 'page.border',
         color: 'text.secondary',
+        // Небольшая тень, чтобы кнопка отрывалась от текста урока
         boxShadow: (theme) => theme.vars.palette.page.cardShadow,
         '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
     }
@@ -33,9 +36,9 @@ export default function LessonNavMobile({ course, activeSlug, accent, prev, next
                 sx={{
                     display: { xs: 'flex', md: 'none' },
                     position: 'fixed',
-                    left: 16,
-                    right: 16,
-                    bottom: 'calc(16px + env(safe-area-inset-bottom))',
+                    left: PAD,
+                    right: PAD,
+                    bottom: `calc(${PAD} + env(safe-area-inset-bottom))`,
                     zIndex: 1200,
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -47,15 +50,16 @@ export default function LessonNavMobile({ course, activeSlug, accent, prev, next
                     onClick={() => setOpen(true)}
                     aria-label="План курса"
                     sx={{
-                        '--IconButton-size': '52px',
-                        borderRadius: '999px',
+                        '--IconButton-size': '50px',
+                        borderRadius: 0,
                         bgcolor: accent.solid,
                         color: '#fff',
-                        boxShadow: (theme) => theme.vars.palette.page.cardShadowHover,
-                        '&:hover': { bgcolor: accent.solid, filter: 'brightness(0.93)' },
+                        // Тень под цвет самой кнопки, не чёрная
+                        boxShadow: `0 6px 16px -6px ${accent.solid}99`,
+                        '&:hover': { bgcolor: accent.solid, filter: 'brightness(1.1)' },
                     }}
                 >
-                    <ListIcon size={26} weight="bold" />
+                    <ListIcon size={24} weight="bold" />
                 </IconButton>
 
                 <Box sx={{ display: 'flex', gap: 1 }}>
@@ -67,7 +71,7 @@ export default function LessonNavMobile({ course, activeSlug, accent, prev, next
                             variant="plain"
                             sx={arrowSx}
                         >
-                            <CaretLeftIcon size={24} weight="bold" />
+                            <CaretLeftIcon size={22} weight="bold" />
                         </IconButton>
                     )}
                     {next && (
@@ -78,7 +82,7 @@ export default function LessonNavMobile({ course, activeSlug, accent, prev, next
                             variant="plain"
                             sx={arrowSx}
                         >
-                            <CaretRightIcon size={24} weight="bold" />
+                            <CaretRightIcon size={22} weight="bold" />
                         </IconButton>
                     )}
                 </Box>
@@ -92,21 +96,68 @@ export default function LessonNavMobile({ course, activeSlug, accent, prev, next
                     content: {
                         sx: {
                             height: '82vh',
-                            borderTopLeftRadius: 24,
-                            borderTopRightRadius: 24,
+                            borderTopLeftRadius: 0,
+                            borderTopRightRadius: 0,
                             bgcolor: 'background.body',
+                            display: 'flex',
+                            flexDirection: 'column',
                         },
                     },
                 }}
             >
-                <ModalClose />
-                <DialogTitle sx={{ px: 2.5, pt: 2.5 }}>План курса</DialogTitle>
-                <Box sx={{ px: 2.5, pb: 4, overflowY: 'auto' }}>
+                {/* Шапка панели: заголовок и кнопка закрытия на одной оси,
+                    отступы по вертикали и горизонтали одинаковые */}
+                <Box
+                    sx={{
+                        flexShrink: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 2,
+                        p: PAD,
+                        borderBottom: '1px solid',
+                        borderColor: 'page.border',
+                    }}
+                >
+                    <Typography
+                        level="title-md"
+                        sx={{ m: 0, fontFamily: 'display', fontWeight: 600, lineHeight: 1.2 }}
+                    >
+                        План курса
+                    </Typography>
+
+                    <IconButton
+                        onClick={() => setOpen(false)}
+                        aria-label="Закрыть"
+                        variant="plain"
+                        size="sm"
+                        sx={{
+                            flexShrink: 0,
+                            borderRadius: 0,
+                            bgcolor: 'background.level1',
+                            color: 'text.secondary',
+                            '&:hover': { bgcolor: 'primary.softBg', color: 'text.primary' },
+                        }}
+                    >
+                        <XIcon size={18} weight="bold" />
+                    </IconButton>
+                </Box>
+
+                <Box
+                    sx={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        px: PAD,
+                        pt: PAD,
+                        pb: `calc(32px + env(safe-area-inset-bottom))`,
+                    }}
+                >
                     <LessonSidebar
                         bare
                         course={course}
                         activeSlug={activeSlug}
                         accent={accent}
+                        ink={ink}
                         onNavigate={() => setOpen(false)}
                     />
                 </Box>

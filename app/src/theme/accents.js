@@ -1,79 +1,101 @@
-// Цветовые темы курсов. По одному градиенту на курс — цветные, но не кричащие.
-// Используются в карточках, орбите на главной и в шапке страницы курса.
+// Цветовые темы курсов.
+//
+// Никаких градиентов: у каждого курса одна плоская заливка, одна «чернильная»
+// краска для кнопок и цифр и один цветной контур для подписей. Цвет здесь —
+// как краска в печатном справочнике: плашка, номер, тонкая линейка.
+//
+// Поля схемы (light / dark):
+//   bg     — заливка плашки (карточка, шапка курса)
+//   chip   — заливка мелких элементов на плашке (теги, кнопки-ссылки)
+//   rule   — линейка и контур на плашке
+//   text   — цвет текста на плашке
+//   shadow — аккуратная тень под цвет плашки (только при наведении)
 
-function accent(solid, light, dark, text) {
+function accent({ solid, tint, light, dark }) {
     return {
         solid,
+        // краска, читаемая на обычном фоне страницы в тёмной теме
+        tint,
         light: {
-            gradient: `linear-gradient(135deg, ${light[0]} 0%, ${light[1]} 55%, ${light[2]} 100%)`,
-            glow: `${solid}4d`,
-            chip: 'rgba(255, 255, 255, 0.58)',
-            text: text[0],
+            bg: light.bg,
+            chip: light.chip,
+            rule: light.rule,
+            text: light.text,
+            shadow: `0 8px 18px -10px ${solid}66`,
         },
         dark: {
-            gradient: `linear-gradient(135deg, ${dark[0]} 0%, ${dark[1]} 55%, ${dark[2]} 100%)`,
-            glow: `${solid}4d`,
-            chip: 'rgba(255, 255, 255, 0.12)',
-            text: text[1],
+            bg: dark.bg,
+            chip: dark.chip,
+            rule: dark.rule,
+            text: dark.text,
+            shadow: `0 8px 18px -10px ${tint}59`,
         },
     }
 }
 
 const accents = {
-    mint: accent(
-        '#12866a',
-        ['#a8e9cf', '#c6f0de', '#b6e8f2'],
-        ['#0f5a48', '#12554f', '#0f4657'],
-        ['#0a3a2d', '#d8f8ec'],
-    ),
-    lilac: accent(
-        '#6b3fd4',
-        ['#d3c2fa', '#ded1fb', '#c9d6fd'],
-        ['#3b2585', '#432477', '#252a7a'],
-        ['#2b1362', '#e7dcff'],
-    ),
-    peach: accent(
-        '#dd5f1b',
-        ['#fbd3b4', '#fce0c6', '#fbcfc6'],
-        ['#7a3a14', '#743214', '#6d2323'],
-        ['#5d2b0b', '#ffe3cf'],
-    ),
-    sky: accent(
-        '#1668c9',
-        ['#b6dcfa', '#cae7fc', '#bdeaf2'],
-        ['#12456f', '#124d78', '#0f5561'],
-        ['#0b3357', '#d7ecff'],
-    ),
-    rose: accent(
-        '#cf3b6f',
-        ['#fac3d6', '#fbd2e2', '#f3c9fa'],
-        ['#73203f', '#6c2140', '#5c2263'],
-        ['#5b1533', '#ffdae8'],
-    ),
-    amber: accent(
-        '#b07800',
-        ['#fbe3a8', '#fcecc4', '#f8e8b0'],
-        ['#6b4e0c', '#63480f', '#5e4a14'],
-        ['#4a3200', '#fdefc7'],
-    ),
-    teal: accent(
-        '#0c8a96',
-        ['#a9e6ec', '#c2eef2', '#b4ecd9'],
-        ['#0b5a63', '#0c6068', '#0c5b4e'],
-        ['#053f47', '#d2f4f8'],
-    ),
-    indigo: accent(
-        '#4048cd',
-        ['#c3c8fa', '#d3d6fc', '#c2d5fb'],
-        ['#282e86', '#2a3190', '#233c8c'],
-        ['#1c2172', '#dfe2ff'],
-    ),
+    mint: accent({
+        solid: '#0f7a5f',
+        tint: '#5fc9a8',
+        light: { bg: '#dcece4', chip: '#c5ded2', rule: '#a9cdbd', text: '#0b3327' },
+        dark: { bg: '#18332b', chip: '#20463b', rule: '#2c5b4c', text: '#cbe7db' },
+    }),
+    lilac: accent({
+        solid: '#6338c4',
+        tint: '#a68ce8',
+        light: { bg: '#e3def3', chip: '#d2cbec', rule: '#bdb3e2', text: '#2a1a5e' },
+        dark: { bg: '#262046', chip: '#342c5e', rule: '#443a76', text: '#ded7f6' },
+    }),
+    peach: accent({
+        solid: '#c1551d',
+        tint: '#e79463',
+        light: { bg: '#f4e0d0', chip: '#eccdb7', rule: '#e0b79c', text: '#54240d' },
+        dark: { bg: '#3a251b', chip: '#4e3225', rule: '#664234', text: '#f2d9c6' },
+    }),
+    sky: accent({
+        solid: '#155f97',
+        tint: '#6aaedd',
+        light: { bg: '#d9e6f0', chip: '#c3d8ea', rule: '#a8c5de', text: '#0d3050' },
+        dark: { bg: '#17293a', chip: '#1f3a50', rule: '#2a4d68', text: '#cee2f2' },
+    }),
+    rose: accent({
+        solid: '#b13760',
+        tint: '#df7b9d',
+        light: { bg: '#f2dbe2', chip: '#eac7d2', rule: '#dcadbd', text: '#541527' },
+        dark: { bg: '#381d27', chip: '#4d2835', rule: '#653747', text: '#f2d6df' },
+    }),
+    amber: accent({
+        solid: '#8f6508',
+        tint: '#d9a938',
+        light: { bg: '#f1e4c4', chip: '#e8d5ab', rule: '#d9c28c', text: '#433002' },
+        dark: { bg: '#342a15', chip: '#48391d', rule: '#5f4c28', text: '#eedfb7' },
+    }),
+    teal: accent({
+        solid: '#0b7280',
+        tint: '#4fbac6',
+        light: { bg: '#d8e8ea', chip: '#bfdade', rule: '#a3c8cd', text: '#073b42' },
+        dark: { bg: '#143034', chip: '#1b4349', rule: '#255960', text: '#cbe6ea' },
+    }),
+    indigo: accent({
+        solid: '#3a44b0',
+        tint: '#8b93e4',
+        light: { bg: '#dedff2', chip: '#ccceeb', rule: '#b4b7e0', text: '#1b2065' },
+        dark: { bg: '#1f2245', chip: '#2c305d', rule: '#3b4076', text: '#d8dbf4' },
+    }),
 }
 
 export const accentNames = Object.keys(accents)
 
 export function getAccent(name) {
     return accents[name] ?? accents.mint
+}
+
+/**
+ * Краска курса для текста и линеек на обычном фоне страницы: в светлой теме
+ * это насыщенный `solid`, в тёмной — осветлённый `tint`, иначе не читается.
+ */
+export function getInk(accent, scheme) {
+    return scheme === 'dark' ? accent.tint : accent.solid
 }
 
 export default accents
