@@ -13,7 +13,7 @@ import LessonSidebar from '../components/Course/LessonSidebar'
 import LessonNavMobile from '../components/Course/LessonNavMobile'
 import Kbd from '../components/Ui/Kbd'
 import PageNotFound from './PageNotFound'
-import { getCourse, getPage, getNeighbours } from '../data/courses'
+import { getCourse, getPage, getNeighbours, getLessons, FINAL_SLUG } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 
 export default function PageLesson() {
@@ -54,6 +54,9 @@ export default function PageLesson() {
     // Заливка акцентной кнопки: в тёмной теме почти чёрные краски осветляются
     const solid = resolved === 'dark' ? accent.solidDark : accent.solid
     const progress = ((index + 1) / course.pages.length) * 100
+    // Итоговая страница не урок, поэтому и подписывается иначе
+    const isFinal = page.slug === FINAL_SLUG
+    const lessonsTotal = getLessons(course).length
 
     return (
         <PageShell>
@@ -122,7 +125,7 @@ export default function PageLesson() {
                                 color: ink,
                             }}
                         >
-                            Урок {index + 1} из {course.pages.length}
+                            {isFinal ? 'Итог курса' : `Урок ${index + 1} из ${lessonsTotal}`}
                         </Typography>
 
                         <Typography
@@ -139,7 +142,7 @@ export default function PageLesson() {
                             {page.title}
                         </Typography>
 
-                        <ContentBlocks blocks={page.content} />
+                        <ContentBlocks blocks={page.content} ink={ink} />
 
                         {/* Навигация по урокам */}
                         <Box

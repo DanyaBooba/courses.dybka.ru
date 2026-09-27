@@ -13,10 +13,8 @@ import { CheckIcon, XIcon } from '@phosphor-icons/react'
  * компонента и стирается при «Пройти заново».
  *
  * Оформление то же, что и во всём справочнике: линейки вместо теней,
- * моноширинные пометки на полях, буквы вариантов как в бумажном тесте.
+ * моноширинные пометки на полях, метки вариантов вместо булетов.
  */
-
-const LETTERS = 'АБВГДЕЖЗ'
 
 /** Совпадает ли выбор с правильным ответом (порядок не важен). */
 function isRight(picked, correct) {
@@ -37,14 +35,23 @@ function verdict(score, total) {
     return { title: 'Стоит вернуться к урокам', note: 'Пройдите уроки ещё раз и повторите тест.' }
 }
 
-function Marker({ state, children }) {
-    // Буква варианта: пустая рамка, залитая метка выбора или знак проверки
+/**
+ * Метка варианта. Форма говорит, сколько ответов можно отметить:
+ * квадрат — можно несколько, кружок — только один. Букв нет: форма и так
+ * всё объясняет, а буквы рядом с тегами вроде `<meta>` только мешали читать.
+ *
+ * Выбранный квадрат заливается и показывает галочку, выбранный кружок —
+ * точку внутри рамки, как обычный переключатель.
+ */
+function Marker({ state, multiple }) {
     const palette = {
         idle: { bgcolor: 'transparent', color: 'text.tertiary', borderColor: 'page.border' },
         picked: { bgcolor: 'text.primary', color: 'background.body', borderColor: 'text.primary' },
         right: { bgcolor: 'success.500', color: '#fff', borderColor: 'success.500' },
         wrong: { bgcolor: 'danger.500', color: '#fff', borderColor: 'danger.500' },
     }[state]
+
+    const dot = state === 'picked' && !multiple
 
     return (
         <Box
@@ -56,16 +63,21 @@ function Marker({ state, children }) {
                 mt: '1px',
                 display: 'grid',
                 placeItems: 'center',
-                borderRadius: 0,
+                borderRadius: multiple ? 0 : '50%',
                 border: '1px solid',
-                fontFamily: 'code',
-                fontSize: '12px',
                 lineHeight: 1,
                 transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease',
                 ...palette,
+                // Точка выбора рисуется внутри, поэтому сама рамка остаётся пустой
+                ...(dot && { bgcolor: 'transparent', borderColor: 'text.primary' }),
             }}
         >
-            {children}
+            {dot && (
+                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: 'text.primary' }} />
+            )}
+            {state === 'picked' && multiple && <CheckIcon size={13} weight="bold" />}
+            {state === 'right' && <CheckIcon size={13} weight="bold" />}
+            {state === 'wrong' && <XIcon size={13} weight="bold" />}
         </Box>
     )
 }
@@ -93,7 +105,7 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
                 }}
             >
                 <Box component="span" sx={{ color: 'text.tertiary' }}>
-                    Вопрос {String(order).padStart(2, '0')} / {String(total).padStart(2, '0')}
+                    Вопрос {String(order)} из {String(total)}
                     {multiple && ' · несколько ответов'}
                 </Box>
 
@@ -172,15 +184,7 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
                                 '&:focus-visible': { outline: '2px solid', outlineColor: ink, outlineOffset: '2px' },
                             }}
                         >
-                            <Marker state={state}>
-                                {state === 'right' ? (
-                                    <CheckIcon size={13} weight="bold" />
-                                ) : state === 'wrong' ? (
-                                    <XIcon size={13} weight="bold" />
-                                ) : (
-                                    LETTERS[index] || index + 1
-                                )}
-                            </Marker>
+                            <Marker state={state} multiple={multiple} />
 
                             <Box
                                 component="span"
@@ -337,13 +341,17 @@ export default function LessonQuiz({ quiz, ink = 'text.primary' }) {
                     borderColor: 'page.rule',
                     display: 'flex',
                     flexWrap: 'wrap',
-                    alignItems: 'flex-end',
+                    alignItems: 'flex-start',
                     justifyContent: 'space-between',
                     gap: 2.5,
                 }}
             >
                 {checked ? (
                     <>
+                        <Button variant="outlined" color="neutral" size="lg" onClick={restart} sx={{ px: 3 }}>
+                            Пройти заново
+                        </Button>
+
                         <Box>
                             <Box
                                 sx={{
@@ -378,19 +386,9 @@ export default function LessonQuiz({ quiz, ink = 'text.primary' }) {
                                 {result.note}
                             </Typography>
                         </Box>
-
-                        <Button variant="outlined" color="neutral" size="lg" onClick={restart} sx={{ px: 3 }}>
-                            Пройти заново
-                        </Button>
                     </>
                 ) : (
                     <>
-                        <Typography sx={{ fontSize: 'sm', color: 'text.tertiary', maxWidth: 380 }}>
-                            {answered < total
-                                ? `Осталось ответить на ${total - answered} — можно проверить и раньше.`
-                                : 'Все вопросы отмечены, можно проверять.'}
-                        </Typography>
-
                         <Button
                             size="lg"
                             onClick={() => setChecked(true)}

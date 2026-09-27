@@ -9,6 +9,9 @@ import { CheckIcon, HashIcon, LightbulbIcon } from '@phosphor-icons/react'
 
 import InlineText from './InlineText'
 import slugify from './slugify'
+import Checklist from './Checklist'
+import CourseList from './CourseList'
+import LessonQuiz from '../Quiz/LessonQuiz'
 import { highlight, tokenStyles } from './highlight'
 
 function Heading({ level, content }) {
@@ -400,6 +403,8 @@ function DataTable({ head, rows }) {
     )
 }
 
+// Каждый блок получает краску курса: большинству она не нужна, но тест и
+// чек-лист рисуют ею отметки, поэтому `ink` передаётся всем одинаково.
 const renderers = {
     p: (block) => <Paragraph content={block.content} />,
     h2: (block) => <Heading level={2} content={block.content} />,
@@ -411,9 +416,14 @@ const renderers = {
     ul: (block) => <List items={block.items || []} />,
     ol: (block) => <List ordered items={block.items || []} />,
     table: (block) => <DataTable head={block.head || []} rows={block.rows || []} />,
+    quiz: (block, ink) => <LessonQuiz quiz={block.quiz} ink={ink} />,
+    checklist: (block, ink) => (
+        <Checklist title={block.title} items={block.items || []} ink={ink} />
+    ),
+    courses: (block) => <CourseList title={block.title} items={block.items || []} />,
 }
 
-export default function ContentBlocks({ blocks = [] }) {
+export default function ContentBlocks({ blocks = [], ink }) {
     return (
         <Box sx={{ minWidth: 0, maxWidth: '100%', '& > *:first-of-type': { mt: 0 } }}>
             {blocks.map((block, index) => {
@@ -421,7 +431,7 @@ export default function ContentBlocks({ blocks = [] }) {
                 if (!render) return null
                 return (
                     <Box key={index} sx={{ minWidth: 0, maxWidth: '100%' }}>
-                        {render(block)}
+                        {render(block, ink)}
                     </Box>
                 )
             })}

@@ -76,15 +76,13 @@ export default function PageIndex() {
                         variants={rise}
                         sx={{
                             mt: { xs: 3, md: 4 },
-                            maxWidth: 620,
+                            maxWidth: 800,
                             fontSize: { xs: 'md', md: 'lg' },
                             lineHeight: 1.7,
                             color: 'text.secondary',
                         }}
                     >
-                        Курсы авторской разработки без использования ИИ: игры на Unity, сайты, основы
-                        программирования. Всё бесплатно, с открытым исходным кодом и без единой формы
-                        регистрации.
+                        Авторские курсы без использования нейросетей и встроеных платежей. Игры на Unity, сайты, мобильная разработка. Все бесплатно с открытым кодом и без регистрации.
                     </Typography>
 
                     <Box component={motion.div} variants={rise} sx={{ mt: { xs: 3.5, md: 4.5 } }}>

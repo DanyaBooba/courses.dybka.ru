@@ -27,6 +27,9 @@
 //   certificate — путь до картинки сертификата или null
 //   about     — блоки контента для страницы курса
 //   pages     — уроки: [{ slug, title, short, certificate?, content: [блоки] }]
+//               последней может лежать завершающая страница со слагом 'end' —
+//               это итог курса (тест, чек-лист), а не урок: в счётчике уроков
+//               она не участвует и в списках помечается отдельно
 //
 // Схема блока контента (см. src/components/Content/ContentBlocks.jsx):
 //   { block: 'p',     content: 'текст' }
@@ -39,6 +42,12 @@
 //   { block: 'ul',    items: ['текст', { text: 'текст', items: ['вложенный'] }] }
 //   { block: 'ol',    items: ['текст'] }
 //   { block: 'table', head: ['колонка'], rows: [['ячейка']] }
+//   { block: 'checklist', title: 'заголовок', items: ['пункт'] }
+//   { block: 'courses', title?: 'заголовок', items: ['id-курса'] }
+//                     подборка курсов карточками, как в каталоге на главной;
+//                     порядок карточек — порядок id в списке
+//   { block: 'quiz',  quiz: { title, intro, questions } }
+//                     схема теста — в src/components/Quiz/quizSample.js
 //
 // В тексте блоков поддерживается упрощённый markdown: **жирный**, _курсив_,
 // `код` и [ссылка](адрес).
@@ -90,6 +99,24 @@ export function getCourse(id) {
 /** Есть ли что показывать в обложке курса: фотография или видео. */
 export function hasMedia(course) {
     return Boolean(course?.image || course?.video)
+}
+
+/**
+ * Слаг завершающей страницы курса. Это не урок, а итог: тест и чек-лист.
+ * Она лежит последней в `pages`, но из счётчика уроков исключается.
+ */
+export const FINAL_SLUG = 'end'
+
+/** Только уроки, без завершающей страницы. */
+export function getLessons(course) {
+    if (!course) return []
+    return course.pages.filter((page) => page.slug !== FINAL_SLUG)
+}
+
+/** Завершающая страница курса или null, если её нет. */
+export function getFinalPage(course) {
+    if (!course) return null
+    return course.pages.find((page) => page.slug === FINAL_SLUG) ?? null
 }
 
 export function getPage(course, slug) {

@@ -2,8 +2,10 @@ import Box from '@mui/joy/Box'
 import Typography from '@mui/joy/Typography'
 import IconButton from '@mui/joy/IconButton'
 import Tooltip from '@mui/joy/Tooltip'
-import { ArrowLeftIcon, CaretLeftIcon, GithubLogoIcon, InfoIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, CaretLeftIcon, GithubLogoIcon, InfoIcon, FlagIcon } from '@phosphor-icons/react'
 import { Link as RouterLink } from 'react-router-dom'
+
+import { FINAL_SLUG } from '../../data/courses'
 
 const linkSx = {
     display: 'flex',
@@ -88,6 +90,8 @@ export default function LessonSidebar({
             >
                 {course.pages.map((page, index) => {
                     const active = page.slug === activeSlug
+                    // Итоговая страница — не урок: вместо номера у неё флажок
+                    const final = page.slug === FINAL_SLUG
                     return (
                         <Box
                             key={page.slug}
@@ -117,10 +121,16 @@ export default function LessonSidebar({
                                     fontFamily: 'code',
                                     fontSize: '11px',
                                     minWidth: 22,
+                                    display: 'flex',
+                                    alignItems: 'center',
                                     color: active ? mark : 'text.tertiary',
                                 }}
                             >
-                                {String(index + 1).padStart(2, '0')}
+                                {final ? (
+                                    <FlagIcon size={15} weight="fill" />
+                                ) : (
+                                    String(index + 1).padStart(2, '0')
+                                )}
                             </Box>
                             <Box sx={{ minWidth: 0, flex: 1 }}>{page.short}</Box>
                             {active && (

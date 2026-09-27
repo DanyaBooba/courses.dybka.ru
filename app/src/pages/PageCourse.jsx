@@ -5,7 +5,7 @@ import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
 import Button from '@mui/joy/Button'
 import { useColorScheme } from '@mui/joy/styles'
-import { GithubLogoIcon, HouseIcon } from '@phosphor-icons/react'
+import { FlagIcon, GithubLogoIcon, HouseIcon } from '@phosphor-icons/react'
 
 import PageShell from '../components/Layout/PageShell'
 import ContentBlocks from '../components/Content/ContentBlocks'
@@ -13,7 +13,7 @@ import CourseMedia from '../components/Course/CourseMedia'
 import Difficulty from '../components/Course/Difficulty'
 import StartButton from '../components/Course/StartButton'
 import PageNotFound from './PageNotFound'
-import { getCourse, hasMedia } from '../data/courses'
+import { getCourse, hasMedia, getLessons, getFinalPage } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 import { lessonsLabel } from '../data/plural'
 
@@ -78,7 +78,8 @@ export default function PageCourse() {
     const accent = getAccent(course.accent)
     const skin = accent[resolved] || accent.light
     const ink = getInk(accent, resolved)
-    const lessons = course.pages.filter((page) => page.slug !== 'end')
+    const lessons = getLessons(course)
+    const finalPage = getFinalPage(course)
     // Без фотографии и видео вторая колонка в шапке не нужна — текст занимает всю ширину
     const withMedia = hasMedia(course)
 
@@ -287,7 +288,7 @@ export default function PageCourse() {
                         >
                             О курсе
                         </Typography>
-                        <ContentBlocks blocks={course.about} />
+                        <ContentBlocks blocks={course.about} ink={ink} />
                     </Box>
 
                     {/* Программа: без обводки, только линейки */}
@@ -379,6 +380,43 @@ export default function PageCourse() {
                                     </Box>
                                 </Box>
                             ))}
+
+                            {/* Итог курса — в списке есть, но номера не получает */}
+                            {finalPage && (
+                                <Box
+                                    component="li"
+                                    sx={{ borderBottom: '1px solid', borderColor: 'page.border' }}
+                                >
+                                    <Box
+                                        component={RouterLink}
+                                        to={`/course/${course.id}/${finalPage.slug}`}
+                                        sx={{
+                                            display: 'flex',
+                                            gap: 1.5,
+                                            alignItems: 'center',
+                                            py: 1.25,
+                                            textDecoration: 'none',
+                                            color: 'text.secondary',
+                                            transition: 'color 0.15s ease, padding-left 0.15s ease',
+                                            '&:hover': { color: 'text.primary', pl: 0.75 },
+                                        }}
+                                    >
+                                        <Box
+                                            aria-hidden
+                                            sx={{
+                                                display: 'flex',
+                                                color: ink,
+                                                minWidth: 22,
+                                            }}
+                                        >
+                                            <FlagIcon size={15} weight="fill" />
+                                        </Box>
+                                        <Box sx={{ fontSize: 'sm', lineHeight: 1.5 }}>
+                                            {finalPage.short}
+                                        </Box>
+                                    </Box>
+                                </Box>
+                            )}
                         </Box>
                     </Box>
                 </Box>

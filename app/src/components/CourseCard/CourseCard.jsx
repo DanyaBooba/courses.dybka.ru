@@ -8,6 +8,7 @@ import { Link as RouterLink } from 'react-router-dom'
 
 import { getAccent } from '../../theme/accents'
 import { lessonsLabel } from '../../data/plural'
+import { getLessons } from '../../data/courses'
 import CourseMedia from '../Course/CourseMedia'
 import Difficulty from '../Course/Difficulty'
 import StartButton from '../Course/StartButton'
@@ -37,7 +38,7 @@ export default function CourseCard({ course, index }) {
 
     const disabled = Boolean(course.disabled)
     const number = typeof index === 'number' ? String(index + 1).padStart(2, '0') : null
-    const lessons = course.pages.filter((page) => page.slug !== 'end').length
+    const lessons = getLessons(course).length
     const volume = disabled ? course.duration : lessonsLabel(lessons)
 
     return (

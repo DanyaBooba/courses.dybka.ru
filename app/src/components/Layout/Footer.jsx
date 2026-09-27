@@ -29,6 +29,10 @@ export default function Footer() {
                         component={RouterLink}
                         to="/"
                         level="body-sm"
+                        // Возврат на главную из подвала — всегда к началу страницы.
+                        // Обработчик нужен и когда мы уже на главной: там маршрут
+                        // не меняется, и сама по себе ссылка ничего не прокрутит.
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'auto' })}
                         sx={{
                             gridArea: 'name',
                             fontFamily: 'code',
