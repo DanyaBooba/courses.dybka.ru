@@ -26,6 +26,7 @@ export default function StartButton({ course, accent, children = 'Начать �
                 bgcolor: fill,
                 color: '#fff',
                 '&:hover': { bgcolor: fill, filter: 'brightness(1.15)' },
+                fontWeight: 700,
 
                 // Полоса выезжает из-за левого края, пробегает по кнопке и
                 // полностью уходит за правый — в конце от неё не остаётся следа

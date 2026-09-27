@@ -33,7 +33,7 @@ function Heading({ level, content }) {
                 setCopied(true)
                 setTimeout(() => setCopied(false), 1600)
             })
-            .catch(() => {})
+            .catch(() => { })
     }
 
     return (
@@ -113,7 +113,7 @@ function Quote({ content }) {
                 sx={{
                     fontFamily: 'display',
                     fontStyle: 'italic',
-                    fontSize: 'xl',
+                    fontSize: 'lg',
                     lineHeight: 1.6,
                     color: 'text.primary',
                 }}

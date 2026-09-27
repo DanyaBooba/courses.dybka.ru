@@ -85,7 +85,8 @@ export default function PageLesson() {
                     sx={{
                         display: 'grid',
                         gap: { xs: 3, md: 6 },
-                        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '280px minmax(0, 1fr)' },
+                        // Ширину колонки задаёт само меню: полное, полоска или одна кнопка
+                        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'auto minmax(0, 1fr)' },
                         alignItems: 'start',
                     }}
                 >
@@ -93,7 +94,9 @@ export default function PageLesson() {
                         <LessonSidebar course={course} activeSlug={slug} accent={accent} ink={ink} />
                     </Box>
 
-                    <Box sx={{ minWidth: 0 }}>
+                    {/* Ширина текста не растёт, когда меню свёрнуто: длинные строки читать тяжело.
+                        width: 100% обязателен: с auto-отступами элемент грида сжимается по контенту */}
+                    <Box sx={{ minWidth: 0, width: '100%', maxWidth: { md: 824 }, mx: 'auto' }}>
                         {/* Быстрый выход из урока на телефонах — остальное живёт в плавающем меню */}
                         <Typography
                             component={RouterLink}
@@ -190,7 +193,7 @@ export default function PageLesson() {
                                         sx={{
                                             mt: 0.75,
                                             fontFamily: 'display',
-                                            fontWeight: 600,
+                                            fontWeight: 500,
                                             color: 'text.primary',
                                         }}
                                     >
@@ -237,7 +240,7 @@ export default function PageLesson() {
                                         sx={{
                                             mt: 0.75,
                                             fontFamily: 'display',
-                                            fontWeight: 600,
+                                            fontWeight: 500,
                                             color: skin.text,
                                             textAlign: 'right',
                                         }}

@@ -32,7 +32,7 @@ function Meta({ label, value, color }) {
             >
                 {label}
             </Typography>
-            <Typography sx={{ mt: 0.5, fontWeight: 600, color }}>{value}</Typography>
+            <Typography sx={{ mt: 0.5, fontWeight: 500, color }}>{value}</Typography>
         </Box>
     )
 }
@@ -238,6 +238,7 @@ export default function PageCourse() {
                                             border: '1px solid',
                                             borderColor: skin.rule,
                                             '&:hover': { bgcolor: skin.chip, color: skin.text },
+                                            fontWeight: 700,
                                         }}
                                         startDecorator={<GithubLogoIcon size={20} />}
                                     >

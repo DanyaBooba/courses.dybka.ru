@@ -61,12 +61,12 @@ export default function CourseCard({ course, index }) {
                 ...(disabled
                     ? { opacity: 0.7, cursor: 'default' }
                     : {
-                          transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-                          '&:hover': {
-                              transform: 'translateY(-2px)',
-                              boxShadow: skin.shadow,
-                          },
-                      }),
+                        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+                        '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: skin.shadow,
+                        },
+                    }),
             }}
         >
             {/* Вся карточка — ссылка на курс; кнопки лежат выше по z-index */}
@@ -244,6 +244,7 @@ export default function CourseCard({ course, index }) {
                                 color: skin.text,
                                 border: '1px solid',
                                 borderColor: skin.rule,
+                                fontWeight: 700,
                                 '&:hover': { bgcolor: skin.chip, color: skin.text },
                             }}
                         >

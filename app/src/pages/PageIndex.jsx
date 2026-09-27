@@ -64,10 +64,10 @@ export default function PageIndex() {
                         Учитесь программировать
                         <br />
                         <Box component="em" sx={{ fontStyle: 'italic', fontWeight: 450 }}>
-                            быстро, просто и{' '}
-                            <Box component="span" sx={{ color: 'page.accentInk' }}>
-                                со вкусом
-                            </Box>
+                            быстро, просто <nobr>и{' '}
+                                <Box component="span" sx={{ color: 'page.accentInk' }}>
+                                    <nobr>со вкусом</nobr>
+                                </Box></nobr>
                         </Box>
                     </Typography>
 
@@ -86,7 +86,7 @@ export default function PageIndex() {
                     </Typography>
 
                     <Box component={motion.div} variants={rise} sx={{ mt: { xs: 3.5, md: 4.5 } }}>
-                        <Button component="a" href="#courses" size="lg" sx={{ px: 3 }}>
+                        <Button component="a" href="#courses" size="lg" sx={{ px: 3, fontWeight: 700 }}>
                             Смотреть курсы
                         </Button>
                     </Box>

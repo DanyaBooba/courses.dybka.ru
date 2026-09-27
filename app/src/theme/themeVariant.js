@@ -13,7 +13,7 @@ const codeFont = "'SF Mono', ui-monospace, SFMono-Regular, 'JetBrains Mono', Men
 const themeVariant = extendTheme({
     cssVarPrefix: 'dd',
     fontFamily: {
-        body: bodyFont,
+        // body: bodyFont,
         display: displayFont,
         code: codeFont,
     },
