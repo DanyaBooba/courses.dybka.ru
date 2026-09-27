@@ -42,6 +42,10 @@ function verdict(score, total) {
  *
  * Выбранный квадрат заливается и показывает галочку, выбранный кружок —
  * точку внутри рамки, как обычный переключатель.
+ *
+ * После проверки метка по-прежнему отражает выбор человека: зелёная галочка —
+ * отметил верно, красный крестик — отметил зря, пустая зелёная рамка —
+ * правильный вариант, который пропустили.
  */
 function Marker({ state, multiple }) {
     const palette = {
@@ -49,6 +53,8 @@ function Marker({ state, multiple }) {
         picked: { bgcolor: 'text.primary', color: 'background.body', borderColor: 'text.primary' },
         right: { bgcolor: 'success.500', color: '#fff', borderColor: 'success.500' },
         wrong: { bgcolor: 'danger.500', color: '#fff', borderColor: 'danger.500' },
+        // Правильный вариант, который не отметили: рамка пустая, но зелёная
+        missed: { bgcolor: 'transparent', color: 'success.500', borderColor: 'success.500' },
     }[state]
 
     const dot = state === 'picked' && !multiple
@@ -147,11 +153,13 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
                     const chosen = picked.includes(index)
                     const correct = item.correct.includes(index)
 
-                    // До проверки — только выбор, после — ещё и правильность
+                    // До проверки — только выбор. После метка показывает, что выбрал
+                    // человек, а правильные варианты подсвечены фоном строки
                     let state = 'idle'
-                    if (checked && correct) state = 'right'
-                    else if (checked && chosen) state = 'wrong'
+                    if (checked && chosen) state = correct ? 'right' : 'wrong'
+                    else if (checked && correct) state = 'missed'
                     else if (chosen) state = 'picked'
+                    const highlight = checked && correct
 
                     return (
                         <Box
@@ -176,7 +184,7 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
                                 borderBottom: '1px solid',
                                 borderColor: 'page.border',
                                 borderRadius: 0,
-                                bgcolor: 'transparent',
+                                bgcolor: highlight ? 'success.softBg' : 'transparent',
                                 color: 'text.secondary',
                                 cursor: checked ? 'default' : 'pointer',
                                 transition: 'background-color 0.15s ease, color 0.15s ease',
