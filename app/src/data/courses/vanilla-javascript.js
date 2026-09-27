@@ -6,8 +6,13 @@ export default {
     title: 'Применение чистого JavaScript на сайте',
     subtitle: 'Оживляем вёрстку: обработка событий, работа с DOM и запросы к серверу — без единой библиотеки.',
     accent: 'amber',
+    section: 'web',
+    difficulty: 2,
+    disabled: true,
     level: 'Нужны основы HTML и CSS',
     duration: '10 уроков',
+    image: null,
+    video: null,
     chips: ['JavaScript', 'DOM', 'fetch', 'Практика'],
     github: null,
     author: {

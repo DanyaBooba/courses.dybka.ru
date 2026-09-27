@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import PageShell from '../components/Layout/PageShell'
 import CourseCard from '../components/CourseCard/CourseCard'
 import courses from '../data/courses'
+import { groupBySection } from '../data/sections'
 
 const rise = {
     hidden: { opacity: 0, y: 16 },
@@ -20,6 +21,7 @@ const stagger = {
 }
 
 const lessonsTotal = courses.reduce((sum, course) => sum + course.pages.length, 0)
+const sections = groupBySection(courses)
 
 /** Выходные данные справочника: коротко и без обещаний. */
 const facts = [
@@ -31,7 +33,7 @@ const facts = [
 
 export default function PageIndex() {
     useEffect(() => {
-        document.title = 'dev.dybka.ru — бесплатные открытые курсы по программированию'
+        document.title = 'courses.dybka.ru — бесплатные открытые курсы по программированию'
     }, [])
 
     return (
@@ -43,32 +45,8 @@ export default function PageIndex() {
                     variants={stagger}
                     initial="hidden"
                     animate="visible"
-                    sx={{ pt: { xs: 4, md: 7 }, pb: { xs: 5, md: 7 } }}
+                    sx={{ pt: { xs: 4, md: 16 }, pb: { xs: 5, md: 12 } }}
                 >
-                    <Box
-                        component={motion.div}
-                        variants={rise}
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'baseline',
-                            justifyContent: 'space-between',
-                            gap: 2,
-                            pb: 1.25,
-                            borderBottom: '2px solid',
-                            borderColor: 'page.rule',
-                            fontFamily: 'code',
-                            fontSize: '11px',
-                            letterSpacing: '0.14em',
-                            textTransform: 'uppercase',
-                        }}
-                    >
-                        <Box component="span" sx={{ fontWeight: 600 }}>
-                            dev.dybka.ru
-                        </Box>
-                        <Box component="span" sx={{ color: 'text.tertiary' }}>
-                            Открытые курсы
-                        </Box>
-                    </Box>
 
                     <Typography
                         component={motion.h1}
@@ -77,7 +55,7 @@ export default function PageIndex() {
                         sx={{
                             mt: { xs: 3.5, md: 5 },
                             maxWidth: 940,
-                            fontWeight: 500,
+                            fontWeight: 450,
                             letterSpacing: '-0.03em',
                             lineHeight: 1.05,
                             fontSize: { xs: '38px', sm: '54px', md: '72px' },
@@ -85,8 +63,11 @@ export default function PageIndex() {
                     >
                         Учитесь программировать
                         <br />
-                        <Box component="em" sx={{ fontStyle: 'italic', fontWeight: 400 }}>
-                            быстро, просто и со вкусом
+                        <Box component="em" sx={{ fontStyle: 'italic', fontWeight: 450 }}>
+                            быстро, просто и{' '}
+                            <Box component="span" sx={{ color: 'page.accentInk' }}>
+                                со вкусом
+                            </Box>
                         </Box>
                     </Typography>
 
@@ -165,62 +146,87 @@ export default function PageIndex() {
                     </Box>
                 </Box>
 
-                {/* Все курсы */}
-                <Box
-                    id="courses"
-                    component={motion.section}
-                    variants={stagger}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.05 }}
-                    sx={{ scrollMarginTop: '24px', pt: { xs: 1, md: 2 } }}
-                >
-                    <Box
-                        component={motion.div}
-                        variants={rise}
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'baseline',
-                            justifyContent: 'space-between',
-                            gap: 2,
-                            pb: 1.25,
-                            borderBottom: '2px solid',
-                            borderColor: 'page.rule',
-                        }}
-                    >
-                        <Typography
-                            component="h2"
-                            level="h2"
-                            sx={{ fontWeight: 500, letterSpacing: '-0.02em' }}
-                        >
-                            Курсы
-                        </Typography>
+                {/* Курсы по направлениям */}
+                <Box id="courses" sx={{ scrollMarginTop: '24px', pt: { xs: 1, md: 2 } }}>
+                    {sections.map((section, sectionIndex) => (
                         <Box
-                            component="span"
-                            sx={{
-                                fontFamily: 'code',
-                                fontSize: '11px',
-                                letterSpacing: '0.12em',
-                                textTransform: 'uppercase',
-                                color: 'text.tertiary',
-                            }}
+                            key={section.id}
+                            component={motion.section}
+                            variants={stagger}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.02 }}
+                            sx={{ mt: sectionIndex === 0 ? 0 : { xs: 6, md: 8 } }}
                         >
-                            {courses.length} шт.
-                        </Box>
-                    </Box>
+                            <Box
+                                component={motion.div}
+                                variants={rise}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'baseline',
+                                    justifyContent: 'space-between',
+                                    gap: 2,
+                                    pb: 1.25,
+                                    borderBottom: '2px solid',
+                                    borderColor: 'page.rule',
+                                }}
+                            >
+                                <Typography
+                                    component="h2"
+                                    level="h2"
+                                    sx={{ fontWeight: 500, letterSpacing: '-0.02em' }}
+                                >
+                                    {section.title}
+                                </Typography>
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        flexShrink: 0,
+                                        fontFamily: 'code',
+                                        fontSize: '11px',
+                                        letterSpacing: '0.12em',
+                                        textTransform: 'uppercase',
+                                        color: 'text.tertiary',
+                                    }}
+                                >
+                                    {section.courses.length} шт.
+                                </Box>
+                            </Box>
 
-                    <Box
-                        sx={{
-                            mt: { xs: 3, md: 3.5 },
-                            display: 'grid',
-                            gap: 2,
-                            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
-                        }}
-                    >
-                        {courses.map((course, index) => (
-                            <CourseCard key={course.id} course={course} index={index} />
-                        ))}
-                    </Box>
+                            {section.note && (
+                                <Typography
+                                    component={motion.p}
+                                    variants={rise}
+                                    sx={{
+                                        mt: 1.5,
+                                        maxWidth: 620,
+                                        fontSize: 'sm',
+                                        lineHeight: 1.6,
+                                        color: 'text.tertiary',
+                                    }}
+                                >
+                                    {section.note}
+                                </Typography>
+                            )}
+
+                            <Box
+                                sx={{
+                                    mt: { xs: 3, md: 3.5 },
+                                    display: 'grid',
+                                    gap: 2,
+                                    gridTemplateColumns: {
+                                        xs: 'minmax(0, 1fr)',
+                                        sm: 'repeat(2, minmax(0, 1fr))',
+                                        lg: 'repeat(3, minmax(0, 1fr))',
+                                    },
+                                }}
+                            >
+                                {section.courses.map((course, index) => (
+                                    <CourseCard key={course.id} course={course} index={index} />
+                                ))}
+                            </Box>
+                        </Box>
+                    ))}
                 </Box>
             </Container>
         </PageShell>

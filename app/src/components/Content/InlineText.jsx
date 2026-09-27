@@ -59,6 +59,8 @@ export default function InlineText({ text }) {
                     href={href}
                     target={external && !href.startsWith('mailto:') ? '_blank' : undefined}
                     rel={external ? 'noreferrer' : undefined}
+                    // В тексте курса ссылка всегда подчёркнута, а не только при наведении
+                    underline="always"
                     sx={{ fontWeight: 500 }}
                 >
                     {link[1]}

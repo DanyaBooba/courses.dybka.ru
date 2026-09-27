@@ -61,14 +61,18 @@
 
 html {
     scroll-behavior: smooth;
-    /* Никакая внутренняя вёрстка не должна растягивать страницу по горизонтали */
-    overflow-x: hidden;
 }
 
 body {
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Никакая внутренняя вёрстка не должна растягивать страницу по горизонтали.
+       Правило живёт именно на body, а не на html: у html оно делало html
+       прокручиваемым элементом, и тогда блокировка прокрутки у модальных окон
+       (она выставляет overflow: hidden на body) переставала работать —
+       фон продолжал листаться под открытым меню курса. */
+    overflow-x: hidden;
 }
 
 #root {
@@ -90,7 +94,7 @@ figcaption {
 }
 
 ::selection {
-    background: var(--dd-palette-primary-200, #c9c3b4);
+    background: var(--dd-palette-primary-200, #d4cfc0);
     color: var(--dd-palette-text-primary, #1b1a15);
 }
 

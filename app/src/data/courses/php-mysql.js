@@ -6,8 +6,13 @@ export default {
     title: 'Программирование на PHP и работа с базой данных',
     subtitle: 'Серверная часть сайта: маршруты, формы, хранение данных в MySQL и безопасная работа с запросами.',
     accent: 'indigo',
+    section: 'web',
+    difficulty: 3,
+    disabled: true,
     level: 'Нужны основы вёрстки',
     duration: '12 уроков',
+    image: null,
+    video: null,
     chips: ['PHP', 'MySQL', 'Backend', 'Формы'],
     github: null,
     author: {

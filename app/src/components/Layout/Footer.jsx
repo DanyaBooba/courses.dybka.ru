@@ -41,7 +41,7 @@ export default function Footer() {
                             justifySelf: 'center',
                         }}
                     >
-                        dev.dybka.ru
+                        courses.dybka.ru
                     </Typography>
 
                     <Link
@@ -66,7 +66,7 @@ export default function Footer() {
                             justifySelf: { xs: 'center', sm: 'start' },
                         }}
                     >
-                        © dev.dybka.ru, {new Date().getFullYear()}
+                        © courses.dybka.ru, {new Date().getFullYear()}
                     </Typography>
                 </Box>
             </Container>

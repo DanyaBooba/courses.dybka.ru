@@ -6,8 +6,13 @@ export default {
     title: 'Динамичный сайт на React',
     subtitle: 'Компоненты, состояние и маршрутизация: собираем современное интерфейсное приложение.',
     accent: 'sky',
+    section: 'web',
+    difficulty: 3,
+    disabled: true,
     level: 'Нужен JavaScript',
     duration: '12 уроков',
+    image: null,
+    video: null,
     chips: ['React', 'Vite', 'Router', 'Компоненты'],
     github: null,
     author: {

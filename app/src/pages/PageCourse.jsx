@@ -1,17 +1,21 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link as RouterLink } from 'react-router-dom'
 import Box from '@mui/joy/Box'
 import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
 import Button from '@mui/joy/Button'
 import { useColorScheme } from '@mui/joy/styles'
-import { ArrowLeftIcon, GithubLogoIcon } from '@phosphor-icons/react'
+import { GithubLogoIcon, HouseIcon } from '@phosphor-icons/react'
 
 import PageShell from '../components/Layout/PageShell'
 import ContentBlocks from '../components/Content/ContentBlocks'
+import CourseMedia from '../components/Course/CourseMedia'
+import Difficulty from '../components/Course/Difficulty'
+import StartButton from '../components/Course/StartButton'
 import PageNotFound from './PageNotFound'
-import { getCourse } from '../data/courses'
+import { getCourse, hasMedia } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
+import { lessonsLabel } from '../data/plural'
 
 function Meta({ label, value, color }) {
     return (
@@ -41,12 +45,32 @@ export default function PageCourse() {
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
 
     useEffect(() => {
-        if (course) document.title = `${course.title} — dev.dybka.ru`
+        if (course) document.title = `${course.title} — courses.dybka.ru`
     }, [course])
 
     // Переход «Подробнее» с главной должен открывать курс с начала страницы
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'auto' })
+    }, [id])
+
+    // Пока шапка на экране, кнопка «Начать курс» в ней и так видна. Как только
+    // шапка уехала вверх — на телефонах поднимаем её дубль внизу экрана.
+    const heroRef = useRef(null)
+    const [heroGone, setHeroGone] = useState(false)
+
+    useEffect(() => {
+        const hero = heroRef.current
+        if (!hero) return
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                // Именно «уехала вверх», а не «ещё не долистали снизу»
+                setHeroGone(!entry.isIntersecting && entry.boundingClientRect.top < 0)
+            },
+            { threshold: 0 },
+        )
+        observer.observe(hero)
+        return () => observer.disconnect()
     }, [id])
 
     if (!course) return <PageNotFound />
@@ -55,35 +79,38 @@ export default function PageCourse() {
     const skin = accent[resolved] || accent.light
     const ink = getInk(accent, resolved)
     const lessons = course.pages.filter((page) => page.slug !== 'end')
-    const firstLesson = course.pages[0]?.slug ?? '1'
+    // Без фотографии и видео вторая колонка в шапке не нужна — текст занимает всю ширину
+    const withMedia = hasMedia(course)
 
     return (
         <PageShell>
             <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3 }, pt: { xs: 3, md: 4 } }}>
-                {/* Возврат к каталогу — отдельной строкой над титулом */}
+                {/* Возврат в каталог — той же плашкой, что и выход из урока внутри курса */}
                 <Typography
                     component={RouterLink}
                     to="/"
+                    level="body-sm"
                     sx={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 0.75,
-                        mb: 2,
-                        fontFamily: 'code',
-                        fontSize: '11px',
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
+                        mb: 2.5,
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 0,
+                        bgcolor: 'background.level1',
                         textDecoration: 'none',
-                        color: 'text.tertiary',
+                        color: 'text.secondary',
                         '&:hover': { color: 'text.primary' },
                     }}
                 >
-                    <ArrowLeftIcon size={16} weight="bold" />
-                    Все курсы
+                    <HouseIcon size={18} weight="bold" />
+                    На главную
                 </Typography>
 
                 {/* Титул курса: плоская плашка цвета курса, без градиента и без пятен */}
                 <Box
+                    ref={heroRef}
                     sx={{
                         p: { xs: 2.5, md: 4.5 },
                         borderRadius: 'md',
@@ -92,104 +119,145 @@ export default function PageCourse() {
                         borderColor: skin.rule,
                     }}
                 >
-                    <Box sx={{ maxWidth: 760 }}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                gap: 1,
-                                fontFamily: 'code',
-                                fontSize: '11px',
-                                letterSpacing: '0.1em',
-                                textTransform: 'uppercase',
-                                color: skin.text,
-                                opacity: 0.7,
-                            }}
-                        >
-                            {course.chips.map((chip, index) => (
-                                <Box component="span" key={chip} sx={{ display: 'flex', gap: 1 }}>
-                                    {index > 0 && <Box component="span" sx={{ opacity: 0.5 }}>/</Box>}
-                                    {chip}
-                                </Box>
-                            ))}
-                        </Box>
-
-                        <Typography
-                            level="h1"
-                            sx={{
-                                mt: 2,
-                                fontWeight: 500,
-                                letterSpacing: '-0.03em',
-                                color: skin.text,
-                                fontSize: { xs: '32px', sm: '44px', md: '56px' },
-                                lineHeight: 1.06,
-                            }}
-                        >
-                            {course.title}
-                        </Typography>
-
-                        <Typography
-                            sx={{
-                                mt: 2,
-                                color: skin.text,
-                                opacity: 0.82,
-                                fontSize: 'lg',
-                                lineHeight: 1.65,
-                            }}
-                        >
-                            {course.subtitle}
-                        </Typography>
-
-                        <Box
-                            sx={{
-                                mt: 3.5,
-                                pt: 3,
-                                borderTop: '1px solid',
-                                borderColor: skin.rule,
-                                display: 'flex',
-                                gap: 4,
-                                flexWrap: 'wrap',
-                            }}
-                        >
-                            <Meta label="Уровень" value={course.level} color={skin.text} />
-                            <Meta label="Объём" value={`${lessons.length} уроков`} color={skin.text} />
-                        </Box>
-
-                        <Box sx={{ mt: 3.5, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            <Button
-                                component={RouterLink}
-                                to={`/course/${course.id}/${firstLesson}`}
-                                size="lg"
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gap: { xs: 3, md: 4.5 },
+                            gridTemplateColumns: {
+                                xs: 'minmax(0, 1fr)',
+                                md: withMedia ? 'minmax(0, 1fr) minmax(0, 340px)' : 'minmax(0, 1fr)',
+                            },
+                            alignItems: 'start',
+                        }}
+                    >
+                        <Box sx={{ minWidth: 0, maxWidth: 760 }}>
+                            <Box
                                 sx={{
-                                    px: 3,
-                                    bgcolor: accent.solid,
-                                    color: '#fff',
-                                    '&:hover': { bgcolor: accent.solid, filter: 'brightness(1.1)' },
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: 1,
+                                    fontFamily: 'code',
+                                    fontSize: '11px',
+                                    letterSpacing: '0.1em',
+                                    textTransform: 'uppercase',
+                                    color: skin.text,
+                                    opacity: 0.7,
                                 }}
                             >
-                                Начать курс
-                            </Button>
-                            {course.github && (
-                                <Button
-                                    component="a"
-                                    href={course.github}
-                                    target="_blank"
-                                    rel="noreferrer"
+                                {course.chips.map((chip, index) => (
+                                    <Box component="span" key={chip} sx={{ display: 'flex', gap: 1 }}>
+                                        {index > 0 && <Box component="span" sx={{ opacity: 0.5 }}>/</Box>}
+                                        {chip}
+                                    </Box>
+                                ))}
+                            </Box>
+
+                            <Typography
+                                level="h1"
+                                sx={{
+                                    mt: 2,
+                                    fontWeight: 500,
+                                    letterSpacing: '-0.03em',
+                                    color: skin.text,
+                                    fontSize: { xs: '32px', sm: '44px', md: '56px' },
+                                    lineHeight: 1.06,
+                                }}
+                            >
+                                {course.title}
+                            </Typography>
+
+                            <Typography
+                                sx={{
+                                    mt: 2,
+                                    color: skin.text,
+                                    opacity: 0.82,
+                                    fontSize: 'lg',
+                                    lineHeight: 1.65,
+                                }}
+                            >
+                                {course.subtitle}
+                            </Typography>
+
+                            <Box
+                                sx={{
+                                    mt: 3.5,
+                                    pt: 3,
+                                    borderTop: '1px solid',
+                                    borderColor: skin.rule,
+                                    display: 'flex',
+                                    gap: 4,
+                                    flexWrap: 'wrap',
+                                }}
+                            >
+                                <Meta label="Уровень" value={course.level} color={skin.text} />
+                                <Meta label="Объём" value={lessonsLabel(lessons.length)} color={skin.text} />
+                                <Meta
+                                    label="Сложность"
+                                    color={skin.text}
+                                    value={
+                                        <Difficulty
+                                            value={course.difficulty}
+                                            color={skin.text}
+                                            size={17}
+                                            sx={{ mt: '2px' }}
+                                        />
+                                    }
+                                />
+                            </Box>
+
+                            {/* На узком экране кнопки встают в колонку — и тогда каждая во всю ширину */}
+                            <Box
+                                sx={{
+                                    mt: 3.5,
+                                    display: 'flex',
+                                    flexDirection: { xs: 'column', sm: 'row' },
+                                    flexWrap: 'wrap',
+                                    alignItems: { xs: 'stretch', sm: 'center' },
+                                    gap: 1,
+                                }}
+                            >
+                                <StartButton
+                                    course={course}
+                                    accent={accent}
                                     size="lg"
-                                    variant="plain"
-                                    sx={{
-                                        bgcolor: 'transparent',
-                                        color: skin.text,
-                                        border: '1px solid',
-                                        borderColor: skin.rule,
-                                        '&:hover': { bgcolor: skin.chip, color: skin.text },
-                                    }}
-                                    startDecorator={<GithubLogoIcon size={20} />}
-                                >
-                                    GitHub
-                                </Button>
-                            )}
+                                    sx={{ px: 3, width: { xs: '100%', sm: 'auto' } }}
+                                />
+                                {course.github && (
+                                    <Button
+                                        component="a"
+                                        href={course.github}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        size="lg"
+                                        variant="plain"
+                                        sx={{
+                                            width: { xs: '100%', sm: 'auto' },
+                                            bgcolor: 'transparent',
+                                            color: skin.text,
+                                            border: '1px solid',
+                                            borderColor: skin.rule,
+                                            '&:hover': { bgcolor: skin.chip, color: skin.text },
+                                        }}
+                                        startDecorator={<GithubLogoIcon size={20} />}
+                                    >
+                                        GitHub
+                                    </Button>
+                                )}
+                            </Box>
                         </Box>
+
+                        {/* Обложка курса — над текстом на телефоне, сбоку на компьютере */}
+                        {withMedia && (
+                            <Box sx={{ minWidth: 0, order: { xs: -1, md: 0 } }}>
+                                <CourseMedia
+                                    course={course}
+                                    skin={skin}
+                                    ratio="4 / 3"
+                                    rounded
+                                    playing={false}
+                                />
+                            </Box>
+                        )}
                     </Box>
                 </Box>
 
@@ -199,11 +267,13 @@ export default function PageCourse() {
                         mt: { xs: 4, md: 6 },
                         display: 'grid',
                         gap: { xs: 4, md: 6 },
-                        gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) 320px' },
+                        // minmax(0, …) обязателен: иначе широкая таблица внутри
+                        // растягивает колонку и уводит страницу в горизонтальную прокрутку
+                        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) 320px' },
                         alignItems: 'start',
                     }}
                 >
-                    <Box>
+                    <Box sx={{ minWidth: 0 }}>
                         <Typography
                             level="h2"
                             sx={{
@@ -221,7 +291,17 @@ export default function PageCourse() {
                     </Box>
 
                     {/* Программа: без обводки, только линейки */}
-                    <Box sx={{ position: { md: 'sticky' }, top: { md: 24 } }}>
+                    <Box sx={{ minWidth: 0, position: { md: 'sticky' }, top: { md: 24 } }}>
+                        {/* Дубль кнопки из шапки: колонка липкая, поэтому кнопка
+                            остаётся под рукой, пока читают описание. На телефонах
+                            эту роль играет панель внизу экрана */}
+                        <StartButton
+                            course={course}
+                            accent={accent}
+                            size="lg"
+                            sx={{ display: { xs: 'none', md: 'flex' }, width: '100%', mb: 3 }}
+                        />
+
                         <Box
                             sx={{
                                 display: 'flex',
@@ -249,7 +329,7 @@ export default function PageCourse() {
                                     color: 'text.tertiary',
                                 }}
                             >
-                                {lessons.length} уроков
+                                {lessonsLabel(lessons.length)}
                             </Box>
                         </Box>
 
@@ -302,7 +382,45 @@ export default function PageCourse() {
                         </Box>
                     </Box>
                 </Box>
+
+                {/* Отступ, чтобы липкая панель не перекрывала подвал */}
+                <Box sx={{ height: { xs: 96, md: 0 } }} />
             </Container>
+
+            {/* Телефоны: как только шапка уехала, кнопка «Начать курс» переезжает вниз экрана */}
+            <Box
+                aria-hidden={!heroGone}
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    position: 'fixed',
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 1200,
+                    px: 2.5,
+                    pt: 1.5,
+                    pb: 'calc(12px + env(safe-area-inset-bottom))',
+                    bgcolor: 'background.body',
+                    borderTop: '1px solid',
+                    borderColor: 'page.border',
+                    transform: heroGone ? 'translateY(0)' : 'translateY(115%)',
+                    // Пока панель спрятана, её кнопка не должна ловить нажатия. Прячем
+                    // не сразу, а после съезда вниз — иначе панель не уезжает, а мигает
+                    visibility: heroGone ? 'visible' : 'hidden',
+                    transition: heroGone
+                        ? 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s'
+                        : 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.28s',
+                    '@media (prefers-reduced-motion: reduce)': { transition: 'none' },
+                }}
+            >
+                <StartButton
+                    course={course}
+                    accent={accent}
+                    size="lg"
+                    tabIndex={heroGone ? undefined : -1}
+                    sx={{ width: '100%' }}
+                />
+            </Box>
         </PageShell>
     )
 }

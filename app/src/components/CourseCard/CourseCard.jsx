@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Box from '@mui/joy/Box'
 import Typography from '@mui/joy/Typography'
 import Button from '@mui/joy/Button'
@@ -6,6 +7,10 @@ import { motion } from 'framer-motion'
 import { Link as RouterLink } from 'react-router-dom'
 
 import { getAccent } from '../../theme/accents'
+import { lessonsLabel } from '../../data/plural'
+import CourseMedia from '../Course/CourseMedia'
+import Difficulty from '../Course/Difficulty'
+import StartButton from '../Course/StartButton'
 
 const appear = {
     hidden: { opacity: 0, y: 14 },
@@ -13,9 +18,14 @@ const appear = {
 }
 
 /**
- * Карточка курса — статья каталога: номер на полях, плоская плашка цвета курса,
- * тонкая линейка под шапкой. Тени по умолчанию нет, при наведении появляется
- * небольшая тень под цвет самой карточки.
+ * Карточка курса — статья каталога: обложка сверху, номер на полях, плоская
+ * плашка цвета курса, тонкая линейка под шапкой. Тени по умолчанию нет, при
+ * наведении появляется небольшая тень под цвет самой карточки. Если у курса
+ * есть видео — при наведении оно играет вместо обложки.
+ *
+ * У курса с `disabled: true` карточка неактивна: без ссылок и кнопок, приглушена
+ * и вместо кнопок показывает, что курс ещё в разработке. Объём в такой карточке
+ * берётся из `duration` — это задуманный размер курса, а не число готовых уроков.
  */
 export default function CourseCard({ course, index }) {
     const { mode, systemMode } = useColorScheme()
@@ -23,36 +33,55 @@ export default function CourseCard({ course, index }) {
     const accent = getAccent(course.accent)
     const skin = accent[resolved] || accent.light
 
-    const firstLesson = course.pages?.[0]?.slug ?? '1'
+    const [hovered, setHovered] = useState(false)
+
+    const disabled = Boolean(course.disabled)
     const number = typeof index === 'number' ? String(index + 1).padStart(2, '0') : null
+    const lessons = course.pages.filter((page) => page.slug !== 'end').length
+    const volume = disabled ? course.duration : lessonsLabel(lessons)
 
     return (
         <Box
             component={motion.div}
             variants={appear}
+            aria-disabled={disabled || undefined}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
             sx={{
                 position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 borderRadius: 'md',
-                minHeight: 300,
                 bgcolor: skin.bg,
                 border: '1px solid',
                 borderColor: skin.rule,
                 boxShadow: 'none',
-                transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-                '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: skin.shadow,
-                },
+                // Закрытый курс не приподнимается и не подсвечивается при наведении
+                ...(disabled
+                    ? { opacity: 0.7, cursor: 'default' }
+                    : {
+                          transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+                          '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: skin.shadow,
+                          },
+                      }),
             }}
         >
             {/* Вся карточка — ссылка на курс; кнопки лежат выше по z-index */}
-            <Box
-                component={RouterLink}
-                to={`/course/${course.id}`}
-                aria-label={`Открыть курс: ${course.title}`}
-                sx={{ position: 'absolute', inset: 0, zIndex: 1, borderRadius: 'inherit' }}
+            {!disabled && (
+                <Box
+                    component={RouterLink}
+                    to={`/course/${course.id}`}
+                    aria-label={`Открыть курс: ${course.title}`}
+                    sx={{ position: 'absolute', inset: 0, zIndex: 1, borderRadius: 'inherit' }}
+                />
+            )}
+
+            <CourseMedia
+                course={course}
+                skin={skin}
+                playing={!disabled && hovered && Boolean(course.video)}
             />
 
             {/* Шапка: номер и уровень по краям, как колонтитул */}
@@ -81,12 +110,13 @@ export default function CourseCard({ course, index }) {
                 </Box>
             </Box>
 
+            {/* Название и описание — сразу под шапкой, по верху карточки */}
             <Box
                 sx={{
                     position: 'relative',
-                    flex: 1,
                     px: { xs: 2.25, sm: 2.75 },
                     pt: 2.25,
+                    pb: 2.5,
                     pointerEvents: 'none',
                 }}
             >
@@ -135,11 +165,44 @@ export default function CourseCard({ course, index }) {
                 </Box>
             </Box>
 
+            {/* Сложность, объём и кнопки прижаты к низу: в ряду карточки одной
+                высоты, и низ совпадает даже если у соседа есть обложка, а тут нет */}
+            <Box
+                sx={{
+                    position: 'relative',
+                    mt: 'auto',
+                    mx: { xs: 2.25, sm: 2.75 },
+                    pt: 1.5,
+                    borderTop: '1px solid',
+                    borderColor: skin.rule,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1.5,
+                    pointerEvents: 'none',
+                }}
+            >
+                <Difficulty value={course.difficulty} color={skin.text} />
+                <Box
+                    component="span"
+                    sx={{
+                        fontFamily: 'code',
+                        fontSize: '11px',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        color: skin.text,
+                        opacity: 0.7,
+                    }}
+                >
+                    {volume}
+                </Box>
+            </Box>
+
             <Box
                 sx={{
                     position: 'relative',
                     zIndex: 2,
-                    mt: 2.5,
+                    mt: 2,
                     px: { xs: 2.25, sm: 2.75 },
                     pb: { xs: 2.25, sm: 2.5 },
                     display: 'flex',
@@ -147,33 +210,46 @@ export default function CourseCard({ course, index }) {
                     gap: 1,
                 }}
             >
-                <Button
-                    component={RouterLink}
-                    to={`/course/${course.id}/${firstLesson}`}
-                    sx={{
-                        flex: '1 1 150px',
-                        bgcolor: accent.solid,
-                        color: '#fff',
-                        '&:hover': { bgcolor: accent.solid, filter: 'brightness(1.1)' },
-                    }}
-                >
-                    Начать курс
-                </Button>
-                <Button
-                    component={RouterLink}
-                    to={`/course/${course.id}`}
-                    variant="plain"
-                    sx={{
-                        flex: '0 1 auto',
-                        bgcolor: 'transparent',
-                        color: skin.text,
-                        border: '1px solid',
-                        borderColor: skin.rule,
-                        '&:hover': { bgcolor: skin.chip, color: skin.text },
-                    }}
-                >
-                    Подробнее
-                </Button>
+                {disabled ? (
+                    // Ни кнопка, ни ссылка: нажимать пока нечего
+                    <Box
+                        sx={{
+                            flex: '1 1 100%',
+                            py: '10px',
+                            textAlign: 'center',
+                            border: '1px dashed',
+                            borderColor: skin.rule,
+                            fontFamily: 'code',
+                            fontSize: '11px',
+                            letterSpacing: '0.12em',
+                            textTransform: 'uppercase',
+                            color: skin.text,
+                            opacity: 0.7,
+                        }}
+                    >
+                        Курс в разработке
+                    </Box>
+                ) : (
+                    <>
+                        <StartButton course={course} accent={accent} sx={{ flex: '1 1 150px' }} />
+                        <Button
+                            component={RouterLink}
+                            to={`/course/${course.id}`}
+                            variant="plain"
+                            sx={{
+                                // На телефонах «Подробнее» занимает всю ширину под первой кнопкой
+                                flex: { xs: '1 1 100%', sm: '0 1 auto' },
+                                bgcolor: 'transparent',
+                                color: skin.text,
+                                border: '1px solid',
+                                borderColor: skin.rule,
+                                '&:hover': { bgcolor: skin.chip, color: skin.text },
+                            }}
+                        >
+                            Подробнее
+                        </Button>
+                    </>
+                )}
             </Box>
         </Box>
     )

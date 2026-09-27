@@ -8,31 +8,17 @@ import PageShell from '../components/Layout/PageShell'
 
 export default function PageNotFound() {
     useEffect(() => {
-        document.title = 'Страница не найдена — dev.dybka.ru'
+        document.title = 'Страница не найдена — courses.dybka.ru'
     }, [])
 
     return (
         <PageShell>
             <Container maxWidth="sm" sx={{ px: { xs: 2.5, sm: 3 }, py: { xs: 10, md: 16 } }}>
                 <Typography
-                    sx={{
-                        fontFamily: 'code',
-                        fontSize: '11px',
-                        letterSpacing: '0.14em',
-                        textTransform: 'uppercase',
-                        color: 'text.tertiary',
-                        pb: 1.25,
-                        borderBottom: '2px solid',
-                        borderColor: 'page.rule',
-                    }}
-                >
-                    Ошибка 404
-                </Typography>
-
-                <Typography
                     level="h1"
                     sx={{
                         mt: 3,
+                        mb: 6,
                         fontWeight: 500,
                         fontSize: { xs: '72px', md: '112px' },
                         letterSpacing: '-0.05em',

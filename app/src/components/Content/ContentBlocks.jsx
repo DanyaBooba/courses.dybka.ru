@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Box from '@mui/joy/Box'
 import Typography from '@mui/joy/Typography'
 import Sheet from '@mui/joy/Sheet'
@@ -9,6 +9,7 @@ import { CheckIcon, HashIcon, LightbulbIcon } from '@phosphor-icons/react'
 
 import InlineText from './InlineText'
 import slugify from './slugify'
+import { highlight, tokenStyles } from './highlight'
 
 function Heading({ level, content }) {
     const id = slugify(content)
@@ -146,33 +147,92 @@ function Note({ content }) {
     )
 }
 
-function Picture({ src, alt }) {
+/** Подпись под картинкой — только если она задана явно полем `caption`. */
+function Caption({ text }) {
+    if (!text) return null
     return (
-        <Box
-            component="figure"
+        <Typography
+            component="figcaption"
             sx={{
-                my: 4,
-                mx: 0,
-                borderRadius: 'md',
-                overflow: 'hidden',
-                border: '1px solid',
+                px: 2,
+                py: 1.25,
+                borderTop: '1px solid',
                 borderColor: 'page.border',
-                bgcolor: 'background.level1',
+                fontSize: 'sm',
+                color: 'text.tertiary',
             }}
         >
+            <InlineText text={text} />
+        </Typography>
+    )
+}
+
+/**
+ * Картинка урока. Клик открывает её на весь экран через Fancybox — каждая
+ * картинка сама по себе, без галереи, счётчика и стрелок. Если файла ещё нет
+ * (`src` пустой), на её месте стоит плашка «ФОТО» того же размера.
+ */
+function Picture({ src, alt, caption, ratio = '16 / 9' }) {
+    const frame = {
+        my: 4,
+        mx: 0,
+        borderRadius: 'md',
+        overflow: 'hidden',
+        border: '1px solid',
+        borderColor: 'page.border',
+        bgcolor: 'background.level1',
+    }
+
+    if (!src) {
+        return (
+            <Box component="figure" sx={frame}>
+                <Box
+                    aria-hidden
+                    sx={{
+                        aspectRatio: ratio,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontFamily: 'code',
+                        fontSize: '12px',
+                        letterSpacing: '0.24em',
+                        color: 'text.tertiary',
+                    }}
+                >
+                    ФОТО
+                </Box>
+                <Caption text={caption} />
+            </Box>
+        )
+    }
+
+    return (
+        <Box component="figure" sx={frame}>
             <Box
-                component="img"
-                src={src}
-                alt={alt || ''}
-                loading="lazy"
-                sx={{ display: 'block', width: '100%', height: 'auto' }}
-            />
+                component="a"
+                href={src}
+                data-fancybox={`img-${src}`}
+                aria-label="Открыть картинку на весь экран"
+                sx={{ display: 'block', cursor: 'zoom-in' }}
+            >
+                <Box
+                    component="img"
+                    src={src}
+                    alt={alt || ''}
+                    loading="lazy"
+                    sx={{ display: 'block', width: '100%', height: 'auto' }}
+                />
+            </Box>
+            <Caption text={caption} />
         </Box>
     )
 }
 
 function CodeBlock({ content, language }) {
     const [copied, setCopied] = useState(false)
+
+    // Prism отдаёт готовую разметку с токенами; цвета берутся из палитры темы
+    const markup = useMemo(() => highlight(content, language), [content, language])
 
     const copy = async () => {
         try {
@@ -239,9 +299,14 @@ function CodeBlock({ content, language }) {
                     fontSize: '14px',
                     lineHeight: 1.65,
                     color: 'text.primary',
+                    ...tokenStyles,
                 }}
             >
-                <code>{content}</code>
+                {markup ? (
+                    <code dangerouslySetInnerHTML={{ __html: markup }} />
+                ) : (
+                    <code>{content}</code>
+                )}
             </Box>
         </Sheet>
     )
@@ -292,8 +357,12 @@ function DataTable({ head, rows }) {
             sx={{
                 my: 3,
                 borderRadius: 'lg',
-                overflow: 'auto',
                 borderColor: 'page.border',
+                // Широкая таблица прокручивается сама, а не растягивает страницу
+                maxWidth: '100%',
+                overflowX: 'auto',
+                overflowY: 'hidden',
+                WebkitOverflowScrolling: 'touch',
             }}
         >
             <Table
@@ -301,7 +370,9 @@ function DataTable({ head, rows }) {
                     '--TableCell-headBackground': 'var(--dd-palette-background-level1)',
                     '--TableCell-paddingY': '12px',
                     '--TableCell-paddingX': '16px',
-                    minWidth: '520px',
+                    width: 'max-content',
+                    minWidth: '100%',
+                    '& th, & td': { whiteSpace: 'normal', minWidth: '132px' },
                 }}
             >
                 <thead>
@@ -335,7 +406,7 @@ const renderers = {
     h3: (block) => <Heading level={3} content={block.content} />,
     quote: (block) => <Quote content={block.content} />,
     note: (block) => <Note content={block.content} />,
-    img: (block) => <Picture src={block.src} alt={block.alt} />,
+    img: (block) => <Picture src={block.src} alt={block.alt} caption={block.caption} />,
     code: (block) => <CodeBlock content={block.content} language={block.language} />,
     ul: (block) => <List items={block.items || []} />,
     ol: (block) => <List ordered items={block.items || []} />,
@@ -344,11 +415,15 @@ const renderers = {
 
 export default function ContentBlocks({ blocks = [] }) {
     return (
-        <Box sx={{ '& > *:first-of-type': { mt: 0 } }}>
+        <Box sx={{ minWidth: 0, maxWidth: '100%', '& > *:first-of-type': { mt: 0 } }}>
             {blocks.map((block, index) => {
                 const render = renderers[block.block]
                 if (!render) return null
-                return <Box key={index}>{render(block)}</Box>
+                return (
+                    <Box key={index} sx={{ minWidth: 0, maxWidth: '100%' }}>
+                        {render(block)}
+                    </Box>
+                )
             })}
         </Box>
     )

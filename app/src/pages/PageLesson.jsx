@@ -5,12 +5,13 @@ import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
 import { useColorScheme } from '@mui/joy/styles'
 import { motion } from 'framer-motion'
-import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react'
+import { CaretLeftIcon, CaretRightIcon, HouseIcon } from '@phosphor-icons/react'
 
 import PageShell from '../components/Layout/PageShell'
 import ContentBlocks from '../components/Content/ContentBlocks'
 import LessonSidebar from '../components/Course/LessonSidebar'
 import LessonNavMobile from '../components/Course/LessonNavMobile'
+import Kbd from '../components/Ui/Kbd'
 import PageNotFound from './PageNotFound'
 import { getCourse, getPage, getNeighbours } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
@@ -50,6 +51,8 @@ export default function PageLesson() {
     const accent = getAccent(course.accent)
     const skin = accent[resolved] || accent.light
     const ink = getInk(accent, resolved)
+    // Заливка акцентной кнопки: в тёмной теме почти чёрные краски осветляются
+    const solid = resolved === 'dark' ? accent.solidDark : accent.solid
     const progress = ((index + 1) / course.pages.length) * 100
 
     return (
@@ -79,7 +82,7 @@ export default function PageLesson() {
                     sx={{
                         display: 'grid',
                         gap: { xs: 3, md: 6 },
-                        gridTemplateColumns: { xs: '1fr', md: '280px minmax(0, 1fr)' },
+                        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: '280px minmax(0, 1fr)' },
                         alignItems: 'start',
                     }}
                 >
@@ -195,7 +198,7 @@ export default function PageLesson() {
                                 <Box />
                             )}
 
-                            {next && (
+                            {next ? (
                                 <Box
                                     component={RouterLink}
                                     to={`/course/${course.id}/${next.slug}`}
@@ -239,20 +242,78 @@ export default function PageLesson() {
                                         {next.short}
                                     </Typography>
                                 </Box>
+                            ) : (
+                                /* Последний урок: дальше идти некуда — зовём назад в каталог */
+                                <Box
+                                    component={RouterLink}
+                                    to="/"
+                                    sx={{
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        p: 2.25,
+                                        borderRadius: 'md',
+                                        textDecoration: 'none',
+                                        bgcolor: solid,
+                                        border: '1px solid',
+                                        borderColor: solid,
+                                        transition: 'filter 0.2s ease, box-shadow 0.2s ease',
+                                        '&:hover': { filter: 'brightness(1.15)', boxShadow: skin.shadow },
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            fontFamily: 'code',
+                                            fontSize: '11px',
+                                            letterSpacing: '0.1em',
+                                            textTransform: 'uppercase',
+                                            color: '#fff',
+                                            opacity: 0.75,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'flex-end',
+                                            gap: 0.75,
+                                        }}
+                                    >
+                                        Курс пройден
+                                        <HouseIcon size={14} weight="bold" />
+                                    </Typography>
+                                    <Typography
+                                        sx={{
+                                            mt: 0.75,
+                                            fontFamily: 'display',
+                                            fontWeight: 600,
+                                            color: '#fff',
+                                            textAlign: 'right',
+                                        }}
+                                    >
+                                        Вернуться к курсам
+                                    </Typography>
+                                </Box>
                             )}
                         </Box>
 
-                        <Typography
-                            sx={{
-                                mt: 2,
-                                fontFamily: 'code',
-                                fontSize: '11px',
-                                color: 'text.tertiary',
-                                display: { xs: 'none', md: 'block' },
-                            }}
-                        >
-                            Подсказка: листайте уроки с клавиатуры — alt + ← и alt + →
-                        </Typography>
+                        {/* Подсказка про хоткеи — только про те, что на этой странице работают */}
+                        {(prev || next) && (
+                            <Typography
+                                sx={{
+                                    mt: 2,
+                                    fontSize: 'sm',
+                                    color: 'text.tertiary',
+                                    display: { xs: 'none', md: 'flex' },
+                                    alignItems: 'center',
+                                    flexWrap: 'wrap',
+                                    gap: 0.5,
+                                }}
+                            >
+                                Подсказка: листайте уроки с клавиатуры с помощью
+                                <>
+                                    <Kbd>Alt</Kbd>
+                                    <Box component="span" aria-hidden>+</Box>
+                                    {prev && <Kbd>←</Kbd>}
+                                    {next && <Kbd>→</Kbd>}
+                                </>
+                            </Typography>
+                        )}
                     </Box>
                 </Box>
 

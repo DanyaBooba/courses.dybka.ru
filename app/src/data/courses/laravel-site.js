@@ -6,8 +6,13 @@ export default {
     title: 'Многостраничный сайт на Laravel',
     subtitle: 'Полноценный сайт на фреймворке: модели, шаблоны, админка и работа с формами.',
     accent: 'rose',
+    section: 'web',
+    difficulty: 4,
+    disabled: true,
     level: 'Нужны основы PHP',
     duration: '12 уроков',
+    image: null,
+    video: null,
     chips: ['Laravel', 'PHP', 'Blade', 'MVC'],
     github: null,
     author: {

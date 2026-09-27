@@ -9,9 +9,18 @@
 //   title     — название
 //   subtitle  — короткое описание для карточки и шапки курса
 //   accent    — цветовая тема карточки (см. src/theme/accents.js):
-//               mint | lilac | peach | sky | rose | amber | teal | indigo
+//               mint | lilac | peach | sky | rose | amber | teal | indigo |
+//               unity | node | expo
+//   section   — раздел каталога (см. src/data/sections.js):
+//               unity | web | mobile
+//   difficulty — сложность от 1 до 5, рисуется звёздами в карточке
+//   disabled  — true, пока курс не готов: карточка в каталоге неактивна,
+//               страницы курса и уроков по прямой ссылке отдают 404
 //   level     — уровень («Для начинающих»)
-//   duration  — объём («10 уроков»)
+//   duration  — задуманный объём («10 уроков»), заметка для автора: в вёрстке
+//               счётчик уроков считается по `pages`, а не по этому полю
+//   image     — обложка курса или null (тогда блок обложки не рисуется совсем)
+//   video     — видео для карточки или null; играет при наведении вместо обложки
 //   chips     — теги для карточки
 //   github    — ссылка на репозиторий или null
 //   author    — { name, email, telegram }
@@ -22,7 +31,8 @@
 // Схема блока контента (см. src/components/Content/ContentBlocks.jsx):
 //   { block: 'p',     content: 'текст' }
 //   { block: 'h2',    content: 'заголовок' }      // и 'h3'
-//   { block: 'img',   src: '/путь.jpg', alt: '' }
+//   { block: 'img',   src: '/путь.jpg', alt: '', caption?: 'подпись' }
+//                     src: null — на месте картинки рисуется плашка «ФОТО»
 //   { block: 'quote', content: 'текст' }
 //   { block: 'note',  content: 'текст' }
 //   { block: 'code',  content: 'код', language: 'C#' }
@@ -67,8 +77,19 @@ const courses = [
 
 export default courses
 
+/**
+ * Курс по слагу. Закрытые курсы (`disabled: true`) наружу не отдаются: их
+ * карточки не кликаются, и по прямой ссылке открываться они тоже не должны —
+ * иначе человек попадёт на страницу с пустым планом уроков.
+ */
 export function getCourse(id) {
-    return courses.find((course) => course.id === id) ?? null
+    const course = courses.find((item) => item.id === id) ?? null
+    return course && !course.disabled ? course : null
+}
+
+/** Есть ли что показывать в обложке курса: фотография или видео. */
+export function hasMedia(course) {
+    return Boolean(course?.image || course?.video)
 }
 
 export function getPage(course, slug) {

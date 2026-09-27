@@ -6,8 +6,13 @@ export default {
     title: 'Сжатие и форматы медиа для веба',
     subtitle: 'Почему сайт грузится долго и как это чинить: картинки, видео, шрифты и иконки в правильных форматах.',
     accent: 'teal',
+    section: 'web',
+    difficulty: 1,
+    disabled: true,
     level: 'Для всех',
     duration: '6 уроков',
+    image: null,
+    video: null,
     chips: ['WebP', 'AVIF', 'Оптимизация', 'Производительность'],
     github: null,
     author: {

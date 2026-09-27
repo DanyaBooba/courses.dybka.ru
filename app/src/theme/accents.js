@@ -11,9 +11,13 @@
 //   text   — цвет текста на плашке
 //   shadow — аккуратная тень под цвет плашки (только при наведении)
 
-function accent({ solid, tint, light, dark }) {
+function accent({ solid, tint, light, dark, solidDark }) {
     return {
         solid,
+        // Заливка кнопки в тёмной теме. У большинства курсов совпадает с solid,
+        // но почти чёрные краски (Unity, Expo) на тёмной плашке пропадают —
+        // для них задаётся осветлённый вариант.
+        solidDark: solidDark ?? solid,
         // краска, читаемая на обычном фоне страницы в тёмной теме
         tint,
         light: {
@@ -81,6 +85,29 @@ const accents = {
         tint: '#8b93e4',
         light: { bg: '#dedff2', chip: '#ccceeb', rule: '#b4b7e0', text: '#1b2065' },
         dark: { bg: '#1f2245', chip: '#2c305d', rule: '#3b4076', text: '#d8dbf4' },
+    }),
+    // Графит самого редактора Unity: почти чёрный, без цветового уклона
+    unity: accent({
+        solid: '#22262b',
+        solidDark: '#414a53',
+        tint: '#a8b0b8',
+        light: { bg: '#dfe1e3', chip: '#cdd0d3', rule: '#b3b7bb', text: '#1b1f23' },
+        dark: { bg: '#212528', chip: '#2c3135', rule: '#3d4247', text: '#dde0e3' },
+    }),
+    // Зелёный Node.js
+    node: accent({
+        solid: '#3f7d34',
+        tint: '#89c47a',
+        light: { bg: '#dfebd8', chip: '#cbe0c1', rule: '#aecfa1', text: '#1f3d19' },
+        dark: { bg: '#1b2c17', chip: '#243d1f', rule: '#325130', text: '#d3e8ca' },
+    }),
+    // Тёмно-синий, почти чёрный — как логотип Expo
+    expo: accent({
+        solid: '#1b1b2c',
+        solidDark: '#3c3c58',
+        tint: '#a3a3c4',
+        light: { bg: '#dedee6', chip: '#cccdd8', rule: '#b3b4c4', text: '#17172a' },
+        dark: { bg: '#1e1e2c', chip: '#282838', rule: '#38384c', text: '#dcdce8' },
     }),
 }
 

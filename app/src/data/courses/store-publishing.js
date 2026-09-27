@@ -6,8 +6,13 @@ export default {
     title: 'Публикация игры и приложения в маркеты',
     subtitle: 'Как довести проект до магазина: подписи, требования, описания, скриншоты и обновления.',
     accent: 'amber',
+    section: 'mobile',
+    difficulty: 2,
+    disabled: true,
     level: 'Для всех',
     duration: '6 уроков',
+    image: null,
+    video: null,
     chips: ['Google Play', 'App Store', 'Релиз', 'Чек-лист'],
     github: null,
     author: {

@@ -38,7 +38,7 @@ export default function LessonSidebar({
             <Box
                 sx={{
                     display: 'flex',
-                    alignItems: 'flex-start',
+                    alignItems: 'center',
                     gap: 1.5,
                     pb: 1.25,
                     borderBottom: '2px solid',
@@ -72,18 +72,6 @@ export default function LessonSidebar({
                         sx={{ fontFamily: 'display', fontWeight: 600, lineHeight: 1.3 }}
                     >
                         {course.title}
-                    </Typography>
-                    <Typography
-                        sx={{
-                            mt: 0.5,
-                            fontFamily: 'code',
-                            fontSize: '11px',
-                            letterSpacing: '0.1em',
-                            textTransform: 'uppercase',
-                            color: 'text.tertiary',
-                        }}
-                    >
-                        {course.pages.length} уроков
                     </Typography>
                 </Box>
             </Box>
