@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Box from '@mui/joy/Box'
 import Typography from '@mui/joy/Typography'
 import IconButton from '@mui/joy/IconButton'
@@ -101,6 +101,52 @@ const railItemSx = {
     '&:focus-visible': { outline: '2px solid', outlineColor: 'text.tertiary', outlineOffset: '-2px' },
 }
 
+// Раздел считается текущим, когда его заголовок поднялся до этой линии:
+// чуть ниже отступа, с которым заголовки встают после перехода по якорю (80px)
+const SPY_OFFSET = 120
+
+/**
+ * Следит за прокруткой и возвращает id раздела, который сейчас читают:
+ * последний заголовок, поднявшийся выше SPY_OFFSET. Внизу страницы —
+ * последний раздел, даже если его заголовок не успел доехать до линии.
+ */
+function useActiveHeading(ids, enabled) {
+    const [activeId, setActiveId] = useState(null)
+
+    useEffect(() => {
+        if (!enabled || ids.length === 0) return undefined
+
+        let frame = 0
+        const update = () => {
+            frame = 0
+            const atBottom =
+                window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2
+            let current = null
+            for (const id of ids) {
+                const element = document.getElementById(id)
+                if (!element) continue
+                if (atBottom || element.getBoundingClientRect().top <= SPY_OFFSET) current = id
+                else break
+            }
+            setActiveId(current)
+        }
+        const onScroll = () => {
+            if (!frame) frame = requestAnimationFrame(update)
+        }
+
+        update()
+        window.addEventListener('scroll', onScroll, { passive: true })
+        window.addEventListener('resize', onScroll)
+        return () => {
+            window.removeEventListener('scroll', onScroll)
+            window.removeEventListener('resize', onScroll)
+            if (frame) cancelAnimationFrame(frame)
+        }
+    }, [ids, enabled])
+
+    return enabled ? activeId : null
+}
+
 /**
  * План курса. Без карточки-обёртки и обводки — только линейки, как в
  * оглавлении книги. На десктопе меню сворачивается в полоску с номерами
@@ -120,6 +166,17 @@ export default function LessonSidebar({
     // урок он снова свёрнут, потому что храним слаг, а не флажок
     const [outlineSlug, setOutlineSlug] = useState(null)
     const outlineOpen = outlineSlug === activeSlug
+
+    // Пока план урока открыт, в нём подсвечен раздел, который сейчас на экране
+    const activePage = course.pages.find((page) => page.slug === activeSlug)
+    const headingIds = useMemo(
+        () =>
+            (activePage?.content || [])
+                .filter((block) => block.block === 'h2' || block.block === 'h3')
+                .map((block) => slugify(block.content)),
+        [activePage],
+    )
+    const currentHeading = useActiveHeading(headingIds, outlineOpen)
 
     const [mode, setModeState] = useState(readMode)
     const setMode = (next) => {
@@ -288,12 +345,14 @@ export default function LessonSidebar({
                                 >
                                     {headings.map((heading, headingIndex) => {
                                         const id = slugify(heading.content)
+                                        const current = id === currentHeading
                                         return (
                                             <Box component="li" key={headingIndex}>
                                                 <Box
                                                     component="a"
                                                     href={`#${id}`}
                                                     onClick={(event) => goToHeading(event, id)}
+                                                    aria-current={current ? 'location' : undefined}
                                                     sx={{
                                                         display: 'block',
                                                         // На телефоне — палец, а не курсор: строки выше
@@ -306,6 +365,11 @@ export default function LessonSidebar({
                                                         lineHeight: 1.4,
                                                         textDecoration: 'none',
                                                         color: heading.block === 'h3' ? 'text.tertiary' : 'text.secondary',
+                                                        // Текущий раздел выделен как при наведении, но без полоски
+                                                        ...(current && {
+                                                            color: 'text.primary',
+                                                            bgcolor: 'background.level1',
+                                                        }),
                                                         WebkitTapHighlightColor: 'transparent',
                                                         transition: 'color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease',
                                                         '@media (hover: hover)': {

@@ -20,8 +20,7 @@ export default function StartButton({ course, accent, children = 'Начать �
             to={`/course/${course.id}/${firstLesson}`}
             {...props}
             sx={{
-                ...shineSx(fill),
-                color: '#fff',
+                ...shineSx(fill, '#fff'),
                 fontWeight: 700,
                 ...sx,
             }}

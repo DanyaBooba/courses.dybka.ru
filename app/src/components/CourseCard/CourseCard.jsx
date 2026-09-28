@@ -195,7 +195,7 @@ export default function CourseCard({ course, index }) {
                             opacity: 0.7,
                         }}
                     >
-                        Сложность
+                        Сложность:
                     </Box>
                     <Difficulty value={course.difficulty} color={skin.text} />
                 </Box>

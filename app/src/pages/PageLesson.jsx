@@ -321,7 +321,7 @@ export default function PageLesson() {
                                     gap: 0.5,
                                 }}
                             >
-                                Подсказка: листайте уроки с клавиатуры с помощью
+                                Подсказка: листайте уроки с клавиатуры при помощи
                                 <>
                                     <Kbd>Alt</Kbd>
                                     <Box component="span" aria-hidden>+</Box>

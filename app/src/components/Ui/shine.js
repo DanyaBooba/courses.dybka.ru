@@ -1,25 +1,29 @@
 /**
  * Заливка главной кнопки: краска с мягким градиентом (сверху чуть светлее,
  * снизу — сама краска) и световой полосой, которая пробегает по плашке
- * при наведении. `fill` — любой CSS-цвет, в том числе var(--…).
+ * при наведении. `fill` и `color` (цвет текста) — любые CSS-цвета,
+ * в том числе var(--…).
  */
 export function fillGradient(fill) {
     return `linear-gradient(180deg, color-mix(in srgb, ${fill} 84%, #fff) 0%, ${fill} 100%)`
 }
 
-export function shineSx(fill) {
+export function shineSx(fill, color = '#fff') {
     return {
         position: 'relative',
         overflow: 'hidden',
         isolation: 'isolate',
         bgcolor: fill,
         backgroundImage: fillGradient(fill),
+        color,
         transition: 'filter 0.2s ease',
         // Фон Joy перебиваем, а подсветку оставляем мыши: на тач-экранах
         // :hover «залипает» после тапа
-        '&:hover': { bgcolor: fill },
+        // Цвет текста держим во всех состояниях, чтобы Joy не подменял его на свой
+        '&:hover': { bgcolor: fill, color },
+        '&:hover, &:active, &:focus-visible, &:visited': { color },
         '@media (hover: hover)': {
-            '&:hover': { filter: 'brightness(1.12)' },
+            '&:hover': { filter: 'brightness(1.12)', color },
             '&:hover::after': { animation: 'ddShine 0.75s cubic-bezier(0.25, 0.6, 0.3, 1)' },
         },
         '&:active': { filter: 'brightness(1.12)' },

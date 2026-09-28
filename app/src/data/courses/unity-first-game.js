@@ -7,7 +7,7 @@ export default {
     difficulty: 2,
     level: 'Для начинающих',
     duration: '10 уроков',
-    updated: '2026-09-01',
+    updated: '2023-07-01',
     image: '/img/courses/unity-first-game/cover.jpg',
     video: null,
     chips: ['Unity', 'C#', '2D'],
