@@ -8,8 +8,10 @@ import Footer from './Footer'
  *
  * `footerOffset` — высота фиксированной панели внизу экрана на телефонах (px):
  * на столько подвал приподнимается, чтобы панель его не закрывала.
+ *
+ * `centered` — содержимое стоит по центру экрана по вертикали (формы входа и т. п.).
  */
-export default function PageShell({ children, footerOffset = 0 }) {
+export default function PageShell({ children, footerOffset = 0, centered = false }) {
     return (
         <Box
             sx={{
@@ -19,7 +21,13 @@ export default function PageShell({ children, footerOffset = 0 }) {
                 bgcolor: 'background.body',
             }}
         >
-            <Box component="main" sx={{ flex: 1 }}>
+            <Box
+                component="main"
+                sx={{
+                    flex: 1,
+                    ...(centered && { display: 'flex', flexDirection: 'column', justifyContent: 'center' }),
+                }}
+            >
                 {children}
             </Box>
 
