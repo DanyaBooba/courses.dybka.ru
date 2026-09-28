@@ -7,7 +7,7 @@ import Button from '@mui/joy/Button'
 import Link from '@mui/joy/Link'
 import { Link as RouterLink } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeftIcon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, CaretLeftIcon } from '@phosphor-icons/react'
 
 import PageShell from '../../components/Layout/PageShell'
 import { shineSx } from '../../components/Ui/shine'
@@ -147,7 +147,7 @@ export default function PageLogin() {
         event.preventDefault()
 
         if (code.length !== CODE_LENGTH) {
-            setError(`В коде ${CODE_LENGTH} цифр.`)
+            setError(`В коде ${CODE_LENGTH} символов.`)
             return
         }
 
@@ -220,22 +220,27 @@ export default function PageLogin() {
                                 onSubmit={submitCode}
                                 noValidate
                             >
-                                <Button
-                                    variant="plain"
-                                    color="neutral"
-                                    size="sm"
-                                    startDecorator={<ArrowLeftIcon />}
-                                    onClick={() => goTo('email', -1)}
-                                    disabled={loading}
-                                    sx={{ mb: 2, ml: -1, color: 'text.tertiary', fontWeight: 500 }}
-                                >
-                                    Изменить почту
-                                </Button>
+                                <Box sx={{
+                                    display: 'flex',
+                                    width: '100%',
+                                }}>
+                                    <Button
+                                        variant="plain"
+                                        color="neutral"
+                                        size="sm"
+                                        startDecorator={<CaretLeftIcon />}
+                                        onClick={() => goTo('email', -1)}
+                                        disabled={loading}
+                                        sx={{ mb: 2, ml: -1, mx: 'auto', color: 'text.tertiary', fontWeight: 500, transform: 'translateX(-14px)' }}
+                                    >
+                                        Изменить почту
+                                    </Button>
+                                </Box>
 
                                 <Title>Введите код</Title>
 
-                                <Typography sx={{ mt: 1.5, color: 'text.secondary', lineHeight: 1.7 }}>
-                                    На указанную почту был отправлен 6-значный код. Введите его в поле ниже.
+                                <Typography sx={{ mt: 1.5, color: 'text.secondary', lineHeight: 1.7, textAlign: 'center' }}>
+                                    На указанную почту был отправлен код из 6 букв и цифр. Введите его в поле ниже.
                                 </Typography>
 
                                 <Input
@@ -243,17 +248,20 @@ export default function PageLogin() {
                                     autoComplete="one-time-code"
                                     autoFocus
                                     size="lg"
-                                    placeholder="000000"
+                                    placeholder="A1B2C3"
                                     value={code}
                                     onChange={(event) => {
-                                        setCode(event.target.value.replace(/\D/g, '').slice(0, CODE_LENGTH))
+                                        // Код из латинских букв и цифр: регистр не важен, пробелы и прочее отбрасываем.
+                                        // maxLength на поле не ставим — иначе браузер обрежет вставку «A B C 1 2 3» до чистки
+                                        setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, CODE_LENGTH))
                                         setError('')
                                     }}
                                     error={Boolean(error)}
                                     slotProps={{
                                         input: {
-                                            inputMode: 'numeric',
-                                            maxLength: CODE_LENGTH,
+                                            autoCapitalize: 'characters',
+                                            autoCorrect: 'off',
+                                            spellCheck: false,
                                             'aria-label': 'Код из письма',
                                         },
                                     }}
@@ -262,6 +270,7 @@ export default function PageLogin() {
                                         fontFamily: 'code',
                                         fontSize: '22px',
                                         letterSpacing: '0.4em',
+                                        boxShadow: 'none'
                                     }}
                                 />
 
@@ -270,6 +279,9 @@ export default function PageLogin() {
                                 <Button type="submit" size="lg" loading={loading} sx={buttonSx}>
                                     Войти
                                 </Button>
+                                <Typography sx={{ mt: 1.5, color: 'text.secondary', lineHeight: 1.7, textAlign: 'center' }}>
+                                    Письмо могло попасть в спам.
+                                </Typography>
                             </Box>
                         )}
                     </AnimatePresence>

@@ -1,7 +1,7 @@
 // Запросы входа по коду из почты.
 //
-// Адрес API задаётся переменной окружения VITE_API_URL (например, в .env.local):
-//   VITE_API_URL=https://api.courses.dybka.ru
+// Адрес API задаётся переменной окружения VITE_API_URL (см. .env):
+//   VITE_API_URL=https://api.courses.aquarium.org.ru
 //
 // Ожидаемые ответы сервера:
 //   POST /auth/code    { email }        → 200 {}
