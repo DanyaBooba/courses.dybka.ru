@@ -220,11 +220,8 @@ export default function AdminSidebar() {
             </Box>
 
             <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid', borderColor: 'page.border' }}>
-                <Typography sx={{ fontSize: 'xs', color: 'text.tertiary', lineHeight: 1.5 }}>
-                    Пока это черновик: правки хранятся в этой вкладке и пропадут после перезагрузки.
-                </Typography>
                 {user && (
-                    <Typography sx={{ mt: 1.5, fontFamily: 'code', fontSize: '12px', color: 'text.secondary', overflowWrap: 'anywhere' }}>
+                    <Typography sx={{ fontFamily: 'code', fontSize: '12px', color: 'text.secondary', overflowWrap: 'anywhere' }}>
                         {user.email}
                     </Typography>
                 )}

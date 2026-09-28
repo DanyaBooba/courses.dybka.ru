@@ -223,9 +223,6 @@ function CoursePageEditor({ course, set }) {
                                 <Difficulty value={course.difficulty} color={skin.text} size={17} sx={{ mt: '2px' }} />
                             </Meta>
                         </Box>
-                        <Typography sx={{ mt: 2, fontSize: 'xs', color: skin.text, opacity: 0.6 }}>
-                            Уровень, сложность, цвет и теги — во вкладке «Настройки».
-                        </Typography>
                     </Box>
 
                     <CoverDrop src={course.image} onChange={(image) => set({ image })} ratio="4 / 3" sx={{ order: { xs: -1, md: 0 } }} />

@@ -241,7 +241,6 @@ function LessonSettings({ course, page, set }) {
                     placeholder={page.title || 'Для меню урока и программы курса'}
                     sx={{ boxShadow: 'none' }}
                 />
-                <FormHelperText>В меню урока и в программе курса. Пусто — возьмём название.</FormHelperText>
             </FormControl>
             <FormControl error={Boolean(error)}>
                 <FormLabel>Адрес</FormLabel>
@@ -255,7 +254,6 @@ function LessonSettings({ course, page, set }) {
                     startDecorator={<Box component="span" sx={{ fontFamily: 'code', fontSize: 'sm', color: 'text.tertiary' }}>/{course.id}/</Box>}
                     sx={{ boxShadow: 'none', fontFamily: 'code' }}
                 />
-                <FormHelperText>{error ?? (slug === FINAL_SLUG ? 'end — итоговая страница курса, не урок' : 'Enter — сохранить')}</FormHelperText>
             </FormControl>
         </Box>
     )

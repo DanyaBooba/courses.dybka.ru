@@ -39,7 +39,6 @@ export default function PageAdminHome() {
         { label: 'Программ', value: courses.length },
         { label: 'Уроков', value: lessons },
         { label: 'Открыто читателям', value: courses.length - hidden },
-        { label: 'Скрыто', value: hidden },
     ]
 
     return (
@@ -54,8 +53,8 @@ export default function PageAdminHome() {
                 <Typography level="h1" sx={{ fontWeight: 450, letterSpacing: '-0.03em', fontSize: { xs: '34px', md: '46px' } }}>
                     Программы
                 </Typography>
-                <Typography sx={{ mt: 1, color: 'text.secondary', maxWidth: 620, lineHeight: 1.65 }}>
-                    Выберите программу, чтобы поправить её страницу, уроки и настройки. Уроки пишутся сразу в дизайне сайта.
+                <Typography sx={{ mt: 1, color: 'text.secondary', lineHeight: 1.65 }}>
+                    Выберите программу, чтобы поправить <nobr>её страницу</nobr>, уроки и настройки.
                 </Typography>
 
                 <Box
