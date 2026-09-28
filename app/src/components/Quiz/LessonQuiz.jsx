@@ -163,7 +163,8 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
 
                     return (
                         <Box
-                            key={option}
+                            // Ключ по номеру: тексты вариантов могут совпадать (в черновике — пустые)
+                            key={index}
                             component="button"
                             type="button"
                             role={multiple ? 'checkbox' : 'radio'}

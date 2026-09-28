@@ -1,0 +1,258 @@
+import { useState } from 'react'
+import { Link as RouterLink, useMatch, useNavigate } from 'react-router-dom'
+import Box from '@mui/joy/Box'
+import Button from '@mui/joy/Button'
+import Input from '@mui/joy/Input'
+import Typography from '@mui/joy/Typography'
+import { EyeSlashIcon, FlagIcon, MagnifyingGlassIcon, PlusIcon, SignOutIcon, ArrowSquareOutIcon } from '@phosphor-icons/react'
+
+import { createLesson, useAdminCourse, useAdminCourses } from '../../admin/store'
+import Bone from '../../components/Ui/Bone'
+import { groupBySection } from '../../data/sections'
+import { FINAL_SLUG, getLessons } from '../../data/courses'
+import { lessonsLabel } from '../../data/plural'
+import { getAccent } from '../../theme/accents'
+import { useProfile } from '../../api/courses'
+import { setToken } from '../../auth/session'
+
+const captionSx = {
+    fontFamily: 'code',
+    fontSize: '11px',
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    color: 'text.tertiary',
+}
+
+/**
+ * Левая панель: все программы по разделам, у открытой — её уроки.
+ * Отсюда же создаются новая программа и новый урок.
+ */
+export default function AdminSidebar() {
+    const { courses = [], loading, error, reload } = useAdminCourses()
+    const navigate = useNavigate()
+    const { user } = useProfile()
+    const [query, setQuery] = useState('')
+
+    const courseMatch = useMatch('/admin/course/:id/*')
+    const lessonMatch = useMatch('/admin/course/:id/lesson/:slug')
+    const activeId = courseMatch?.params.id
+    const activeSlug = lessonMatch?.params.slug
+    // Урок добавляется в загруженную программу — до загрузки кнопка неактивна
+    const { course: activeCourse } = useAdminCourse(activeId)
+
+    const needle = query.trim().toLowerCase()
+    const found = needle
+        ? courses.filter((course) => `${course.title} ${course.id} ${course.chips.join(' ')}`.toLowerCase().includes(needle))
+        : courses
+    const sections = groupBySection(found)
+
+    const addLesson = (courseId) => {
+        const slug = createLesson(courseId)
+        if (slug) navigate(`/admin/course/${courseId}/lesson/${slug}`)
+    }
+
+    return (
+        <Box
+            component="nav"
+            aria-label="Программы"
+            sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}
+        >
+            <Box sx={{ px: 2.5, pt: 2.5, pb: 2 }}>
+                <Typography component={RouterLink} to="/admin" sx={{ ...captionSx, textDecoration: 'none', color: 'text.primary', fontWeight: 600 }}>
+                    courses.dybka.ru
+                </Typography>
+                <Typography level="h3" sx={{ mt: 0.5, fontWeight: 500, letterSpacing: '-0.02em' }}>
+                    Панель управления
+                </Typography>
+
+                <Button
+                    component={RouterLink}
+                    to="/admin/new"
+                    startDecorator={<PlusIcon weight="bold" />}
+                    sx={{ mt: 2, width: '100%', fontWeight: 700 }}
+                >
+                    Новая программа
+                </Button>
+
+                <Input
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Найти программу"
+                    startDecorator={<MagnifyingGlassIcon />}
+                    size="sm"
+                    sx={{ mt: 1.5, boxShadow: 'none', bgcolor: 'background.body' }}
+                />
+            </Box>
+
+            <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', px: 1.5, pb: 2 }}>
+                {loading && !courses.length && (
+                    <Box aria-busy sx={{ px: 1, pt: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        {Array.from({ length: 6 }, (_, index) => (
+                            <Bone key={index} height={36} />
+                        ))}
+                    </Box>
+                )}
+
+                {error && !courses.length && (
+                    <Box sx={{ px: 1, py: 2 }}>
+                        <Typography sx={{ fontSize: 'sm', color: 'text.secondary' }}>{error.message}</Typography>
+                        <Button size="sm" variant="outlined" color="neutral" onClick={reload} sx={{ mt: 1 }}>
+                            Повторить
+                        </Button>
+                    </Box>
+                )}
+
+                {!loading && !error && sections.length === 0 && (
+                    <Typography sx={{ px: 1, py: 2, fontSize: 'sm', color: 'text.tertiary' }}>Ничего не нашлось</Typography>
+                )}
+
+                {sections.map((section) => (
+                    <Box key={section.id} component="section" sx={{ mt: 1.5 }}>
+                        <Typography sx={{ ...captionSx, px: 1, py: 1 }}>{section.title}</Typography>
+
+                        {section.courses.map((course) => {
+                            const active = course.id === activeId
+                            const accent = getAccent(course.accent)
+                            const lessons = getLessons(course)
+
+                            return (
+                                <Box key={course.id}>
+                                    <Box
+                                        component={RouterLink}
+                                        to={`/admin/course/${course.id}`}
+                                        aria-current={active && !activeSlug ? 'page' : undefined}
+                                        sx={{
+                                            display: 'flex',
+                                            gap: 1.25,
+                                            px: 1,
+                                            py: 1,
+                                            textDecoration: 'none',
+                                            color: 'text.primary',
+                                            bgcolor: active ? 'background.level1' : 'transparent',
+                                            '&:hover': { bgcolor: 'background.level1' },
+                                        }}
+                                    >
+                                        <Box aria-hidden sx={{ width: 4, flexShrink: 0, alignSelf: 'stretch', bgcolor: accent.solid }} />
+                                        <Box sx={{ minWidth: 0 }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: 'sm',
+                                                    fontWeight: active ? 600 : 500,
+                                                    lineHeight: 1.35,
+                                                    display: '-webkit-box',
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: 'vertical',
+                                                    overflow: 'hidden',
+                                                }}
+                                            >
+                                                {course.title || 'Без названия'}
+                                            </Typography>
+                                            <Typography sx={{ mt: 0.25, fontSize: 'xs', color: 'text.tertiary', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                {lessonsLabel(lessons.length)}
+                                                {course.disabled && (
+                                                    <>
+                                                        <span>·</span>
+                                                        <EyeSlashIcon size={12} />
+                                                        скрыта
+                                                    </>
+                                                )}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+
+                                    {active && (
+                                        <Box component="ol" sx={{ listStyle: 'none', m: 0, p: 0, pl: 2.25, pb: 1 }}>
+                                            {course.pages.map((page) => {
+                                                const current = page.slug === activeSlug
+                                                const number = lessons.indexOf(page) + 1
+                                                return (
+                                                    <Box component="li" key={page.slug}>
+                                                        <Box
+                                                            component={RouterLink}
+                                                            to={`/admin/course/${course.id}/lesson/${page.slug}`}
+                                                            aria-current={current ? 'page' : undefined}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'baseline',
+                                                                gap: 1,
+                                                                px: 1,
+                                                                py: 0.625,
+                                                                fontSize: 'sm',
+                                                                lineHeight: 1.4,
+                                                                textDecoration: 'none',
+                                                                color: current ? 'text.primary' : 'text.secondary',
+                                                                fontWeight: current ? 600 : 400,
+                                                                borderLeft: '2px solid',
+                                                                borderColor: current ? accent.solid : 'page.border',
+                                                                '&:hover': { color: 'text.primary' },
+                                                            }}
+                                                        >
+                                                            <Box component="span" sx={{ fontFamily: 'code', fontSize: '11px', color: 'text.tertiary', minWidth: 18 }}>
+                                                                {page.slug === FINAL_SLUG ? <FlagIcon size={11} weight="fill" /> : String(number).padStart(2, '0')}
+                                                            </Box>
+                                                            <Box component="span" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+                                                                {page.short || page.title || 'Без названия'}
+                                                            </Box>
+                                                        </Box>
+                                                    </Box>
+                                                )
+                                            })}
+                                            <Box component="li">
+                                                <Button
+                                                    size="sm"
+                                                    variant="plain"
+                                                    color="neutral"
+                                                    startDecorator={<PlusIcon />}
+                                                    onClick={() => addLesson(course.id)}
+                                                    disabled={!activeCourse}
+                                                    sx={{ mt: 0.5, fontWeight: 500, color: 'text.tertiary', '&:hover': { color: 'text.primary' } }}
+                                                >
+                                                    Новый урок
+                                                </Button>
+                                            </Box>
+                                        </Box>
+                                    )}
+                                </Box>
+                            )
+                        })}
+                    </Box>
+                ))}
+            </Box>
+
+            <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid', borderColor: 'page.border' }}>
+                <Typography sx={{ fontSize: 'xs', color: 'text.tertiary', lineHeight: 1.5 }}>
+                    Пока это черновик: правки хранятся в этой вкладке и пропадут после перезагрузки.
+                </Typography>
+                {user && (
+                    <Typography sx={{ mt: 1.5, fontFamily: 'code', fontSize: '12px', color: 'text.secondary', overflowWrap: 'anywhere' }}>
+                        {user.email}
+                    </Typography>
+                )}
+                <Box sx={{ mt: 1, display: 'flex', gap: 0.5, ml: -1 }}>
+                    <Button
+                        component={RouterLink}
+                        to="/"
+                        target="_blank"
+                        size="sm"
+                        variant="plain"
+                        color="neutral"
+                        startDecorator={<ArrowSquareOutIcon />}
+                        sx={{ fontWeight: 500 }}
+                    >
+                        На сайт
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="plain"
+                        color="neutral"
+                        startDecorator={<SignOutIcon />}
+                        onClick={() => setToken(null)}
+                        sx={{ fontWeight: 500 }}
+                    >
+                        Выйти
+                    </Button>
+                </Box>
+            </Box>
+        </Box>
+    )
+}

@@ -7,8 +7,11 @@ import { motion } from 'framer-motion'
 
 import PageShell from '../components/Layout/PageShell'
 import CourseCard from '../components/CourseCard/CourseCard'
+import CourseCardSkeleton from '../components/CourseCard/CourseCardSkeleton'
+import Bone from '../components/Ui/Bone'
+import LoadError from '../components/Ui/LoadError'
 import { shineSx } from '../components/Ui/shine'
-import courses from '../data/courses'
+import { useCourses } from '../api/courses'
 import { groupBySection } from '../data/sections'
 
 const rise = {
@@ -21,18 +24,51 @@ const stagger = {
     visible: { transition: { staggerChildren: 0.06 } },
 }
 
-const lessonsTotal = courses.reduce((sum, course) => sum + course.pages.length, 0)
-const sections = groupBySection(courses)
+/** Выходные данные справочника: коротко и без обещаний. Пока курсы грузятся, числа — `null`. */
+function getFacts(courses) {
+    const lessonsTotal = courses?.reduce((sum, course) => sum + course.pages.length, 0)
 
-/** Выходные данные справочника: коротко и без обещаний. */
-const facts = [
-    { label: 'Курсов', value: String(courses.length) },
-    { label: 'Уроков', value: String(lessonsTotal) },
-    { label: 'Стоимость', value: 'Бесплатно' },
-    { label: 'Регистрация', value: 'Не нужна' },
-]
+    return [
+        { label: 'Курсов', value: courses ? String(courses.length) : null },
+        { label: 'Уроков', value: courses ? String(lessonsTotal) : null },
+        { label: 'Стоимость', value: 'Бесплатно' },
+        { label: 'Регистрация', value: 'Не нужна' },
+    ]
+}
+
+const cardsGridSx = {
+    mt: { xs: 3, md: 3.5 },
+    display: 'grid',
+    gap: 2,
+    gridTemplateColumns: {
+        xs: 'minmax(0, 1fr)',
+        sm: 'repeat(2, minmax(0, 1fr))',
+        lg: 'repeat(3, minmax(0, 1fr))',
+    },
+}
+
+/** Раздел-скелет: линейка с заголовком и три карточки. */
+function SectionSkeleton() {
+    return (
+        <Box aria-hidden>
+            <Box sx={{ pb: 1.25, borderBottom: '2px solid', borderColor: 'page.border' }}>
+                <Bone width={220} height={30} />
+            </Box>
+            <Bone width={360} height={12} sx={{ mt: 1.75, maxWidth: '80%' }} />
+            <Box sx={cardsGridSx}>
+                <CourseCardSkeleton />
+                <CourseCardSkeleton />
+                <CourseCardSkeleton />
+            </Box>
+        </Box>
+    )
+}
 
 export default function PageIndex() {
+    const { courses, loading, error, reload } = useCourses()
+    const facts = getFacts(courses)
+    const sections = courses ? groupBySection(courses) : []
+
     useEffect(() => {
         document.title = 'courses.dybka.ru — бесплатные открытые курсы по программированию'
     }, [])
@@ -143,7 +179,9 @@ export default function PageIndex() {
                                         letterSpacing: '-0.02em',
                                     }}
                                 >
-                                    {fact.value}
+                                    {fact.value ?? (
+                                        <Bone width={48} height={28} sx={{ display: 'inline-block', verticalAlign: 'middle' }} />
+                                    )}
                                 </Box>
                             </Box>
                         ))}
@@ -151,7 +189,15 @@ export default function PageIndex() {
                 </Box>
 
                 {/* Курсы по направлениям */}
-                <Box id="courses" sx={{ scrollMarginTop: '24px', pt: { xs: 1, md: 2 } }}>
+                <Box
+                    id="courses"
+                    aria-busy={loading || undefined}
+                    sx={{ scrollMarginTop: '24px', pt: { xs: 1, md: 2 } }}
+                >
+                    {loading && !courses && <SectionSkeleton />}
+
+                    {error && !courses && <LoadError error={error} onRetry={reload} />}
+
                     {sections.map((section, sectionIndex) => (
                         <Box
                             key={section.id}
@@ -213,18 +259,7 @@ export default function PageIndex() {
                                 </Typography>
                             )}
 
-                            <Box
-                                sx={{
-                                    mt: { xs: 3, md: 3.5 },
-                                    display: 'grid',
-                                    gap: 2,
-                                    gridTemplateColumns: {
-                                        xs: 'minmax(0, 1fr)',
-                                        sm: 'repeat(2, minmax(0, 1fr))',
-                                        lg: 'repeat(3, minmax(0, 1fr))',
-                                    },
-                                }}
-                            >
+                            <Box sx={cardsGridSx}>
                                 {section.courses.map((course, index) => (
                                     <CourseCard key={course.id} course={course} index={index} />
                                 ))}

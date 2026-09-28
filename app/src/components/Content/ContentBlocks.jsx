@@ -13,6 +13,26 @@ import Checklist from './Checklist'
 import CourseList from './CourseList'
 import LessonQuiz from '../Quiz/LessonQuiz'
 import { highlight, tokenStyles } from './highlight'
+import {
+    headingSx,
+    headingLevel,
+    paragraphSx,
+    quoteSx,
+    quoteTextSx,
+    noteSx,
+    noteTextSx,
+    figureSx,
+    captionSx,
+    codeSheetSx,
+    codeHeaderSx,
+    codeLabelSx,
+    codePreSx,
+    listSx,
+    tableSheetSx,
+    tableSx,
+    blocksSx,
+    blockSx,
+} from './blockStyles'
 
 function Heading({ level, content }) {
     const id = slugify(content)
@@ -40,19 +60,8 @@ function Heading({ level, content }) {
         <Typography
             id={id}
             component={level === 2 ? 'h2' : 'h3'}
-            level={level === 2 ? 'h3' : 'h4'}
-            sx={{
-                // Раздел открывается тонкой линейкой — как в печатном справочнике
-                mt: level === 2 ? 5 : 4,
-                pt: level === 2 ? 2 : 0,
-                mb: 1.5,
-                borderTop: level === 2 ? '1px solid' : 'none',
-                borderColor: 'page.border',
-                fontWeight: 600,
-                letterSpacing: '-0.02em',
-                scrollMarginTop: '80px',
-                '&:hover .anchor': { opacity: 1 },
-            }}
+            level={headingLevel(level)}
+            sx={{ ...headingSx(level), '&:hover .anchor': { opacity: 1 } }}
         >
             <InlineText text={content} />
             <Tooltip
@@ -93,7 +102,7 @@ function Heading({ level, content }) {
 
 function Paragraph({ content }) {
     return (
-        <Typography sx={{ my: 2, lineHeight: 1.75, color: 'text.secondary', fontSize: 'lg' }}>
+        <Typography sx={paragraphSx}>
             <InlineText text={content} />
         </Typography>
     )
@@ -101,51 +110,27 @@ function Paragraph({ content }) {
 
 function Quote({ content }) {
     return (
-        <Box
-            component="blockquote"
-            sx={{
-                my: 3.5,
-                mx: 0,
-                pl: 2.5,
-                borderLeft: '2px solid',
-                borderColor: 'page.rule',
-            }}
-        >
-            <Typography
-                sx={{
-                    fontFamily: 'display',
-                    fontStyle: 'italic',
-                    fontSize: 'lg',
-                    lineHeight: 1.6,
-                    color: 'text.primary',
-                }}
-            >
+        <Box component="blockquote" sx={quoteSx}>
+            <Typography sx={quoteTextSx}>
                 <InlineText text={content} />
             </Typography>
         </Box>
     )
 }
 
+export function NoteIcon() {
+    return (
+        <Box aria-hidden sx={{ flexShrink: 0, mt: '2px', color: 'page.noteBar' }}>
+            <LightbulbIcon size={22} weight="fill" />
+        </Box>
+    )
+}
+
 function Note({ content }) {
     return (
-        <Sheet
-            variant="plain"
-            sx={{
-                my: 3,
-                p: 2.25,
-                borderRadius: 'md',
-                display: 'flex',
-                gap: 1.75,
-                alignItems: 'flex-start',
-                bgcolor: 'page.noteBg',
-                borderLeft: '2px solid',
-                borderColor: 'page.noteBar',
-            }}
-        >
-            <Box aria-hidden sx={{ flexShrink: 0, mt: '2px', color: 'page.noteBar' }}>
-                <LightbulbIcon size={22} weight="fill" />
-            </Box>
-            <Typography sx={{ lineHeight: 1.7, color: 'text.primary' }}>
+        <Sheet variant="plain" sx={noteSx}>
+            <NoteIcon />
+            <Typography sx={noteTextSx}>
                 <InlineText text={content} />
             </Typography>
         </Sheet>
@@ -156,17 +141,7 @@ function Note({ content }) {
 function Caption({ text }) {
     if (!text) return null
     return (
-        <Typography
-            component="figcaption"
-            sx={{
-                px: 2,
-                py: 1.25,
-                borderTop: '1px solid',
-                borderColor: 'page.border',
-                fontSize: 'sm',
-                color: 'text.tertiary',
-            }}
-        >
+        <Typography component="figcaption" sx={captionSx}>
             <InlineText text={text} />
         </Typography>
     )
@@ -178,15 +153,7 @@ function Caption({ text }) {
  * (`src` пустой), на её месте стоит плашка «ФОТО» того же размера.
  */
 function Picture({ src, alt, caption, ratio = '16 / 9' }) {
-    const frame = {
-        my: 4,
-        mx: 0,
-        borderRadius: 'md',
-        overflow: 'hidden',
-        border: '1px solid',
-        borderColor: 'page.border',
-        bgcolor: 'background.level1',
-    }
+    const frame = figureSx
 
     if (!src) {
         return (
@@ -250,37 +217,9 @@ function CodeBlock({ content, language }) {
     }
 
     return (
-        <Sheet
-            variant="outlined"
-            sx={{
-                my: 3,
-                borderRadius: 'md',
-                overflow: 'hidden',
-                borderColor: 'page.border',
-                bgcolor: 'page.codeBg',
-                maxWidth: '100%',
-            }}
-        >
-            <Box
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    px: 2,
-                    py: 1,
-                    borderBottom: '1px solid',
-                    borderColor: 'page.border',
-                }}
-            >
-                <Typography
-                    sx={{
-                        fontFamily: 'code',
-                        fontSize: '11px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.12em',
-                        color: 'text.tertiary',
-                    }}
-                >
+        <Sheet variant="outlined" sx={codeSheetSx}>
+            <Box sx={codeHeaderSx}>
+                <Typography sx={codeLabelSx}>
                     {language || 'code'}
                 </Typography>
                 <Button
@@ -293,20 +232,7 @@ function CodeBlock({ content, language }) {
                     {copied ? 'Скопировано' : 'Копировать'}
                 </Button>
             </Box>
-            <Box
-                component="pre"
-                sx={{
-                    m: 0,
-                    p: 2.5,
-                    overflowX: 'auto',
-                    maxWidth: '100%',
-                    fontFamily: 'code',
-                    fontSize: '14px',
-                    lineHeight: 1.65,
-                    color: 'text.primary',
-                    ...tokenStyles,
-                }}
-            >
+            <Box component="pre" sx={{ ...codePreSx, ...tokenStyles }}>
                 {markup ? (
                     <code dangerouslySetInnerHTML={{ __html: markup }} />
                 ) : (
@@ -339,17 +265,7 @@ function ListItems({ items }) {
 
 function List({ ordered, items }) {
     return (
-        <Box
-            component={ordered ? 'ol' : 'ul'}
-            sx={{
-                my: 2,
-                pl: 3,
-                color: 'text.secondary',
-                fontSize: 'lg',
-                lineHeight: 1.7,
-                '& ::marker': { color: 'primary.400' },
-            }}
-        >
+        <Box component={ordered ? 'ol' : 'ul'} sx={listSx}>
             <ListItems items={items} />
         </Box>
     )
@@ -357,29 +273,8 @@ function List({ ordered, items }) {
 
 function DataTable({ head, rows }) {
     return (
-        <Sheet
-            variant="outlined"
-            sx={{
-                my: 3,
-                borderRadius: 'lg',
-                borderColor: 'page.border',
-                // Широкая таблица прокручивается сама, а не растягивает страницу
-                maxWidth: '100%',
-                overflowX: 'auto',
-                overflowY: 'hidden',
-                WebkitOverflowScrolling: 'touch',
-            }}
-        >
-            <Table
-                sx={{
-                    '--TableCell-headBackground': 'var(--dd-palette-background-level1)',
-                    '--TableCell-paddingY': '12px',
-                    '--TableCell-paddingX': '16px',
-                    width: 'max-content',
-                    minWidth: '100%',
-                    '& th, & td': { whiteSpace: 'normal', minWidth: '132px' },
-                }}
-            >
+        <Sheet variant="outlined" sx={tableSheetSx}>
+            <Table sx={tableSx}>
                 <thead>
                     <tr>
                         {head.map((cell, index) => (
@@ -425,18 +320,22 @@ const renderers = {
     courses: (block) => <CourseList title={block.title} items={block.items || []} />,
 }
 
+/** Один блок контента без обёртки. Неизвестный тип блока не рисуется. */
+export function ContentBlock({ block, ink }) {
+    const render = renderers[block.block]
+    return render ? render(block, ink) : null
+}
+
 export default function ContentBlocks({ blocks = [], ink }) {
     return (
-        <Box sx={{ minWidth: 0, maxWidth: '100%', '& > *:first-of-type': { mt: 0 } }}>
-            {blocks.map((block, index) => {
-                const render = renderers[block.block]
-                if (!render) return null
-                return (
-                    <Box key={index} sx={{ minWidth: 0, maxWidth: '100%' }}>
-                        {render(block, ink)}
+        <Box sx={blocksSx}>
+            {blocks.map((block, index) =>
+                renderers[block.block] ? (
+                    <Box key={index} sx={blockSx}>
+                        <ContentBlock block={block} ink={ink} />
                     </Box>
-                )
-            })}
+                ) : null,
+            )}
         </Box>
     )
 }

@@ -13,15 +13,19 @@ import LessonSidebar from '../components/Course/LessonSidebar'
 import LessonNavMobile from '../components/Course/LessonNavMobile'
 import Kbd from '../components/Ui/Kbd'
 import { fillGradient } from '../components/Ui/shine'
+import ShareButton from '../components/Ui/ShareButton'
+import CourseState from '../components/Course/CourseState'
+import { LessonPageSkeleton } from '../components/Course/PageSkeletons'
 import PageNotFound from './PageNotFound'
-import { getCourse, getPage, getNeighbours, getLessons, FINAL_SLUG } from '../data/courses'
+import { useCourse } from '../api/courses'
+import { getPage, getNeighbours, getLessons, FINAL_SLUG } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 
 export default function PageLesson() {
     const { id, slug } = useParams()
     const navigate = useNavigate()
 
-    const course = getCourse(id)
+    const { course, error, reload } = useCourse(id)
     const page = getPage(course, slug)
     const { prev, next, index } = getNeighbours(course, slug)
 
@@ -47,7 +51,11 @@ export default function PageLesson() {
         return () => window.removeEventListener('keydown', onKeyDown)
     }, [id, next, prev, navigate])
 
-    if (!course || !page) return <PageNotFound />
+    if (!course) {
+        return <CourseState id={id} error={error} reload={reload} skeleton={<LessonPageSkeleton />} />
+    }
+
+    if (!page) return <PageNotFound />
 
     const accent = getAccent(course.accent)
     const skin = accent[resolved] || accent.light
@@ -330,6 +338,40 @@ export default function PageLesson() {
                                 </>
                             </Typography>
                         )}
+
+                        {/* Поделиться курсом — ссылка ведёт на страницу курса, а не на этот урок:
+                            так новый человек начнёт с начала */}
+                        <Box
+                            sx={{
+                                mt: { xs: 4, md: 5 },
+                                p: { xs: 2.25, sm: 2.5 },
+                                display: 'flex',
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                alignItems: { xs: 'stretch', sm: 'center' },
+                                justifyContent: 'space-between',
+                                gap: 2,
+                                bgcolor: 'background.level1',
+                            }}
+                        >
+                            <Box>
+                                <Typography sx={{ fontFamily: 'display', fontWeight: 500, color: 'text.primary' }}>
+                                    Курс полезен? Поделитесь им
+                                </Typography>
+                                <Typography sx={{ mt: 0.5, fontSize: 'sm', color: 'text.tertiary', lineHeight: 1.5 }}>
+                                    Отправьте ссылку тому, кто тоже хочет научиться.
+                                </Typography>
+                            </Box>
+                            <ShareButton
+                                path={`/course/${course.id}`}
+                                title={course.title}
+                                text={course.subtitle}
+                                variant="outlined"
+                                color="neutral"
+                                sx={{ flexShrink: 0, fontWeight: 700, borderColor: 'page.border', color: 'text.primary', bgcolor: 'background.body' }}
+                            >
+                                Поделиться курсом
+                            </ShareButton>
+                        </Box>
                     </Box>
                 </Box>
             </Container>

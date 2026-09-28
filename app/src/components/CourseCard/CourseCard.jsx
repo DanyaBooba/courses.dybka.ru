@@ -5,10 +5,12 @@ import Button from '@mui/joy/Button'
 import { useColorScheme } from '@mui/joy/styles'
 import { motion } from 'framer-motion'
 import { Link as RouterLink } from 'react-router-dom'
+import { EyeSlashIcon } from '@phosphor-icons/react'
 
 import { getAccent } from '../../theme/accents'
 import { lessonsLabel } from '../../data/plural'
 import { getLessons } from '../../data/courses'
+import { canOpen, useProfile } from '../../api/courses'
 import CourseMedia from '../Course/CourseMedia'
 import Difficulty from '../Course/Difficulty'
 import StartButton from '../Course/StartButton'
@@ -25,18 +27,24 @@ const appear = {
  * есть видео — при наведении оно играет вместо обложки.
  *
  * У курса с `disabled: true` карточка неактивна: без ссылок и кнопок, приглушена
- * и вместо кнопок показывает, что курс ещё в разработке. Объём в такой карточке
+ * и вместо кнопок показывает плашку «Ведётся работа». Объём в такой карточке
  * берётся из `duration` — это задуманный размер курса, а не число готовых уроков.
+ * Администратор и автор курса видят его как обычный, с пометкой «Скрыт».
+ * `asReader` — показать карточку глазами читателя (образец в панели управления).
  */
-export default function CourseCard({ course, index }) {
+export default function CourseCard({ course, index, asReader = false }) {
     const { mode, systemMode } = useColorScheme()
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
     const accent = getAccent(course.accent)
     const skin = accent[resolved] || accent.light
 
     const [hovered, setHovered] = useState(false)
+    const { user: profile } = useProfile()
+    const user = asReader ? null : profile
 
-    const disabled = Boolean(course.disabled)
+    // Закрытый курс, который этому человеку всё же можно открыть
+    const hidden = Boolean(course.disabled) && canOpen(course, user)
+    const disabled = !canOpen(course, user)
     const number = typeof index === 'number' ? String(index + 1).padStart(2, '0') : null
     const lessons = getLessons(course).length
     const volume = disabled ? course.duration : lessonsLabel(lessons)
@@ -103,9 +111,20 @@ export default function CourseCard({ course, index }) {
                     color: skin.text,
                 }}
             >
-                <Box component="span" sx={{ opacity: 0.55 }}>
-                    {number ?? course.chips[0]}
-                </Box>
+                {hidden ? (
+                    <Box
+                        component="span"
+                        title="Читатели видят плашку «Ведётся работа»"
+                        sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, opacity: 0.75 }}
+                    >
+                        <EyeSlashIcon size={13} weight="bold" />
+                        Скрыт
+                    </Box>
+                ) : (
+                    <Box component="span" sx={{ opacity: 0.55 }}>
+                        {number ?? course.chips[0]}
+                    </Box>
+                )}
                 <Box component="span" sx={{ opacity: 0.75, textAlign: 'right' }}>
                     {course.level}
                 </Box>
@@ -243,7 +262,7 @@ export default function CourseCard({ course, index }) {
                             opacity: 0.7,
                         }}
                     >
-                        Курс в разработке
+                        Ведётся работа
                     </Box>
                 ) : (
                     <>

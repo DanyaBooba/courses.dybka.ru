@@ -12,8 +12,11 @@ import ContentBlocks from '../components/Content/ContentBlocks'
 import CourseMedia from '../components/Course/CourseMedia'
 import Difficulty from '../components/Course/Difficulty'
 import StartButton from '../components/Course/StartButton'
-import PageNotFound from './PageNotFound'
-import { getCourse, hasMedia, getLessons, getFinalPage } from '../data/courses'
+import CourseState from '../components/Course/CourseState'
+import { CoursePageSkeleton } from '../components/Course/PageSkeletons'
+import ShareButton from '../components/Ui/ShareButton'
+import { useCourse } from '../api/courses'
+import { hasMedia, getLessons, getFinalPage } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 import { lessonsLabel } from '../data/plural'
 
@@ -32,7 +35,8 @@ function Meta({ label, value, color }) {
             >
                 {label}
             </Typography>
-            <Typography sx={{ mt: 0.5, fontWeight: 500, color }}>{value}</Typography>
+            {/* div, а не p: в значении бывает блок (звёзды сложности) */}
+            <Typography component="div" sx={{ mt: 0.5, fontWeight: 500, color }}>{value}</Typography>
         </Box>
     )
 }
@@ -42,15 +46,34 @@ const MONTHS = [
     'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь',
 ]
 
-// «2023-07-01» → «июль 2023»: читателю важна свежесть курса, а не точный день
+// «2023-07-01» или «2023-07-01T00:00:00.000Z» → «июль 2023»:
+// читателю важна свежесть курса, а не точный день
 function monthYear(date) {
-    const [year, month] = date.split('-').map(Number)
+    const [year, month] = date.slice(0, 10).split('-').map(Number)
     return `${MONTHS[month - 1]} ${year}`
+}
+
+// Вторичная кнопка на плашке курса: контур цвета курса, заливка только при наведении
+function skinButtonSx(skin) {
+    return {
+        width: { xs: '100%', sm: 'auto' },
+        bgcolor: 'transparent',
+        color: skin.text,
+        border: '1px solid',
+        borderColor: skin.rule,
+        // Фон Joy перебиваем: на тач-экранах :hover «залипает»
+        '&:hover': { bgcolor: 'transparent', color: skin.text },
+        '@media (hover: hover)': {
+            '&:hover': { bgcolor: skin.chip },
+        },
+        '&:active': { bgcolor: skin.chip },
+        fontWeight: 700,
+    }
 }
 
 export default function PageCourse() {
     const { id } = useParams()
-    const course = getCourse(id)
+    const { course, error, reload } = useCourse(id)
 
     const { mode, systemMode } = useColorScheme()
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
@@ -82,9 +105,12 @@ export default function PageCourse() {
         )
         observer.observe(hero)
         return () => observer.disconnect()
-    }, [id])
+        // Шапка появляется только после загрузки курса — тогда и подписываемся
+    }, [id, course])
 
-    if (!course) return <PageNotFound />
+    if (!course) {
+        return <CourseState id={id} error={error} reload={reload} skeleton={<CoursePageSkeleton />} />
+    }
 
     const accent = getAccent(course.accent)
     const skin = accent[resolved] || accent.light
@@ -93,6 +119,8 @@ export default function PageCourse() {
     const finalPage = getFinalPage(course)
     // Без фотографии и видео вторая колонка в шапке не нужна — текст занимает всю ширину
     const withMedia = hasMedia(course)
+    // Дата из файла курса точнее, в базе — дата последней правки
+    const updated = course.updated ?? course.updatedAt
 
     return (
         // Липкая панель «Начать курс» на телефонах не должна перекрывать подвал
@@ -218,11 +246,11 @@ export default function PageCourse() {
                                         />
                                     }
                                 />
-                                {course.updated && (
+                                {updated && (
                                     <Meta
                                         label="Обновлён"
                                         color={skin.text}
-                                        value={<time dateTime={course.updated}>{monthYear(course.updated)}</time>}
+                                        value={<time dateTime={updated.slice(0, 10)}>{monthYear(updated)}</time>}
                                     />
                                 )}
                             </Box>
@@ -252,25 +280,20 @@ export default function PageCourse() {
                                         rel="noreferrer"
                                         size="lg"
                                         variant="plain"
-                                        sx={{
-                                            width: { xs: '100%', sm: 'auto' },
-                                            bgcolor: 'transparent',
-                                            color: skin.text,
-                                            border: '1px solid',
-                                            borderColor: skin.rule,
-                                            // Фон Joy перебиваем: на тач-экранах :hover «залипает»
-                                            '&:hover': { bgcolor: 'transparent', color: skin.text },
-                                            '@media (hover: hover)': {
-                                                '&:hover': { bgcolor: skin.chip },
-                                            },
-                                            '&:active': { bgcolor: skin.chip },
-                                            fontWeight: 700,
-                                        }}
+                                        sx={skinButtonSx(skin)}
                                         startDecorator={<GithubLogoIcon size={20} />}
                                     >
                                         GitHub
                                     </Button>
                                 )}
+                                <ShareButton
+                                    path={`/course/${course.id}`}
+                                    title={course.title}
+                                    text={course.subtitle}
+                                    size="lg"
+                                    variant="plain"
+                                    sx={skinButtonSx(skin)}
+                                />
                             </Box>
                         </Box>
 

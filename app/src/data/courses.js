@@ -1,8 +1,8 @@
-// Реестр курсов.
+// Курсы: схема и помощники.
 //
-// Каждый курс живёт в отдельном файле в src/data/courses/<id>.js и экспортирует
-// объект курса по умолчанию. Здесь курсы только собираются в общий список —
-// чтобы добавить курс, достаточно создать файл и дописать его в массив ниже.
+// Курсы живут в базе: сайт и панель управления берут их из API (см. src/api/courses.js).
+// Файлы src/data/courses/<id>.js — исходники, из которых курсы перенесены в базу
+// (database/seed-courses.sql в репозитории API); сайт их больше не читает.
 //
 // Схема курса:
 //   id        — слаг, он же часть адреса: /course/<id>
@@ -14,8 +14,8 @@
 //   section   — раздел каталога (см. src/data/sections.js):
 //               unity | web | mobile
 //   difficulty — сложность от 1 до 5, рисуется звёздами в карточке
-//   disabled  — true, пока курс не готов: карточка в каталоге неактивна,
-//               страницы курса и уроков по прямой ссылке отдают 404
+//   disabled  — true, пока курс не готов: целиком его видят только администратор
+//               и автор, остальным вместо уроков — плашка «Ведётся работа»
 //   level     — уровень («Для начинающих»)
 //   duration  — задуманный объём («10 уроков»), заметка для автора: в вёрстке
 //               счётчик уроков считается по `pages`, а не по этому полю
@@ -51,50 +51,6 @@
 //
 // В тексте блоков поддерживается упрощённый markdown: **жирный**, _курсив_,
 // `код` и [ссылка](адрес).
-
-import unityFirstGame from './courses/unity-first-game'
-import htmlCssFirstSite from './courses/html-css-first-site'
-import vanillaJavascript from './courses/vanilla-javascript'
-import phpMysql from './courses/php-mysql'
-import gulpWorkflow from './courses/gulp-workflow'
-import webMedia from './courses/web-media'
-import unityAr from './courses/unity-ar'
-import unityVr from './courses/unity-vr'
-import mobileApp from './courses/mobile-app'
-import storePublishing from './courses/store-publishing'
-import reactSite from './courses/react-site'
-import nodejsApi from './courses/nodejs-api'
-import laravelSite from './courses/laravel-site'
-import fullstackReactNode from './courses/fullstack-react-node'
-
-const courses = [
-    unityFirstGame,
-    unityAr,
-    unityVr,
-    htmlCssFirstSite,
-    vanillaJavascript,
-    gulpWorkflow,
-    reactSite,
-    nodejsApi,
-    fullstackReactNode,
-    laravelSite,
-    mobileApp,
-    storePublishing,
-    phpMysql,
-    webMedia,
-]
-
-export default courses
-
-/**
- * Курс по слагу. Закрытые курсы (`disabled: true`) наружу не отдаются: их
- * карточки не кликаются, и по прямой ссылке открываться они тоже не должны —
- * иначе человек попадёт на страницу с пустым планом уроков.
- */
-export function getCourse(id) {
-    const course = courses.find((item) => item.id === id) ?? null
-    return course && !course.disabled ? course : null
-}
 
 /** Есть ли что показывать в обложке курса: фотография или видео. */
 export function hasMedia(course) {

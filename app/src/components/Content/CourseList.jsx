@@ -3,7 +3,8 @@ import Typography from '@mui/joy/Typography'
 import { motion } from 'framer-motion'
 
 import CourseCard from '../CourseCard/CourseCard'
-import courses from '../../data/courses'
+import CourseCardSkeleton from '../CourseCard/CourseCardSkeleton'
+import { useCourses } from '../../api/courses'
 
 /**
  * Подборка курсов внутри урока — те же карточки, что в каталоге на главной.
@@ -11,7 +12,9 @@ import courses from '../../data/courses'
  * Курсы задаются списком `id`; порядок в списке и есть порядок карточек.
  * Неизвестные `id` молча пропускаются, чтобы опечатка в данных не ломала урок.
  * Закрытые курсы (`disabled: true`) не отфильтровываются: карточка сама
- * покажет, что курс ещё в разработке — так же, как в каталоге.
+ * покажет, что над курсом ведётся работа — так же, как в каталоге.
+ * Пока каталог грузится, на месте карточек стоят скелеты; если не загрузился —
+ * подборка просто не показывается, урок читать это не мешает.
  */
 
 const stagger = {
@@ -20,11 +23,13 @@ const stagger = {
 }
 
 export default function CourseList({ title, items = [] }) {
-    const picked = items
-        .map((id) => courses.find((course) => course.id === id))
-        .filter((course) => Boolean(course))
+    const { courses, loading } = useCourses()
 
-    if (!picked.length) return null
+    const picked = items
+        .map((id) => courses?.find((course) => course.id === id))
+        .filter(Boolean)
+
+    if (!loading && !picked.length) return null
 
     return (
         <Box component="section" aria-label={title || 'Курсы'} sx={{ mt: title ? 6 : 4 }}>
@@ -59,9 +64,9 @@ export default function CourseList({ title, items = [] }) {
                     },
                 }}
             >
-                {picked.map((course) => (
-                    <CourseCard key={course.id} course={course} />
-                ))}
+                {loading
+                    ? items.map((id) => <CourseCardSkeleton key={id} />)
+                    : picked.map((course) => <CourseCard key={course.id} course={course} />)}
             </Box>
         </Box>
     )
