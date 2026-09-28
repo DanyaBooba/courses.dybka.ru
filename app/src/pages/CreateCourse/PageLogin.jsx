@@ -165,7 +165,7 @@ export default function PageLogin() {
     return (
         <PageShell centered>
             <Container maxWidth="sm" sx={{ px: { xs: 2.5, sm: 3 }, py: { xs: 6, md: 8 }, overflow: 'hidden' }}>
-                <Box sx={{ maxWidth: 440 }}>
+                <Box sx={{ maxWidth: 440, mx: 'auto' }}>
                     <AnimatePresence mode="wait" custom={direction} initial={false}>
                         {step === 'email' ? (
                             <Box
@@ -178,6 +178,8 @@ export default function PageLogin() {
                                 exit="exit"
                                 onSubmit={submitEmail}
                                 noValidate
+                                // Блок центрируется по вертикали, поэтому отступ сверху вдвое больше сдвига: 116px → вниз на 58px
+                                sx={{ pt: '116px' }}
                             >
                                 <Title>Авторизация</Title>
 
