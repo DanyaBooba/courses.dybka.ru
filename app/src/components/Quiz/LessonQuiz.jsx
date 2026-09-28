@@ -188,7 +188,10 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
                                 color: 'text.secondary',
                                 cursor: checked ? 'default' : 'pointer',
                                 transition: 'background-color 0.15s ease, color 0.15s ease',
-                                '&:hover': checked ? {} : { bgcolor: 'background.level1', color: 'text.primary' },
+                                // Только для мыши: на тач-экранах :hover «залипает» после тапа
+                                '@media (hover: hover)': {
+                                    '&:hover': checked ? {} : { bgcolor: 'background.level1', color: 'text.primary' },
+                                },
                                 '&:focus-visible': { outline: '2px solid', outlineColor: ink, outlineOffset: '2px' },
                             }}
                         >

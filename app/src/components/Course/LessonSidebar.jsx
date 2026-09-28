@@ -28,7 +28,10 @@ const linkSx = {
     textDecoration: 'none',
     color: 'text.secondary',
     transition: 'color 0.15s ease, padding-left 0.15s ease',
-    '&:hover': { color: 'text.primary', pl: 0.75 },
+    // Только для мыши: на тач-экранах :hover «залипает» после тапа
+    '@media (hover: hover)': {
+        '&:hover': { color: 'text.primary', pl: 0.75 },
+    },
 }
 
 // Та же кривая, что у полосы прогресса: резкий старт и долгое мягкое торможение
@@ -64,7 +67,12 @@ const controlSx = {
     borderRadius: 0,
     bgcolor: 'background.level1',
     color: 'text.secondary',
-    '&:hover': { bgcolor: 'primary.softBg', color: 'text.primary' },
+    // Фон Joy при наведении перебиваем: на тач-экранах он «залипает» после тапа
+    '&:hover': { bgcolor: 'background.level1', color: 'text.secondary' },
+    '@media (hover: hover)': {
+        '&:hover': { bgcolor: 'primary.softBg', color: 'text.primary' },
+    },
+    '&:active': { bgcolor: 'primary.softBg', color: 'text.primary' },
 }
 
 // Кнопки полоски: без фона, подложка появляется только при наведении и нажатии
@@ -202,7 +210,13 @@ export default function LessonSidebar({
                                     color: active ? 'text.primary' : 'text.secondary',
                                     fontWeight: active ? 600 : 400,
                                     transition: 'color 0.15s ease, padding-left 0.15s ease',
-                                    '&:hover': { color: 'text.primary', pl: 0.75 },
+                                    // Только для мыши: на тач-экранах :hover «залипает» после тапа.
+                                    // Отступ справа у названия уходит ровно на столько, на сколько
+                                    // строка сдвигается вправо: ширина текста не меняется, переносы не прыгают
+                                    '@media (hover: hover)': {
+                                        '&:hover': { color: 'text.primary', pl: 0.75 },
+                                        '&:hover .lesson-title': { mr: 0 },
+                                    },
                                 }}
                             >
                                 <Box
@@ -222,7 +236,12 @@ export default function LessonSidebar({
                                         String(index + 1).padStart(2, '0')
                                     )}
                                 </Box>
-                                <Box sx={{ minWidth: 0, flex: 1 }}>{page.short}</Box>
+                                <Box
+                                    className="lesson-title"
+                                    sx={{ minWidth: 0, flex: 1, mr: 0.75, transition: 'margin-right 0.15s ease' }}
+                                >
+                                    {page.short}
+                                </Box>
                                 {toggle ? (
                                     <Box
                                         aria-hidden

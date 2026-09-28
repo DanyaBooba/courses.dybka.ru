@@ -5,8 +5,11 @@ import Footer from './Footer'
 /**
  * Общий каркас страницы: сплошной фон без градиентов и подвал.
  * Шапки нет — навигация живёт внутри страниц.
+ *
+ * `footerOffset` — высота фиксированной панели внизу экрана на телефонах (px):
+ * на столько подвал приподнимается, чтобы панель его не закрывала.
  */
-export default function PageShell({ children }) {
+export default function PageShell({ children, footerOffset = 0 }) {
     return (
         <Box
             sx={{
@@ -20,7 +23,7 @@ export default function PageShell({ children }) {
                 {children}
             </Box>
 
-            <Footer />
+            <Footer offset={footerOffset} />
         </Box>
     )
 }

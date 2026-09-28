@@ -7,7 +7,7 @@ export default {
     subtitle: 'Сборка проекта: препроцессоры, автоматическая оптимизация и живая перезагрузка страницы.',
     accent: 'peach',
     section: 'web',
-    difficulty: 3,
+    difficulty: 2,
     disabled: true,
     level: 'Нужны основы вёрстки',
     duration: '7 уроков',

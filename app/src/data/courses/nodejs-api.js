@@ -7,7 +7,7 @@ export default {
     subtitle: 'Серверное приложение: маршруты, база данных, авторизация и документация вашего API.',
     accent: 'node',
     section: 'web',
-    difficulty: 4,
+    difficulty: 3,
     disabled: true,
     level: 'Нужен JavaScript',
     duration: '10 уроков',

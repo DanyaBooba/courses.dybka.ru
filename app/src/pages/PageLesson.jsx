@@ -12,6 +12,7 @@ import ContentBlocks from '../components/Content/ContentBlocks'
 import LessonSidebar from '../components/Course/LessonSidebar'
 import LessonNavMobile from '../components/Course/LessonNavMobile'
 import Kbd from '../components/Ui/Kbd'
+import { fillGradient } from '../components/Ui/shine'
 import PageNotFound from './PageNotFound'
 import { getCourse, getPage, getNeighbours, getLessons, FINAL_SLUG } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
@@ -59,7 +60,8 @@ export default function PageLesson() {
     const lessonsTotal = getLessons(course).length
 
     return (
-        <PageShell>
+        // Плавающая навигация на телефонах не должна перекрывать подвал
+        <PageShell footerOffset={90}>
             {/* Прогресс курса: плавно доезжает до новой отметки */}
             <Box
                 aria-hidden
@@ -171,7 +173,9 @@ export default function PageLesson() {
                                         borderColor: 'page.border',
                                         bgcolor: 'transparent',
                                         transition: 'background-color 0.18s ease',
-                                        '&:hover': { bgcolor: 'background.level1' },
+                                        '@media (hover: hover)': {
+                                            '&:hover': { bgcolor: 'background.level1' },
+                                        },
                                     }}
                                 >
                                     <Typography
@@ -212,11 +216,14 @@ export default function PageLesson() {
                                         p: 2.25,
                                         borderRadius: 'md',
                                         textDecoration: 'none',
-                                        bgcolor: skin.bg,
-                                        border: '1px solid',
+                                        bgcolor: `color-mix(in srgb, ${skin.bg} 70%, transparent)`,
                                         borderColor: skin.rule,
-                                        transition: 'box-shadow 0.2s ease',
-                                        '&:hover': { boxShadow: skin.shadow },
+                                        transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
+                                        // Только для мыши: компонент урока не пересоздаётся при переходе,
+                                        // и на тач-экранах :hover «залип» бы на новой странице
+                                        '@media (hover: hover)': {
+                                            '&:hover': { bgcolor: skin.bg, boxShadow: skin.shadow },
+                                        },
                                     }}
                                 >
                                     <Typography
@@ -226,7 +233,7 @@ export default function PageLesson() {
                                             letterSpacing: '0.1em',
                                             textTransform: 'uppercase',
                                             color: skin.text,
-                                            opacity: 0.7,
+                                            opacity: '0.7 !important',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'flex-end',
@@ -260,10 +267,13 @@ export default function PageLesson() {
                                         borderRadius: 'md',
                                         textDecoration: 'none',
                                         bgcolor: solid,
+                                        backgroundImage: fillGradient(solid),
                                         border: '1px solid',
                                         borderColor: solid,
                                         transition: 'filter 0.2s ease, box-shadow 0.2s ease',
-                                        '&:hover': { filter: 'brightness(1.15)', boxShadow: skin.shadow },
+                                        '@media (hover: hover)': {
+                                            '&:hover': { filter: 'brightness(1.15)', boxShadow: skin.shadow },
+                                        },
                                     }}
                                 >
                                     <Typography
@@ -322,9 +332,6 @@ export default function PageLesson() {
                         )}
                     </Box>
                 </Box>
-
-                {/* Отступ, чтобы плавающая навигация не перекрывала подвал */}
-                <Box sx={{ height: { xs: 72, md: 0 } }} />
             </Container>
 
             <LessonNavMobile

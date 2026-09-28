@@ -1,6 +1,6 @@
 // Цветовые темы курсов.
 //
-// Никаких градиентов: у каждого курса одна плоская заливка, одна «чернильная»
+// Плоские заливки (градиент только у главных кнопок): у каждого курса одна заливка, одна «чернильная»
 // краска для кнопок и цифр и один цветной контур для подписей. Цвет здесь —
 // как краска в печатном справочнике: плашка, номер, тонкая линейка.
 //
@@ -25,14 +25,14 @@ function accent({ solid, tint, light, dark, solidDark }) {
             chip: light.chip,
             rule: light.rule,
             text: light.text,
-            shadow: `0 8px 18px -10px ${solid}66`,
+            shadow: `0 12px 28px -12px ${solid}20`,
         },
         dark: {
             bg: dark.bg,
             chip: dark.chip,
             rule: dark.rule,
             text: dark.text,
-            shadow: `0 8px 18px -10px ${tint}59`,
+            shadow: `0 12px 28px -12px ${tint}4d`,
         },
     }
 }

@@ -22,7 +22,7 @@ export default function CourseMedia({ course, skin, ratio = '16 / 9', playing = 
             video.currentTime = 0
             const started = video.play()
             // play() отклоняется, если браузер запретил автозапуск — это не ошибка
-            if (started?.catch) started.catch(() => {})
+            if (started?.catch) started.catch(() => { })
         } else {
             video.pause()
             video.currentTime = 0
@@ -39,8 +39,8 @@ export default function CourseMedia({ course, skin, ratio = '16 / 9', playing = 
                 overflow: 'hidden',
                 borderRadius: rounded ? 'md' : 0,
                 bgcolor: skin.chip,
-                border: rounded ? '1px solid' : 'none',
-                borderBottom: '1px solid',
+                // border: rounded ? '1px solid' : 'none',
+                // borderBottom: '1px solid',
                 borderColor: skin.rule,
             }}
         >

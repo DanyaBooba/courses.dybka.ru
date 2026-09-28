@@ -8,7 +8,8 @@ const codeFont = "'SF Mono', ui-monospace, SFMono-Regular, 'JetBrains Mono', Men
  * Язык оформления — печатный справочник, а не «лендинг»:
  * плотная бумага вместо белизны, чернила вместо серого, тонкие линейки
  * вместо теней, углы почти прямые, кнопки — прямоугольные плашки.
- * Градиентов нет нигде: ни в фоне, ни в тексте, ни в плашках.
+ * Градиентов нет ни в фоне, ни в тексте, ни в плашках — только мягкий
+ * градиент на главных кнопках (см. components/Ui/shine.js).
  */
 const themeVariant = extendTheme({
     cssVarPrefix: 'dd',
@@ -28,7 +29,7 @@ const themeVariant = extendTheme({
     colorSchemes: {
         light: {
             palette: {
-                head: { themeColor: '#fbfaf6' },
+                head: { themeColor: '#fcfbf8' },
                 primary: {
                     50: '#f6f4ef',
                     100: '#eceade',
@@ -42,15 +43,15 @@ const themeVariant = extendTheme({
                     900: '#0e0d0a',
                     solidBg: '#24221d',
                     solidHoverBg: '#0e0d0a',
-                    softBg: '#efece2',
+                    softBg: '#f0eee8',
                     softColor: '#24221d',
                     plainColor: '#24221d',
                 },
                 // Бумага почти белая: тепло в фоне угадывается, но не бьёт в глаза
                 background: {
-                    body: '#fbfaf6',
+                    body: '#fcfbf8',
                     surface: '#ffffff',
-                    level1: '#f2f0e8',
+                    level1: '#f3f2ed',
                 },
                 text: {
                     primary: '#1b1a15',
@@ -58,14 +59,14 @@ const themeVariant = extendTheme({
                     tertiary: '#736e60',
                 },
                 page: {
-                    border: '#e3dfd2',
+                    border: '#e5e2d9',
                     rule: '#1b1a15',
-                    cardShadow: '0 8px 18px -12px rgba(27, 26, 21, 0.4)',
-                    cardShadowHover: '0 10px 22px -12px rgba(27, 26, 21, 0.5)',
-                    headerBg: '#fbfaf6',
+                    cardShadow: '0 12px 28px -14px rgba(27, 26, 21, 0.3)',
+                    cardShadowHover: '0 16px 32px -14px rgba(27, 26, 21, 0.38)',
+                    headerBg: '#fcfbf8',
                     noteBg: '#f6ecd2',
                     noteBar: '#8f6508',
-                    codeBg: '#f3f1e8',
+                    codeBg: '#f4f3ee',
                     // Краска для смысловых акцентов в тексте страницы
                     accentInk: '#b4531f',
                 },
@@ -121,8 +122,8 @@ const themeVariant = extendTheme({
                 page: {
                     border: '#33301f',
                     rule: '#f2efe6',
-                    cardShadow: '0 8px 18px -12px rgba(0, 0, 0, 0.8)',
-                    cardShadowHover: '0 10px 22px -12px rgba(0, 0, 0, 0.9)',
+                    cardShadow: '0 12px 28px -14px rgba(0, 0, 0, 0.65)',
+                    cardShadowHover: '0 16px 32px -14px rgba(0, 0, 0, 0.38)',
                     headerBg: '#16150f',
                     noteBg: '#2e2712',
                     noteBar: '#d9a938',

@@ -4,9 +4,16 @@ import Typography from '@mui/joy/Typography'
 import Link from '@mui/joy/Link'
 import { Link as RouterLink } from 'react-router-dom'
 
-export default function Footer() {
+export default function Footer({ offset = 0 }) {
     return (
-        <Box component="footer" sx={{ mt: 10 }}>
+        <Box
+            component="footer"
+            sx={{
+                mt: 10,
+                // Место под фиксированную панель внизу экрана на телефонах
+                pb: offset ? { xs: `calc(${offset}px + env(safe-area-inset-bottom))`, md: 0 } : 0,
+            }}
+        >
             <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3 } }}>
                 <Box
                     sx={{

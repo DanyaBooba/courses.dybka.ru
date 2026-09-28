@@ -78,7 +78,9 @@ function Heading({ level, content }) {
                         color: copied ? 'success.plainColor' : 'text.tertiary',
                         opacity: { xs: 1, md: copied ? 1 : 0 },
                         transition: 'opacity 0.18s ease, color 0.18s ease',
-                        '&:hover': { color: 'primary.plainColor' },
+                        '@media (hover: hover)': {
+                            '&:hover': { color: 'primary.plainColor' },
+                        },
                         '&:focus-visible': { opacity: 1 },
                     }}
                 >

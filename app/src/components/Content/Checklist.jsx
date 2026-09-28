@@ -159,7 +159,10 @@ export default function Checklist({ title, items = [], ink = 'text.primary' }) {
                                     color: 'text.secondary',
                                     cursor: 'pointer',
                                     transition: 'background-color 0.15s ease, color 0.15s ease',
-                                    '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
+                                    // Только для мыши: на тач-экранах :hover «залипает» после тапа
+                                    '@media (hover: hover)': {
+                                        '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
+                                    },
                                     '&:focus-visible': {
                                         outline: '2px solid',
                                         outlineColor: ink,

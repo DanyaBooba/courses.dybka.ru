@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 
 import PageShell from '../components/Layout/PageShell'
 import CourseCard from '../components/CourseCard/CourseCard'
+import { shineSx } from '../components/Ui/shine'
 import courses from '../data/courses'
 import { groupBySection } from '../data/sections'
 
@@ -27,7 +28,7 @@ const sections = groupBySection(courses)
 const facts = [
     { label: 'Курсов', value: String(courses.length) },
     { label: 'Уроков', value: String(lessonsTotal) },
-    { label: 'Цена', value: 'Бесплатно' },
+    { label: 'Стоимость', value: 'Бесплатно' },
     { label: 'Регистрация', value: 'Не нужна' },
 ]
 
@@ -76,17 +77,22 @@ export default function PageIndex() {
                         variants={rise}
                         sx={{
                             mt: { xs: 3, md: 4 },
-                            maxWidth: 800,
+                            maxWidth: 720,
                             fontSize: { xs: 'md', md: 'lg' },
                             lineHeight: 1.7,
                             color: 'text.secondary',
                         }}
                     >
-                        Авторские курсы без использования нейросетей и встроеных платежей. Игры на Unity, сайты, мобильная разработка. Все бесплатно с открытым кодом и без регистрации.
+                        Авторские курсы без  нейросетей и встроеных платежей. Игры на Unity, сайты, мобильная разработка. Все бесплатно с открытым кодом и без регистрации.
                     </Typography>
 
                     <Box component={motion.div} variants={rise} sx={{ mt: { xs: 3.5, md: 4.5 } }}>
-                        <Button component="a" href="#courses" size="lg" sx={{ px: 3, fontWeight: 700 }}>
+                        <Button
+                            component="a"
+                            href="#courses"
+                            size="lg"
+                            sx={{ ...shineSx('var(--dd-palette-primary-solidBg)'), px: 3, fontWeight: 700 }}
+                        >
                             Смотреть курсы
                         </Button>
                     </Box>

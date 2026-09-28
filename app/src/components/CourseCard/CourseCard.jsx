@@ -54,12 +54,12 @@ export default function CourseCard({ course, index }) {
                 flexDirection: 'column',
                 borderRadius: 'md',
                 bgcolor: skin.bg,
-                border: '1px solid',
+                // border: '1px solid',
                 borderColor: skin.rule,
                 boxShadow: 'none',
                 // Закрытый курс не приподнимается и не подсвечивается при наведении
                 ...(disabled
-                    ? { opacity: 0.7, cursor: 'default' }
+                    ? { opacity: '0.7 !important', cursor: 'default' }
                     : {
                         transition: 'box-shadow 0.2s ease, transform 0.2s ease',
                         '&:hover': {
@@ -183,7 +183,22 @@ export default function CourseCard({ course, index }) {
                     pointerEvents: 'none',
                 }}
             >
-                <Difficulty value={course.difficulty} color={skin.text} />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box
+                        component="span"
+                        sx={{
+                            fontFamily: 'code',
+                            fontSize: '11px',
+                            letterSpacing: '0.1em',
+                            textTransform: 'uppercase',
+                            color: skin.text,
+                            opacity: 0.7,
+                        }}
+                    >
+                        Сложность
+                    </Box>
+                    <Difficulty value={course.difficulty} color={skin.text} />
+                </Box>
                 <Box
                     component="span"
                     sx={{
@@ -245,7 +260,12 @@ export default function CourseCard({ course, index }) {
                                 border: '1px solid',
                                 borderColor: skin.rule,
                                 fontWeight: 700,
-                                '&:hover': { bgcolor: skin.chip, color: skin.text },
+                                // Фон Joy перебиваем: на тач-экранах :hover «залипает»
+                                '&:hover': { bgcolor: 'transparent', color: skin.text },
+                                '@media (hover: hover)': {
+                                    '&:hover': { bgcolor: skin.chip },
+                                },
+                                '&:active': { bgcolor: skin.chip },
                             }}
                         >
                             Подробнее

@@ -15,19 +15,31 @@ const PAD = '20px'
  * Навигация по курсу на телефонах: слева — план курса, справа под большой
  * палец — переходы между уроками. Недоступные переходы просто не показываем.
  */
+// Полупрозрачная подложка стрелок
+const SURFACE = 'color-mix(in srgb, var(--dd-palette-background-surface) 78%, transparent)'
+
 export default function LessonNavMobile({ course, activeSlug, accent, ink, prev, next }) {
     const [open, setOpen] = useState(false)
 
     const arrowSx = {
         '--IconButton-size': '46px',
         borderRadius: 0,
-        bgcolor: 'background.surface',
+        // Полупрозрачная подложка с размытием: текст урока угадывается под кнопкой
+        bgcolor: SURFACE,
+        backdropFilter: 'blur(8px)',
         border: '1px solid',
         borderColor: 'page.border',
         color: 'text.secondary',
         // Небольшая тень, чтобы кнопка отрывалась от текста урока
         boxShadow: (theme) => theme.vars.palette.page.cardShadow,
-        '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
+        // На тач-экранах :hover «залипает» после тапа, поэтому по умолчанию
+        // наведение ничего не меняет (перебиваем и фон Joy), а подсветка
+        // включается только там, где есть мышь; на телефоне — отклик по касанию
+        '&:hover': { bgcolor: SURFACE, color: 'text.secondary' },
+        '@media (hover: hover)': {
+            '&:hover': { bgcolor: 'background.level1', color: 'text.primary' },
+        },
+        '&:active': { bgcolor: 'background.level1', color: 'text.primary' },
     }
 
     return (
@@ -55,8 +67,12 @@ export default function LessonNavMobile({ course, activeSlug, accent, ink, prev,
                         bgcolor: accent.solid,
                         color: '#fff',
                         // Тень под цвет самой кнопки, не чёрная
-                        boxShadow: `0 6px 16px -6px ${accent.solid}99`,
-                        '&:hover': { bgcolor: accent.solid, filter: 'brightness(1.1)' },
+                        boxShadow: `0 10px 22px -8px ${accent.solid}80`,
+                        '&:hover': { bgcolor: accent.solid },
+                        '@media (hover: hover)': {
+                            '&:hover': { filter: 'brightness(1.1)' },
+                        },
+                        '&:active': { filter: 'brightness(1.1)' },
                     }}
                 >
                     <ListIcon size={24} weight="bold" />
@@ -136,7 +152,11 @@ export default function LessonNavMobile({ course, activeSlug, accent, ink, prev,
                             borderRadius: 0,
                             bgcolor: 'background.level1',
                             color: 'text.secondary',
-                            '&:hover': { bgcolor: 'primary.softBg', color: 'text.primary' },
+                            '&:hover': { bgcolor: 'background.level1', color: 'text.secondary' },
+                            '@media (hover: hover)': {
+                                '&:hover': { bgcolor: 'primary.softBg', color: 'text.primary' },
+                            },
+                            '&:active': { bgcolor: 'primary.softBg', color: 'text.primary' },
                         }}
                     >
                         <XIcon size={18} weight="bold" />

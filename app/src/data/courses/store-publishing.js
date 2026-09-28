@@ -7,7 +7,7 @@ export default {
     subtitle: 'Как довести проект до магазина: подписи, требования, описания, скриншоты и обновления.',
     accent: 'amber',
     section: 'mobile',
-    difficulty: 2,
+    difficulty: 1,
     disabled: true,
     level: 'Для всех',
     duration: '6 уроков',

@@ -37,6 +37,17 @@ function Meta({ label, value, color }) {
     )
 }
 
+const MONTHS = [
+    'январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
+    'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь',
+]
+
+// «2023-07-01» → «июль 2023»: читателю важна свежесть курса, а не точный день
+function monthYear(date) {
+    const [year, month] = date.split('-').map(Number)
+    return `${MONTHS[month - 1]} ${year}`
+}
+
 export default function PageCourse() {
     const { id } = useParams()
     const course = getCourse(id)
@@ -84,7 +95,8 @@ export default function PageCourse() {
     const withMedia = hasMedia(course)
 
     return (
-        <PageShell>
+        // Липкая панель «Начать курс» на телефонах не должна перекрывать подвал
+        <PageShell footerOffset={76}>
             <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3 }, pt: { xs: 3, md: 4 } }}>
                 {/* Возврат в каталог — той же плашкой, что и выход из урока внутри курса */}
                 <Typography
@@ -102,7 +114,9 @@ export default function PageCourse() {
                         bgcolor: 'background.level1',
                         textDecoration: 'none',
                         color: 'text.secondary',
-                        '&:hover': { color: 'text.primary' },
+                        '@media (hover: hover)': {
+                            '&:hover': { color: 'text.primary' },
+                        },
                     }}
                 >
                     <HouseIcon size={18} weight="bold" />
@@ -116,7 +130,7 @@ export default function PageCourse() {
                         p: { xs: 2.5, md: 4.5 },
                         borderRadius: 'md',
                         bgcolor: skin.bg,
-                        border: '1px solid',
+                        // border: '1px solid',
                         borderColor: skin.rule,
                     }}
                 >
@@ -204,6 +218,13 @@ export default function PageCourse() {
                                         />
                                     }
                                 />
+                                {course.updated && (
+                                    <Meta
+                                        label="Обновлён"
+                                        color={skin.text}
+                                        value={<time dateTime={course.updated}>{monthYear(course.updated)}</time>}
+                                    />
+                                )}
                             </Box>
 
                             {/* На узком экране кнопки встают в колонку — и тогда каждая во всю ширину */}
@@ -237,7 +258,12 @@ export default function PageCourse() {
                                             color: skin.text,
                                             border: '1px solid',
                                             borderColor: skin.rule,
-                                            '&:hover': { bgcolor: skin.chip, color: skin.text },
+                                            // Фон Joy перебиваем: на тач-экранах :hover «залипает»
+                                            '&:hover': { bgcolor: 'transparent', color: skin.text },
+                                            '@media (hover: hover)': {
+                                                '&:hover': { bgcolor: skin.chip },
+                                            },
+                                            '&:active': { bgcolor: skin.chip },
                                             fontWeight: 700,
                                         }}
                                         startDecorator={<GithubLogoIcon size={20} />}
@@ -364,7 +390,13 @@ export default function PageCourse() {
                                             textDecoration: 'none',
                                             color: 'text.secondary',
                                             transition: 'color 0.15s ease, padding-left 0.15s ease',
-                                            '&:hover': { color: 'text.primary', pl: 0.75 },
+                                            // Только для мыши: на тач-экранах :hover «залипает».
+                                            // Отступ справа у названия уходит, пока строка сдвигается
+                                            // вправо: ширина текста та же, переносы не прыгают
+                                            '@media (hover: hover)': {
+                                                '&:hover': { color: 'text.primary', pl: 0.75 },
+                                                '&:hover .lesson-title': { mr: 0 },
+                                            },
                                         }}
                                     >
                                         <Box
@@ -377,7 +409,12 @@ export default function PageCourse() {
                                         >
                                             {String(index + 1).padStart(2, '0')}
                                         </Box>
-                                        <Box sx={{ fontSize: 'sm', lineHeight: 1.5 }}>{page.short}</Box>
+                                        <Box
+                                            className="lesson-title"
+                                            sx={{ fontSize: 'sm', lineHeight: 1.5, mr: 0.75, transition: 'margin-right 0.15s ease' }}
+                                        >
+                                            {page.short}
+                                        </Box>
                                     </Box>
                                 </Box>
                             ))}
@@ -399,7 +436,13 @@ export default function PageCourse() {
                                             textDecoration: 'none',
                                             color: 'text.secondary',
                                             transition: 'color 0.15s ease, padding-left 0.15s ease',
-                                            '&:hover': { color: 'text.primary', pl: 0.75 },
+                                            // Только для мыши: на тач-экранах :hover «залипает».
+                                            // Отступ справа у названия уходит, пока строка сдвигается
+                                            // вправо: ширина текста та же, переносы не прыгают
+                                            '@media (hover: hover)': {
+                                                '&:hover': { color: 'text.primary', pl: 0.75 },
+                                                '&:hover .lesson-title': { mr: 0 },
+                                            },
                                         }}
                                     >
                                         <Box
@@ -412,7 +455,10 @@ export default function PageCourse() {
                                         >
                                             <FlagIcon size={15} weight="fill" />
                                         </Box>
-                                        <Box sx={{ fontSize: 'sm', lineHeight: 1.5 }}>
+                                        <Box
+                                            className="lesson-title"
+                                            sx={{ fontSize: 'sm', lineHeight: 1.5, mr: 0.75, transition: 'margin-right 0.15s ease' }}
+                                        >
                                             {finalPage.short}
                                         </Box>
                                     </Box>
@@ -421,9 +467,6 @@ export default function PageCourse() {
                         </Box>
                     </Box>
                 </Box>
-
-                {/* Отступ, чтобы липкая панель не перекрывала подвал */}
-                <Box sx={{ height: { xs: 96, md: 0 } }} />
             </Container>
 
             {/* Телефоны: как только шапка уехала, кнопка «Начать курс» переезжает вниз экрана */}
