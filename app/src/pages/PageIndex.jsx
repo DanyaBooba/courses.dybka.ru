@@ -91,7 +91,7 @@ export default function PageIndex() {
                             component="a"
                             href="#courses"
                             size="lg"
-                            sx={{ ...shineSx('var(--dd-palette-primary-solidBg)'), px: 3, fontWeight: 700 }}
+                            sx={{ ...shineSx('var(--dd-palette-primary-solidBg)', 'var(--dd-palette-primary-solidColor)'), px: 3, fontWeight: 700 }}
                         >
                             Смотреть курсы
                         </Button>
