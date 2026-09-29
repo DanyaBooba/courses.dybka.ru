@@ -5,11 +5,14 @@ import Typography from '@mui/joy/Typography'
 
 import PageShell from '../components/Layout/PageShell'
 import InlineText from '../components/Content/InlineText'
+import useSeo from '../seo/useSeo'
+import { pageSeo } from '../seo/seo'
 
 /** Правовой документ сайта (политика, согласие): заголовок, дата редакции и нумерованные разделы. */
 export default function PageLegal({ doc }) {
+    useSeo(pageSeo({ title: doc.title, path: doc.path }))
+
     useEffect(() => {
-        document.title = `${doc.title} — courses.dybka.ru`
         window.scrollTo({ top: 0, behavior: 'auto' })
     }, [doc])
 

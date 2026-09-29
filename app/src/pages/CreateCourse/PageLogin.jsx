@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Box from '@mui/joy/Box'
 import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
@@ -13,6 +13,8 @@ import PageShell from '../../components/Layout/PageShell'
 import { shineSx } from '../../components/Ui/shine'
 import { requestCode, verifyCode } from '../../auth/api'
 import { setToken } from '../../auth/session'
+import useSeo from '../../seo/useSeo'
+import { hiddenSeo } from '../../seo/seo'
 
 const ease = [0.22, 1, 0.36, 1]
 
@@ -110,9 +112,7 @@ export default function PageLogin() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
-    useEffect(() => {
-        document.title = 'Авторизация — courses.dybka.ru'
-    }, [])
+    useSeo(hiddenSeo('Авторизация — courses.dybka.ru'))
 
     function goTo(next, dir) {
         setDirection(dir)

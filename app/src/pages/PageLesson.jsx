@@ -18,8 +18,10 @@ import CourseState from '../components/Course/CourseState'
 import { LessonPageSkeleton } from '../components/Course/PageSkeletons'
 import PageNotFound from './PageNotFound'
 import { useCourse } from '../api/courses'
-import { getPage, getNeighbours, getLessons, FINAL_SLUG } from '../data/courses'
+import { getPage, getNeighbours, getLessons, getShortTitle, FINAL_SLUG } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
+import useSeo from '../seo/useSeo'
+import { lessonSeo } from '../seo/seo'
 
 export default function PageLesson() {
     const { id, slug } = useParams()
@@ -32,9 +34,8 @@ export default function PageLesson() {
     const { mode, systemMode } = useColorScheme()
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
 
-    useEffect(() => {
-        if (page && course) document.title = `${page.title} — ${course.title}`
-    }, [page, course])
+    // Номер урока: у завершающей страницы его нет
+    useSeo(page && course ? lessonSeo(course, page, slug === FINAL_SLUG ? 0 : index + 1) : null)
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'auto' })
@@ -209,7 +210,7 @@ export default function PageLesson() {
                                             color: 'text.primary',
                                         }}
                                     >
-                                        {prev.short}
+                                        {getShortTitle(prev)}
                                     </Typography>
                                 </Box>
                             ) : (
@@ -260,7 +261,7 @@ export default function PageLesson() {
                                             textAlign: 'right',
                                         }}
                                     >
-                                        {next.short}
+                                        {getShortTitle(next)}
                                     </Typography>
                                 </Box>
                             ) : (

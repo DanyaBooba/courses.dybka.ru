@@ -20,6 +20,7 @@ import 'prismjs/components/prism-sql'
 import 'prismjs/components/prism-yaml'
 import 'prismjs/components/prism-ini'
 import 'prismjs/components/prism-diff'
+import 'prismjs/components/prism-markdown'
 
 // Как язык называется в данных курса → грамматика Prism.
 const aliases = {
@@ -49,6 +50,8 @@ const aliases = {
     ini: 'ini',
     env: 'ini',
     diff: 'diff',
+    md: 'markdown',
+    markdown: 'markdown',
     bash: 'bash',
     sh: 'bash',
     shell: 'bash',
@@ -118,6 +121,10 @@ export const tokenStyles = {
     },
     '& .token.deleted': { color: 'code.deleted' },
     '& .token.inserted': { color: 'code.inserted' },
+    // Markdown: заголовки, маркеры списков и цитат, код в тексте
+    '& .token.title': { color: 'code.keyword', fontWeight: 700 },
+    '& .token.list, & .token.hr, & .token.blockquote': { color: 'code.punctuation' },
+    '& .token.code-snippet': { color: 'code.string' },
     '& .token.bold': { fontWeight: 700 },
     '& .token.italic': { fontStyle: 'italic' },
 }

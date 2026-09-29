@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import Box from '@mui/joy/Box'
 import Sheet from '@mui/joy/Sheet'
 import Typography from '@mui/joy/Typography'
@@ -28,10 +29,20 @@ const placeholders = {
  * оформлении: вокруг поля та же вёрстка, что у блока на сайте.
  */
 export default function TextBlockEditor({ block, onChange, focus, keys, onPaste }) {
+    // Текст до начала набора через IME или «мёртвую» клавишу (в раскладках, где
+    // ` ставит ударение, третий ` набирается так). Пока набор не закончен,
+    // сокращения не срабатывают — иначе поле сменится, а недонабранный символ
+    // попадёт в новое поле при следующем нажатии или вставке
+    const beforeComposition = useRef(null)
+
     const field = (
         <AutoTextarea
             value={block.content}
-            onChange={(content) => onChange({ ...block, content })}
+            onChange={(content, { composing }) => onChange({ ...block, content }, { composing })}
+            onCompositionStart={(event) => (beforeComposition.current = event.currentTarget.value)}
+            onCompositionEnd={(event) =>
+                onChange({ ...block, content: event.currentTarget.value }, { before: beforeComposition.current })
+            }
             focus={focus}
             placeholder={placeholders[block.block]}
             onKeyDown={(event) => handleTextKeys(event, keys)}

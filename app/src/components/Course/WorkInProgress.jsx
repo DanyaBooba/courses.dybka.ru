@@ -8,6 +8,8 @@ import { HammerIcon, HouseIcon } from '@phosphor-icons/react'
 
 import ShareButton from '../Ui/ShareButton'
 import { getAccent } from '../../theme/accents'
+import useSeo from '../../seo/useSeo'
+import { hiddenSeo } from '../../seo/seo'
 
 /**
  * Закрытый курс для читателя: шапка курса его цветом и плашка «Ведётся работа»
@@ -15,6 +17,8 @@ import { getAccent } from '../../theme/accents'
  * ещё не пришёл, шапка курса просто не рисуется.
  */
 export default function WorkInProgress({ course }) {
+    useSeo(hiddenSeo(course ? `${course.title} — ведётся работа` : 'Ведётся работа — courses.dybka.ru'))
+
     const { mode, systemMode } = useColorScheme()
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
     const accent = getAccent(course?.accent)

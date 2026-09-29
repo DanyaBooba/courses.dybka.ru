@@ -7,7 +7,7 @@ import { handleTextKeys } from './keys'
 import { codeHeaderSx, codeLabelSx, codePreSx, codeSheetSx } from '../../components/Content/blockStyles'
 
 // Языки, которые умеет подсвечивать сайт (см. components/Content/highlight.js)
-const LANGUAGES = ['C#', 'HTML', 'CSS', 'SCSS', 'JavaScript', 'JSX', 'TypeScript', 'JSON', 'PHP', 'SQL', 'YAML', 'Bash', 'diff']
+const LANGUAGES = ['C#', 'HTML', 'CSS', 'SCSS', 'JavaScript', 'JSX', 'TypeScript', 'JSON', 'PHP', 'SQL', 'YAML', 'Markdown', 'Bash', 'diff']
 const INDENT = '    '
 
 /**

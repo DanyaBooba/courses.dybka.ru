@@ -54,7 +54,7 @@ export default function AutoTextarea({ value, onChange, focus, inputRef, sx, ...
             ref={ref}
             rows={1}
             value={value ?? ''}
-            onChange={(event) => onChange(event.target.value)}
+            onChange={(event) => onChange(event.target.value, { composing: event.nativeEvent.isComposing })}
             spellCheck
             {...props}
             sx={{

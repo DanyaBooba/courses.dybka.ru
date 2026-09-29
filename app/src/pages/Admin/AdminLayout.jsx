@@ -9,6 +9,7 @@ import AdminSidebar from './AdminSidebar'
 import { isFileDrag } from '../../admin/uploads'
 import { dismiss, useNotices } from '../../admin/notices'
 import { hasUnsaved } from '../../admin/store'
+import { useNoIndex } from '../../seo/useSeo'
 
 /**
  * Каркас панели управления: слева список программ, справа — открытая
@@ -19,6 +20,7 @@ export default function AdminLayout() {
     const { pathname } = useLocation()
     const home = pathname.replace(/\/$/, '') === '/admin'
     const notices = useNotices()
+    useNoIndex()
 
     // Правки уходят на сервер через секунду — закрыть вкладку раньше значит их потерять
     useEffect(() => {

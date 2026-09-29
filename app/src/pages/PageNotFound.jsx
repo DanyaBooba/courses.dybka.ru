@@ -1,15 +1,14 @@
-import { useEffect } from 'react'
 import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
 import Button from '@mui/joy/Button'
 import { Link as RouterLink } from 'react-router-dom'
 
 import PageShell from '../components/Layout/PageShell'
+import useSeo from '../seo/useSeo'
+import { hiddenSeo } from '../seo/seo'
 
 export default function PageNotFound() {
-    useEffect(() => {
-        document.title = 'Страница не найдена — courses.dybka.ru'
-    }, [])
+    useSeo(hiddenSeo('Страница не найдена — courses.dybka.ru'))
 
     return (
         <PageShell>

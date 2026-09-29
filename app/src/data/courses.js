@@ -75,6 +75,11 @@ export function getFinalPage(course) {
     return course.pages.find((page) => page.slug === FINAL_SLUG) ?? null
 }
 
+/** Название урока для меню и программы: короткое, а если его нет — полное. */
+export function getShortTitle(page) {
+    return page.short || page.title || 'Без названия'
+}
+
 export function getPage(course, slug) {
     if (!course) return null
     return course.pages.find((page) => page.slug === slug) ?? null

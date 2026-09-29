@@ -92,12 +92,14 @@ export default function BlockEditor({ blocks, onChange, ink, preview = false }) 
         onChange(next)
     }
 
-    const update = (index, block) => {
+    // composing — текст ещё набирается через IME, before — текст до начала набора
+    const update = (index, block, { composing = false, before } = {}) => {
         const prev = blocks[index]
         // Markdown-сокращение в только что начатом абзаце: «## » → заголовок и т. д.
-        if (prev.block === 'p' && block.block === 'p') {
+        if (prev.block === 'p' && block.block === 'p' && !composing) {
+            const typedFrom = before ?? prev.content
             const shortcut = SHORTCUTS.find(
-                ({ prefix }) => block.content.startsWith(prefix) && prev.content.length < prefix.length,
+                ({ prefix }) => block.content.startsWith(prefix) && typedFrom.length < prefix.length,
             )
             if (shortcut) {
                 replace(index, convert(prev, shortcut.type, block.content.slice(shortcut.prefix.length)))
@@ -227,7 +229,7 @@ export default function BlockEditor({ blocks, onChange, ink, preview = false }) 
     const renderEditor = (block, index, isSelected) => {
         const common = {
             block,
-            onChange: (next) => update(index, next),
+            onChange: (next, meta) => update(index, next, meta),
             focus: focus?.index === index ? focus : null,
             ink,
         }

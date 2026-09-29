@@ -1,6 +1,5 @@
 import { extendTheme } from '@mui/joy/styles'
 
-const bodyFont = "'Geologica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
 const displayFont = "'Literata', 'PT Serif', Georgia, 'Times New Roman', serif"
 const codeFont = "'SF Mono', ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace"
 
@@ -151,7 +150,7 @@ const themeVariant = extendTheme({
     components: {
         JoyTypography: {
             styleOverrides: {
-                // Заголовки набираем антиквой, остальной текст — Geologica
+                // Заголовки набираем антиквой
                 root: ({ ownerState }) =>
                     ['h1', 'h2', 'h3', 'h4'].includes(ownerState.level)
                         ? { fontFamily: displayFont, letterSpacing: '-0.015em' }

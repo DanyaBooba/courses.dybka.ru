@@ -16,9 +16,11 @@ import CourseState from '../components/Course/CourseState'
 import { CoursePageSkeleton } from '../components/Course/PageSkeletons'
 import ShareButton from '../components/Ui/ShareButton'
 import { useCourse } from '../api/courses'
-import { hasMedia, getLessons, getFinalPage } from '../data/courses'
+import { hasMedia, getLessons, getFinalPage, getShortTitle } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 import { lessonsLabel } from '../data/plural'
+import useSeo from '../seo/useSeo'
+import { courseSeo } from '../seo/seo'
 
 function Meta({ label, value, color }) {
     return (
@@ -78,9 +80,7 @@ export default function PageCourse() {
     const { mode, systemMode } = useColorScheme()
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
 
-    useEffect(() => {
-        if (course) document.title = `${course.title} — courses.dybka.ru`
-    }, [course])
+    useSeo(course ? courseSeo(course) : null)
 
     // Переход «Подробнее» с главной должен открывать курс с начала страницы
     useEffect(() => {
@@ -436,7 +436,7 @@ export default function PageCourse() {
                                             className="lesson-title"
                                             sx={{ fontSize: 'sm', lineHeight: 1.5, mr: 0.75, transition: 'margin-right 0.15s ease' }}
                                         >
-                                            {page.short}
+                                            {getShortTitle(page)}
                                         </Box>
                                     </Box>
                                 </Box>
@@ -482,7 +482,7 @@ export default function PageCourse() {
                                             className="lesson-title"
                                             sx={{ fontSize: 'sm', lineHeight: 1.5, mr: 0.75, transition: 'margin-right 0.15s ease' }}
                                         >
-                                            {finalPage.short}
+                                            {getShortTitle(finalPage)}
                                         </Box>
                                     </Box>
                                 </Box>

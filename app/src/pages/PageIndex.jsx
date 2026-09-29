@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import Box from '@mui/joy/Box'
 import Container from '@mui/joy/Container'
 import Typography from '@mui/joy/Typography'
@@ -12,6 +11,8 @@ import Bone from '../components/Ui/Bone'
 import LoadError from '../components/Ui/LoadError'
 import { shineSx } from '../components/Ui/shine'
 import { useCourses } from '../api/courses'
+import useSeo from '../seo/useSeo'
+import { homeSeo } from '../seo/seo'
 import { groupBySection } from '../data/sections'
 
 const rise = {
@@ -69,9 +70,7 @@ export default function PageIndex() {
     const facts = getFacts(courses)
     const sections = courses ? groupBySection(courses) : []
 
-    useEffect(() => {
-        document.title = 'courses.dybka.ru — бесплатные открытые курсы по программированию'
-    }, [])
+    useSeo(homeSeo(courses))
 
     return (
         <PageShell>

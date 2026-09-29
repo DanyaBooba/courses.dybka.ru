@@ -1,20 +1,3 @@
-/* Основной текст — Geologica */
-@font-face {
-    font-family: 'Geologica';
-    src: url('/fonts/Geologica/Geologica-Light.woff2') format('woff2');
-    font-weight: 300 500;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Geologica';
-    src: url('/fonts/Geologica/Geologica-Bold.woff2') format('woff2');
-    font-weight: 600 800;
-    font-style: normal;
-    font-display: swap;
-}
-
 /* Заголовки — Literata, переменная антиква с полной кириллицей */
 @font-face {
     font-family: 'Literata';
