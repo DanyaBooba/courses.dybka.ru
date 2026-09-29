@@ -100,7 +100,7 @@ export default function WorkInProgress({ course }) {
                     Курс скоро откроется
                 </Typography>
                 <Typography sx={{ mt: 1.5, maxWidth: 520, color: 'text.secondary', lineHeight: 1.7 }}>
-                    Уроки ещё дописываются и проверяются. Загляните чуть позже — а пока посмотрите другие курсы.
+                    Уроки ещё дописываются и проверяются. Загляните чуть позже, а пока посмотрите другие курсы.
                 </Typography>
 
                 <Box
