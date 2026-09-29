@@ -19,6 +19,7 @@ import CourseState from '../components/Course/CourseState'
 import { LessonPageSkeleton } from '../components/Course/PageSkeletons'
 import PageNotFound from './PageNotFound'
 import { useCourse } from '../api/courses'
+import { useCourseView } from '../api/views'
 import { getPage, getNeighbours, getLessons, getShortTitle, FINAL_SLUG } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 import useSeo from '../seo/useSeo'
@@ -29,6 +30,7 @@ export default function PageLesson() {
     const navigate = useNavigate()
 
     const { course, error, reload } = useCourse(id)
+    useCourseView(course)
     const page = getPage(course, slug)
     const { prev, next, index } = getNeighbours(course, slug)
 

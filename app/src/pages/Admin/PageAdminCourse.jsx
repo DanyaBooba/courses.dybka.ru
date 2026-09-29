@@ -41,6 +41,7 @@ import {
 import useDragSort, { dragSx } from '../../admin/useDragSort'
 import { FINAL_SLUG, getLessons } from '../../data/courses'
 import { lessonsLabel } from '../../data/plural'
+import { readersLabel, viewsLabel } from '../../api/views'
 import { formatDate } from '../../admin/dates'
 import { getAccent, getInk } from '../../theme/accents'
 import useScheme from '../../theme/useScheme'
@@ -233,6 +234,12 @@ function CoursePageEditor({ course, set }) {
                             </Meta>
                             <Meta label="Сложность" color={skin.text}>
                                 <Difficulty value={course.difficulty} color={skin.text} size={17} sx={{ mt: '2px' }} />
+                            </Meta>
+                            <Meta label="Читатели" color={skin.text}>
+                                {readersLabel(course.readers)}
+                            </Meta>
+                            <Meta label="Просмотры" color={skin.text}>
+                                {viewsLabel(course.views)}
                             </Meta>
                             {course.updatedAt && (
                                 <Meta label="Обновлён" color={skin.text}>

@@ -16,6 +16,7 @@ import CourseState from '../components/Course/CourseState'
 import { CoursePageSkeleton } from '../components/Course/PageSkeletons'
 import ShareButton from '../components/Ui/ShareButton'
 import { useCourse } from '../api/courses'
+import { useCourseView, readersLabel, viewsLabel } from '../api/views'
 import { hasMedia, getLessons, getFinalPage, getShortTitle } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 import { lessonsLabel } from '../data/plural'
@@ -89,6 +90,7 @@ export default function PageCourse() {
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
 
     useSeo(course ? courseSeo(course) : null)
+    useCourseView(course)
 
     // Переход «Подробнее» с главной должен открывать курс с начала страницы
     useEffect(() => {
@@ -276,6 +278,8 @@ export default function PageCourse() {
                                         }
                                     />
                                 )}
+                                <Meta label="Читатели" value={readersLabel(course.readers)} color={skin.text} />
+                                <Meta label="Просмотры" value={viewsLabel(course.views)} color={skin.text} />
                                 {updated && (
                                     <Meta
                                         label="Обновлён"

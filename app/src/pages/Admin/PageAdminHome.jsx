@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import Box from '@mui/joy/Box'
 import Button from '@mui/joy/Button'
 import Typography from '@mui/joy/Typography'
-import { CaretRightIcon, EyeSlashIcon, HourglassIcon, PlusIcon } from '@phosphor-icons/react'
+import { BookOpenTextIcon, CaretRightIcon, EyeIcon, EyeSlashIcon, HourglassIcon, PlusIcon } from '@phosphor-icons/react'
 
 import AdminTopBar from './AdminTopBar'
 import LoadError from '../../components/Ui/LoadError'
@@ -38,11 +38,13 @@ export default function PageAdminHome() {
 
     const lessons = courses.reduce((sum, course) => sum + getLessons(course).length, 0)
     const hidden = courses.filter((course) => course.disabled).length
+    const views = courses.reduce((sum, course) => sum + (course.views ?? 0), 0)
 
     const facts = [
         { label: 'Программ', value: courses.length },
         { label: 'Уроков', value: lessons },
         { label: 'Открыто читателям', value: courses.length - hidden },
+        { label: 'Просмотров', value: views },
     ]
 
     return (
@@ -183,7 +185,17 @@ export default function PageAdminHome() {
                                                 {course.title || 'Без названия'}
                                             </Typography>
                                             <Typography sx={{ mt: 'auto', pt: 1, ...captionSx, color: skin.text, opacity: 0.7, display: 'flex', justifyContent: 'space-between', gap: 1 }}>
-                                                <span>{lessonsLabel(getLessons(course).length)}</span>
+                                                <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+                                                    <span>{lessonsLabel(getLessons(course).length)}</span>
+                                                    <Box component="span" title="Читатели" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <BookOpenTextIcon size={12} weight="bold" />
+                                                        {course.readers ?? 0}
+                                                    </Box>
+                                                    <Box component="span" title="Просмотры" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <EyeIcon size={12} weight="bold" />
+                                                        {course.views ?? 0}
+                                                    </Box>
+                                                </Box>
                                                 {course.updatedAt && (
                                                     <Box component="time" dateTime={course.updatedAt} title="Дата изменения" sx={{ flexShrink: 0 }}>
                                                         {formatDate(course.updatedAt)}
