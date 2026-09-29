@@ -3,5 +3,4 @@ Disallow: /admin
 Disallow: /login
 Disallow: /new
 
-# Карту сайта отдаёт API: она собирается из базы и всегда актуальна
 Sitemap: https://api.courses.aquarium.org.ru/sitemap.xml
