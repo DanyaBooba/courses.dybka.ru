@@ -3,14 +3,15 @@ import { Link as RouterLink } from 'react-router-dom'
 import Box from '@mui/joy/Box'
 import Button from '@mui/joy/Button'
 import Typography from '@mui/joy/Typography'
-import { EyeSlashIcon, PlusIcon } from '@phosphor-icons/react'
+import { CaretRightIcon, EyeSlashIcon, HourglassIcon, PlusIcon } from '@phosphor-icons/react'
 
 import AdminTopBar from './AdminTopBar'
 import LoadError from '../../components/Ui/LoadError'
 import Bone from '../../components/Ui/Bone'
-import { useAdminCourses } from '../../admin/store'
+import { useAdminCourses, useCanPublish } from '../../admin/store'
 import { getLessons } from '../../data/courses'
 import { lessonsLabel } from '../../data/plural'
+import { formatDate } from '../../admin/dates'
 import sections from '../../data/sections'
 import { getAccent } from '../../theme/accents'
 import useScheme from '../../theme/useScheme'
@@ -27,6 +28,9 @@ const captionSx = {
 export default function PageAdminHome() {
     const { courses = [], loading, error, reload } = useAdminCourses()
     const scheme = useScheme()
+    const canPublish = useCanPublish()
+    // Курсы авторов, которые ждут публикации, — администратору наверх
+    const awaiting = canPublish ? courses.filter((course) => course.disabled && course.reviewRequestedAt) : []
 
     useEffect(() => {
         document.title = 'Панель управления — courses.dybka.ru'
@@ -79,6 +83,39 @@ export default function PageAdminHome() {
                         </Box>
                     ))}
                 </Box>
+
+                {awaiting.length > 0 && (
+                    <Box component="section" sx={{ mt: 5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', pb: 1, borderBottom: '2px solid', borderColor: 'warning.plainColor' }}>
+                            <Typography level="h3" sx={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <HourglassIcon size={22} />
+                                Ждут проверки
+                            </Typography>
+                            <Box component="span" sx={captionSx}>
+                                {awaiting.length} шт.
+                            </Box>
+                        </Box>
+                        <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0 }}>
+                            {awaiting.map((course) => (
+                                <Box component="li" key={course.id} sx={{ borderBottom: '1px solid', borderColor: 'page.border' }}>
+                                    <Box
+                                        component={RouterLink}
+                                        to={`/admin/course/${course.id}`}
+                                        sx={{ py: 1.5, display: 'flex', alignItems: 'center', gap: 2, textDecoration: 'none', color: 'text.primary', '&:hover': { bgcolor: 'background.level1' } }}
+                                    >
+                                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                                            <Typography sx={{ fontWeight: 600 }}>{course.title || 'Без названия'}</Typography>
+                                            <Typography sx={{ fontSize: 'sm', color: 'text.tertiary' }}>
+                                                {course.author?.name || course.author?.email || 'Автор не указан'} · отправлен {formatDate(course.reviewRequestedAt)}
+                                            </Typography>
+                                        </Box>
+                                        <CaretRightIcon size={16} />
+                                    </Box>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                )}
 
                 {loading && !courses.length && (
                     <Box aria-busy sx={{ mt: 5, display: 'grid', gap: 1.5, gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' } }}>
@@ -137,16 +174,21 @@ export default function PageAdminHome() {
                                                 <span>{course.chips.slice(0, 3).join(' / ') || course.id}</span>
                                                 {course.disabled && (
                                                     <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
-                                                        <EyeSlashIcon size={12} weight="bold" />
-                                                        Скрыта
+                                                        {course.reviewRequestedAt ? <HourglassIcon size={12} weight="bold" /> : <EyeSlashIcon size={12} weight="bold" />}
+                                                        {course.reviewRequestedAt ? 'На проверке' : 'Скрыта'}
                                                     </Box>
                                                 )}
                                             </Box>
                                             <Typography level="title-lg" sx={{ fontFamily: 'display', fontWeight: 600, color: skin.text, lineHeight: 1.25 }}>
                                                 {course.title || 'Без названия'}
                                             </Typography>
-                                            <Typography sx={{ mt: 'auto', pt: 1, ...captionSx, color: skin.text, opacity: 0.7 }}>
-                                                {lessonsLabel(getLessons(course).length)}
+                                            <Typography sx={{ mt: 'auto', pt: 1, ...captionSx, color: skin.text, opacity: 0.7, display: 'flex', justifyContent: 'space-between', gap: 1 }}>
+                                                <span>{lessonsLabel(getLessons(course).length)}</span>
+                                                {course.updatedAt && (
+                                                    <Box component="time" dateTime={course.updatedAt} title="Дата изменения" sx={{ flexShrink: 0 }}>
+                                                        {formatDate(course.updatedAt)}
+                                                    </Box>
+                                                )}
                                             </Typography>
                                         </Box>
                                     )

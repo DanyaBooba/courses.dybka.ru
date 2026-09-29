@@ -21,6 +21,7 @@ export default function SaveStatus({ courseId, save, error }) {
         return (
             <Tooltip title={error?.message || 'Сервер не ответил'} size="sm" variant="soft" color="danger">
                 <Button
+                    className="save-status"
                     size="sm"
                     variant="soft"
                     color="danger"
@@ -35,7 +36,7 @@ export default function SaveStatus({ courseId, save, error }) {
 
     if (save === 'saving' || save === 'pending') {
         return (
-            <Box role="status" sx={textSx}>
+            <Box role="status" className="save-status" sx={textSx}>
                 <CircularProgress size="sm" color="neutral" sx={{ '--CircularProgress-size': '14px', '--CircularProgress-trackThickness': '2px', '--CircularProgress-progressThickness': '2px' }} />
                 Сохраняю…
             </Box>
@@ -43,7 +44,7 @@ export default function SaveStatus({ courseId, save, error }) {
     }
 
     return (
-        <Box role="status" sx={textSx}>
+        <Box role="status" className="save-status" sx={textSx}>
             <CheckIcon size={14} weight="bold" />
             Сохранено
         </Box>

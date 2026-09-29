@@ -7,13 +7,18 @@
 // Так набор текста не ждёт сети, а сохранение не дёргается на каждую букву.
 //
 // Черновик: { status: 'loading' | 'ready' | 'error', course, error,
-//             save: 'saved' | 'pending' | 'saving' | 'failed', saveError }
+//             save: 'saved' | 'pending' | 'saving' | 'failed', saveError,
+//             manualDate — дата изменения, которую автор выставил сам }
+//
+// Дату изменения (updatedAt) сервер ставит сам при каждом сохранении. Если
+// автор поменял её вручную, она уходит с каждым сохранением до перезагрузки
+// панели — иначе первая же правка следом перебила бы её текущим временем.
 
 import { useEffect, useSyncExternalStore } from 'react'
 
 import { request } from '../api/client'
 import { dropQueries, updateQueries } from '../api/query'
-import { useCourses } from '../api/courses'
+import { ACCESS, useCourses, useProfile } from '../api/courses'
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const SAVE_DELAY = 1000
@@ -54,14 +59,24 @@ function patchCatalog(updater) {
     updateQueries('courses|', (courses) => updater(courses ?? []))
 }
 
+/** Программы в панели: администратору — все, автору — только свои. */
 export function useAdminCourses() {
-    return useCourses()
+    const { courses, ...rest } = useCourses()
+    const { user } = useProfile()
+    const own = !user || user.access >= ACCESS.ADMIN ? courses : courses?.filter((course) => course.ownerId === user.id)
+    return { courses: own, ...rest }
+}
+
+/** Может ли пользователь сам открывать курсы читателям — только администратор. */
+export function useCanPublish() {
+    const { user } = useProfile()
+    return Boolean(user) && user.access >= ACCESS.ADMIN
 }
 
 // ── Черновик программы ───────────────────────────────────────────────────
 
 function load(id) {
-    setDraft(id, { status: 'loading', error: null, save: 'saved' })
+    setDraft(id, { status: 'loading', error: null, save: 'saved', manualDate: null })
     request(`/courses/${encodeURIComponent(id)}`)
         .then(({ course }) => setDraft(id, { status: 'ready', course }))
         .catch((error) => setDraft(id, { status: 'error', error }))
@@ -96,9 +111,17 @@ async function flush(id) {
     if (!draft?.course) return
     const version = versions.get(id)
 
+    // Дата изменения уходит, только если её выставили вручную
+    const body = { ...draft.course }
+    delete body.updatedAt
+    if (draft.manualDate) body.updatedAt = draft.manualDate
+
     setDraft(id, { save: 'saving', saveError: null })
     try {
-        await request(`/courses/${encodeURIComponent(id)}`, { method: 'PUT', body: draft.course })
+        const { course: saved } = await request(`/courses/${encodeURIComponent(id)}`, { method: 'PUT', body })
+        // Дату и заявку на проверку ведёт сервер: подхватываем их, не трогая
+        // правки, сделанные за время запроса
+        if (saved) acceptServerFields(id, saved)
         // Сайт в этой же вкладке должен показать курс уже с правками
         dropQueries(`course:${id}|`)
         // Пока запрос летел, курс успели поправить — сохраняем ещё раз
@@ -107,6 +130,39 @@ async function flush(id) {
     } catch (error) {
         setDraft(id, { save: 'failed', saveError: error })
     }
+}
+
+// Поля, которые ставит только сервер: дата изменения и заявка на проверку
+function acceptServerFields(id, saved) {
+    const current = drafts.get(id)
+    if (!current?.course) return
+    const fields = { updatedAt: saved.updatedAt, reviewRequestedAt: saved.reviewRequestedAt ?? null }
+    setDraft(id, { course: { ...current.course, ...fields } })
+    patchCatalog((courses) => courses.map((item) => (item.id === id ? { ...item, ...fields } : item)))
+}
+
+// Сначала дописываем несохранённые правки: заявка уходит на проверку
+// вместе с последней версией курса
+async function flushNow(id) {
+    const draft = drafts.get(id)
+    if (draft?.save === 'pending' || draft?.save === 'failed') await flush(id)
+    if (drafts.get(id)?.save === 'failed') throw drafts.get(id).saveError
+}
+
+/** Автор отправляет скрытый курс на проверку. Ошибку бросает дальше. */
+export async function requestReview(id) {
+    await flushNow(id)
+    const { course } = await request(`/courses/${encodeURIComponent(id)}/review`, { method: 'POST' })
+    acceptServerFields(id, course)
+}
+
+/**
+ * Снять курс с проверки: автор отзывает заявку, администратор возвращает
+ * курс на доработку — `reason` уйдёт автору в письме.
+ */
+export async function cancelReview(id, reason = '') {
+    const { course } = await request(`/courses/${encodeURIComponent(id)}/review`, { method: 'DELETE', body: { reason } })
+    acceptServerFields(id, course)
 }
 
 /** Сохранить сейчас, не дожидаясь паузы, — кнопка «Повторить». */
@@ -135,10 +191,21 @@ export function updateCourse(id, change) {
     }, SAVE_DELAY))
 }
 
+/** Выставить дату изменения вручную: `date` — строка ISO. */
+export function setCourseDate(id, date) {
+    if (drafts.get(id)?.status !== 'ready') return
+    drafts.set(id, { ...drafts.get(id), manualDate: date })
+    updateCourse(id, { updatedAt: date })
+}
+
 // ── Программы ────────────────────────────────────────────────────────────
 
-/** Шаблон новой программы: закрыта, пока автор не откроет её сам. */
-export function blankCourse() {
+/**
+ * Шаблон новой программы: закрыта, пока её не откроют. У администратора
+ * автор — Даниил Дыбка, у приглашённого автора — он сам, из профиля.
+ */
+export function blankCourse(user) {
+    const own = user && user.access < ACCESS.ADMIN
     return {
         id: '',
         title: '',
@@ -153,7 +220,9 @@ export function blankCourse() {
         video: null,
         chips: [],
         github: null,
-        author: { name: 'Даниил Дыбка', email: 'daniil@dybka.ru', telegram: 'https://ddybka.t.me' },
+        author: own
+            ? { name: user.name || '', email: user.email, telegram: null }
+            : { name: 'Даниил Дыбка', email: 'daniil@dybka.ru', telegram: 'https://ddybka.t.me' },
         certificate: null,
         about: [{ block: 'p', content: '' }],
         pages: [],
@@ -227,20 +296,55 @@ export function updateLesson(courseId, slug, change) {
     }))
 }
 
-export function deleteLesson(courseId, slug) {
-    updateCourse(courseId, ({ pages }) => ({ pages: pages.filter((page) => page.slug !== slug) }))
+/**
+ * Уроки с номером вместо адреса («1», «2», «3»…) нумеруются заново по месту
+ * в программе: номер в адресе всегда совпадает с номером урока на сайте.
+ * Уроки с придуманным адресом и итоговая страница его не меняют, но место
+ * в счёте занимают. Возвращает `{ pages, renamed: { старый: новый } }`.
+ */
+function renumber(pages) {
+    const renamed = {}
+    let number = 0
+    const next = pages.map((page) => {
+        if (page.slug === FINAL_SLUG) return page
+        number += 1
+        if (!/^\d+$/.test(page.slug) || page.slug === String(number)) return page
+        renamed[page.slug] = String(number)
+        return { ...page, slug: String(number) }
+    })
+    return { pages: next, renamed }
 }
 
-/** Сдвигает урок на `step` позиций (−1 — выше, 1 — ниже). */
-export function moveLesson(courseId, slug, step) {
+/** Удаляет урок; следующие за ним номера сдвигаются. Возвращает `{ старый: новый }`. */
+export function deleteLesson(courseId, slug) {
+    let renamed = {}
+    updateCourse(courseId, ({ pages }) => {
+        const result = renumber(pages.filter((page) => page.slug !== slug))
+        renamed = result.renamed
+        return { pages: result.pages }
+    })
+    return renamed
+}
+
+/**
+ * Ставит урок на место `to` (индекс в `course.pages`) и перенумеровывает уроки.
+ * Итоговая страница всегда остаётся последней. Возвращает `{ старый: новый }`
+ * — чтобы открытый урок перешёл на свой новый адрес.
+ */
+export function moveLesson(courseId, slug, to) {
+    let renamed = {}
     updateCourse(courseId, ({ pages }) => {
         const from = pages.findIndex((page) => page.slug === slug)
-        const to = from + step
-        if (from === -1 || to < 0 || to >= pages.length) return {}
+        const finalIndex = pages.findIndex((page) => page.slug === FINAL_SLUG)
+        const last = finalIndex === -1 ? pages.length - 1 : finalIndex - 1
+        if (from === -1 || slug === FINAL_SLUG || to === from || to < 0 || to > last) return {}
 
         const next = [...pages]
         const [page] = next.splice(from, 1)
         next.splice(to, 0, page)
-        return { pages: next }
+        const result = renumber(next)
+        renamed = result.renamed
+        return { pages: result.pages }
     })
+    return renamed
 }

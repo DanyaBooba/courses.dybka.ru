@@ -55,6 +55,14 @@ function monthYear(date) {
     return `${MONTHS[month - 1]} ${year}`
 }
 
+// Телеграм автора в настройках пишут как угодно: «@nick», «t.me/nick» или ссылкой
+function telegramUrl(value) {
+    const handle = value.trim()
+    if (/^https?:\/\//.test(handle)) return handle
+    if (handle.startsWith('@')) return `https://t.me/${handle.slice(1)}`
+    return `https://${handle.replace(/^\/+/, '')}`
+}
+
 // Вторичная кнопка на плашке курса: контур цвета курса, заливка только при наведении
 function skinButtonSx(skin) {
     return {
@@ -246,6 +254,28 @@ export default function PageCourse() {
                                         />
                                     }
                                 />
+                                {course.author?.name && (
+                                    <Meta
+                                        label="Автор"
+                                        color={skin.text}
+                                        value={
+                                            // Есть телеграм — имя ведёт туда: автору можно написать
+                                            course.author.telegram ? (
+                                                <Box
+                                                    component="a"
+                                                    href={telegramUrl(course.author.telegram)}
+                                                    target="_blank"
+                                                    rel="noreferrer author"
+                                                    sx={{ color: 'inherit', textDecorationColor: skin.rule, textUnderlineOffset: '3px' }}
+                                                >
+                                                    {course.author.name}
+                                                </Box>
+                                            ) : (
+                                                course.author.name
+                                            )
+                                        }
+                                    />
+                                )}
                                 {updated && (
                                     <Meta
                                         label="Обновлён"

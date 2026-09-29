@@ -17,6 +17,7 @@ import { CheckIcon } from '@phosphor-icons/react'
 import CourseCard from '../../components/CourseCard/CourseCard'
 import { pressedInkSx } from './adminStyles'
 import CoverDrop from '../../admin/editor/CoverDrop'
+import { formatDate, fromDateInput, toDateInput, todayInput } from '../../admin/dates'
 import sections from '../../data/sections'
 import accents, { accentNames } from '../../theme/accents'
 
@@ -55,8 +56,12 @@ function Group({ title, children }) {
  *
  * `idEditable` — адрес можно менять только у новой программы: у готовой
  * на него уже ведут ссылки. `idError` — текст ошибки адреса или null.
+ * `onDateChange(iso)` — поменять дату изменения; без него поля даты нет
+ * (у новой программы даты ещё нет).
+ * `canPublish` — открывать курс читателям может только администратор;
+ * автор курс только скрывает, а открывает через проверку.
  */
-export default function CourseForm({ course, onChange, idEditable = false, idError = null, onIdChange }) {
+export default function CourseForm({ course, onChange, idEditable = false, idError = null, onIdChange, onDateChange, canPublish = true }) {
     const set = (change) => onChange({ ...course, ...change })
     const setAuthor = (change) => set({ author: { ...(course.author ?? {}), ...change } })
 
@@ -108,14 +113,40 @@ export default function CourseForm({ course, onChange, idEditable = false, idErr
                         </FormHelperText>
                     </FormControl>
 
+                    {onDateChange && (
+                        <FormControl>
+                            <FormLabel>Дата изменения</FormLabel>
+                            <Input
+                                type="date"
+                                value={toDateInput(course.updatedAt)}
+                                onChange={(event) => {
+                                    const date = fromDateInput(event.target.value)
+                                    if (date) onDateChange(date)
+                                }}
+                                slotProps={{ input: { max: todayInput() } }}
+                                sx={{ ...fieldSx, maxWidth: 240 }}
+                            />
+                            <FormHelperText>
+                                {course.updatedAt ? `Сейчас: ${formatDate(course.updatedAt)} ` : ''}Читатели видят её на странице курса как «Обновлён».
+                                Сама ставится при каждом сохранении; выставленная вручную держится, пока открыта панель.
+                            </FormHelperText>
+                        </FormControl>
+                    )}
+
                     <FormControl orientation="horizontal" sx={{ justifyContent: 'space-between', gap: 2 }}>
                         <Box>
                             <FormLabel>Скрыть от читателей</FormLabel>
                             <FormHelperText sx={{ mt: 0.25 }}>
                                 Читатели видят карточку с плашкой «Ведётся работа», целиком курс видите только вы.
+                                {!canPublish && ' Открыть курс читателям может администратор — отправьте его на проверку кнопкой вверху.'}
                             </FormHelperText>
                         </Box>
-                        <Switch checked={Boolean(course.disabled)} onChange={(event) => set({ disabled: event.target.checked })} />
+                        <Switch
+                            checked={Boolean(course.disabled)}
+                            // Автор может только скрыть курс, открыть — через проверку
+                            disabled={!canPublish && course.disabled}
+                            onChange={(event) => set({ disabled: event.target.checked })}
+                        />
                     </FormControl>
                 </Group>
 

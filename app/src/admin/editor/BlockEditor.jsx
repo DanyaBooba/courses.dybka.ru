@@ -13,6 +13,7 @@ import TextBlockEditor from './TextBlockEditor'
 import ListEditor from './ListEditor'
 import ImageEditor from './ImageEditor'
 import CodeEditor from './CodeEditor'
+import useBlockDrag from './useBlockDrag'
 import TableEditor from './TableEditor'
 import { ChecklistEditor, CoursesEditor, QuizEditor } from './PanelEditors'
 
@@ -38,7 +39,8 @@ const paragraph = (content = '') => ({ block: 'p', content })
  * на странице урока; щелчок по блоку открывает его правку на месте.
  *
  * На полях у блока: «+» — вставить блок ниже, «⠿» — превратить, сдвинуть,
- * дублировать, удалить. Картинки перетаскиваются прямо на холст: встанут
+ * дублировать, удалить. Блок можно зажать и перетащить — мышью за сам блок
+ * (пока он не в правке) или за «⠿»: он поднимается с тенью, соседи расступаются. Картинки перетаскиваются прямо на холст: встанут
  * туда, где видна линия. Их же можно вставить из буфера обмена.
  *
  * `preview` — только просмотр, без полей и рамок: страница как у читателя.
@@ -55,6 +57,22 @@ export default function BlockEditor({ blocks, onChange, ink, preview = false }) 
     const latest = useRef(blocks)
     useEffect(() => {
         latest.current = blocks
+    })
+
+    // Блок перетащили: выбранный блок остаётся выбранным на своём новом месте
+    const blockDrag = useBlockDrag(containerRef, (from, to) => {
+        const next = [...latest.current]
+        const [block] = next.splice(from, 1)
+        next.splice(to, 0, block)
+        onChange(next)
+        setFocus(null)
+        setSelected((current) => {
+            if (current === null) return null
+            if (current === from) return to
+            if (from < current && current <= to) return current - 1
+            if (to <= current && current < from) return current + 1
+            return current
+        })
     })
 
     const select = (index, caret = 'end') => {
@@ -275,7 +293,24 @@ export default function BlockEditor({ blocks, onChange, ink, preview = false }) 
                     <Box
                         key={index}
                         data-block-index={index}
+                        // Мышью блок тянут за него самого, пока он не в правке: в правке
+                        // нажатие и протяжка выделяют текст. Поля и кнопки не трогаем
+                        onPointerDown={(event) => {
+                            if (event.pointerType !== 'mouse' || isSelected) return
+                            if (event.target.closest('.block-gutter, input, textarea, button, [contenteditable="true"], [role="button"]')) return
+                            blockDrag.start(event, index)
+                        }}
+                        // Картинку и ссылку браузер потащил бы сам — вместо блока
+                        onDragStart={(event) => {
+                            if (['IMG', 'A'].includes(event.target.tagName)) event.preventDefault()
+                        }}
                         onClickCapture={(event) => {
+                            // Щелчок сразу после перетаскивания блок не выбирает и меню не открывает
+                            if (blockDrag.consumeClick()) {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                return
+                            }
                             // Кнопки на полях и пункты их меню (меню живёт в портале, но события
                             // React всплывают через него сюда же) работают сами по себе
                             if (!event.currentTarget.contains(event.target)) return
@@ -295,6 +330,7 @@ export default function BlockEditor({ blocks, onChange, ink, preview = false }) 
                             ...blockSx,
                             position: 'relative',
                             cursor: staticView ? 'text' : undefined,
+                            ...blockDrag.styleFor(index),
                             // Рамка вокруг блока: пунктир при наведении, линия у выбранного
                             '&::before': {
                                 content: '""',
@@ -307,10 +343,13 @@ export default function BlockEditor({ blocks, onChange, ink, preview = false }) 
                                 pointerEvents: 'none',
                                 transition: 'border-color 0.15s ease',
                             },
-                            '@media (hover: hover)': {
-                                '&:hover::before': { borderColor: isSelected ? 'page.rule' : 'page.border' },
-                                '&:hover .block-gutter': { opacity: 1 },
-                            },
+                            // Пока тащат блок, рамки и кнопки соседей не мигают под курсором
+                            '@media (hover: hover)': blockDrag.dragging
+                                ? {}
+                                : {
+                                    '&:hover::before': { borderColor: isSelected ? 'page.rule' : 'page.border' },
+                                    '&:hover .block-gutter': { opacity: 1 },
+                                },
                         }}
                     >
                         {dropIndex === index && <DropLine />}
@@ -330,21 +369,23 @@ export default function BlockEditor({ blocks, onChange, ink, preview = false }) 
                             }}
                         >
                             <AddBlockMenu onPick={(type) => addAfter(index, type)} />
-                            <BlockActionsMenu
-                                block={block}
-                                isFirst={index === 0}
-                                isLast={index === blocks.length - 1}
-                                onConvert={(type) => {
-                                    replace(index, convert(block, type))
-                                    select(index, 'end')
-                                }}
-                                onMove={(step) => move(index, step)}
-                                onDuplicate={() => {
-                                    insert(index + 1, duplicate(block))
-                                    setSelected(index + 1)
-                                }}
-                                onRemove={() => remove(index)}
-                            />
+                            <Box sx={{ display: 'flex' }} onPointerDown={(event) => blockDrag.start(event, index)}>
+                                <BlockActionsMenu
+                                    block={block}
+                                    isFirst={index === 0}
+                                    isLast={index === blocks.length - 1}
+                                    onConvert={(type) => {
+                                        replace(index, convert(block, type))
+                                        select(index, 'end')
+                                    }}
+                                    onMove={(step) => move(index, step)}
+                                    onDuplicate={() => {
+                                        insert(index + 1, duplicate(block))
+                                        setSelected(index + 1)
+                                    }}
+                                    onRemove={() => remove(index)}
+                                />
+                            </Box>
                         </Box>
 
                         {renderEditor(block, index, isSelected)}

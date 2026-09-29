@@ -10,6 +10,7 @@ import PageAdminHome from '../pages/Admin/PageAdminHome'
 import PageAdminNewCourse from '../pages/Admin/PageAdminNewCourse'
 import PageAdminCourse from '../pages/Admin/PageAdminCourse'
 import PageAdminLesson from '../pages/Admin/PageAdminLesson'
+import PageAdminUsers from '../pages/Admin/PageAdminUsers'
 
 import AuthMiddleware from '../middlewares/AuthMiddleware'
 import AdminMiddleware from '../middlewares/AdminMiddleware'
@@ -33,13 +34,14 @@ export default [
     </Route>,
 
     <Route element={<AuthMiddleware />} key="route-auth">
-        {/* Панель управления — только для администратора */}
+        {/* Панель управления — для авторов и администратора */}
         <Route element={<AdminMiddleware />}>
             <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<PageAdminHome />} />
                 <Route path="new" element={<PageAdminNewCourse />} />
                 <Route path="course/:id" element={<PageAdminCourse />} />
                 <Route path="course/:id/lesson/:slug" element={<PageAdminLesson />} />
+                <Route path="users" element={<PageAdminUsers />} />
             </Route>
         </Route>
 

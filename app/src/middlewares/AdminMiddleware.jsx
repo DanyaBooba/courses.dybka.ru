@@ -11,7 +11,9 @@ import { ACCESS, useProfile } from '../api/courses'
 import { setToken } from '../auth/session'
 
 /**
- * Пускает в панель управления только администратора. Кто вошёл без прав,
+ * Пускает в панель управления автора и администратора. Автор видит в ней
+ * только свои программы, администратор — все и ещё пользователей.
+ * Кто вошёл без прав,
  * видит, почему сюда нельзя, и может выйти. Ставится внутри AuthMiddleware:
  * гостя тот уже отправил на вход.
  */
@@ -41,7 +43,7 @@ export default function AdminMiddleware() {
 
     if (!user) return null
 
-    if (user.access < ACCESS.ADMIN) {
+    if (user.access < ACCESS.AUTHOR) {
         const pending = user.access === ACCESS.NONE
         return (
             <PageShell centered>
@@ -52,7 +54,7 @@ export default function AdminMiddleware() {
                     <Typography sx={{ mt: 2, color: 'text.secondary', lineHeight: 1.7 }}>
                         {pending
                             ? `Вы вошли как ${user.email}. Администратор получил письмо и откроет доступ — мы сообщим на почту.`
-                            : 'Панель управления доступна только администратору.'}
+                            : 'Панель управления доступна только авторам.'}
                     </Typography>
                     <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 1 }}>
                         <Button component={RouterLink} to="/">

@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom'
 import Box from '@mui/joy/Box'
 import Button from '@mui/joy/Button'
 import FormControl from '@mui/joy/FormControl'
-import FormHelperText from '@mui/joy/FormHelperText'
 import FormLabel from '@mui/joy/FormLabel'
 import IconButton from '@mui/joy/IconButton'
 import Input from '@mui/joy/Input'
 import ToggleButtonGroup from '@mui/joy/ToggleButtonGroup'
 import Tooltip from '@mui/joy/Tooltip'
 import Typography from '@mui/joy/Typography'
-import { ArrowSquareOutIcon, EyeIcon, GearIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
+import {
+    ArrowSquareOutIcon,
+    CaretLeftIcon,
+    CaretRightIcon,
+    EyeIcon,
+    GearIcon,
+    PencilSimpleIcon,
+    PlusIcon,
+    TrashIcon,
+} from '@phosphor-icons/react'
 
 import AdminTopBar from './AdminTopBar'
 import AdminState from './AdminState'
@@ -18,8 +26,9 @@ import SaveStatus from './SaveStatus'
 import { pressedInkSx } from './adminStyles'
 import AutoTextarea from '../../admin/editor/AutoTextarea'
 import BlockEditor from '../../admin/editor/BlockEditor'
-import { deleteLesson, lessonSlugError, updateLesson, useAdminCourse } from '../../admin/store'
-import { FINAL_SLUG, getLessons } from '../../data/courses'
+import { createLesson, deleteLesson, lessonSlugError, updateLesson, useAdminCourse } from '../../admin/store'
+import { useHiddenChrome } from '../../admin/chrome'
+import { FINAL_SLUG, getLessons, getNeighbours, getShortTitle } from '../../data/courses'
 import { getAccent, getInk } from '../../theme/accents'
 import useScheme from '../../theme/useScheme'
 
@@ -50,6 +59,8 @@ function LessonPage({ id, slug }) {
     const scheme = useScheme()
     const [mode, setMode] = useState('edit')
     const [settingsOpen, setSettingsOpen] = useState(false)
+    // Спрятали верхнюю полосу — прячем и подсказку под ней: остаётся только урок
+    const chromeHidden = useHiddenChrome().topbar
 
     const page = course?.pages.find((item) => item.slug === slug) ?? null
 
@@ -105,6 +116,8 @@ function LessonPage({ id, slug }) {
                     { label: course.title || 'Без названия', to: `/admin/course/${course.id}` },
                     { label: page.short || page.title || 'Новый урок' },
                 ]}
+                // Настройки прилипают вместе с полосой: открываются там, где их позвали
+                below={settingsOpen && <LessonSettings course={course} page={page} set={set} />}
             >
                 <SaveStatus courseId={course.id} save={save} error={saveError} />
                 <ToggleButtonGroup
@@ -157,9 +170,7 @@ function LessonPage({ id, slug }) {
                 </Tooltip>
             </AdminTopBar>
 
-            {settingsOpen && <LessonSettings course={course} page={page} set={set} />}
-
-            {!preview && (
+            {!preview && !chromeHidden && (
                 <Typography
                     sx={{
                         px: { xs: 2, md: 3 },
@@ -201,9 +212,83 @@ function LessonPage({ id, slug }) {
                     </Typography>
 
                     <BlockEditor blocks={page.content} onChange={(content) => set({ content })} ink={ink} preview={preview} />
+
+                    {!preview && <LessonFooter course={course} page={page} onRemove={remove} />}
                 </Box>
             </Box>
         </>
+    )
+}
+
+const navCaptionSx = {
+    fontFamily: 'code',
+    fontSize: '11px',
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    color: 'text.tertiary',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 0.75,
+}
+
+/** Соседний урок — плашкой, как навигация внизу урока на сайте. */
+function NeighbourLink({ course, page, direction }) {
+    const next = direction === 'next'
+    return (
+        <Box
+            component={RouterLink}
+            to={`/admin/course/${course.id}/lesson/${page.slug}`}
+            sx={{
+                p: 2,
+                border: '1px solid',
+                borderColor: 'page.border',
+                textDecoration: 'none',
+                textAlign: next ? 'right' : 'left',
+                gridColumn: next ? { sm: 2 } : undefined,
+                '&:hover': { bgcolor: 'background.level1' },
+            }}
+        >
+            <Box sx={{ ...navCaptionSx, justifyContent: next ? 'flex-end' : 'flex-start' }}>
+                {!next && <CaretLeftIcon size={14} weight="bold" />}
+                {next ? 'Следующий урок' : 'Предыдущий урок'}
+                {next && <CaretRightIcon size={14} weight="bold" />}
+            </Box>
+            <Typography sx={{ mt: 0.75, fontFamily: 'display', fontWeight: 500, color: 'text.primary' }}>{getShortTitle(page)}</Typography>
+        </Box>
+    )
+}
+
+/**
+ * Под уроком, после «Добавить блок»: соседние уроки (если есть), новый урок
+ * и удаление этого — чтобы не подниматься за ними к верхней полосе.
+ */
+function LessonFooter({ course, page, onRemove }) {
+    const navigate = useNavigate()
+    const { prev, next } = getNeighbours(course, page.slug)
+
+    const addLesson = () => {
+        const slug = createLesson(course.id)
+        if (slug) navigate(`/admin/course/${course.id}/lesson/${slug}`)
+    }
+
+    return (
+        <Box sx={{ mt: 7, pt: 4, borderTop: '1px solid', borderColor: 'page.border' }}>
+            {(prev || next) && (
+                <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
+                    {prev && <NeighbourLink course={course} page={prev} direction="prev" />}
+                    {next && <NeighbourLink course={course} page={next} direction="next" />}
+                </Box>
+            )}
+
+            <Box sx={{ mt: prev || next ? 2 : 0, display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'space-between' }}>
+                <Button startDecorator={<PlusIcon weight="bold" />} onClick={addLesson} sx={{ fontWeight: 700 }}>
+                    Создать новый урок
+                </Button>
+                <Button color="danger" startDecorator={<TrashIcon />} onClick={onRemove} sx={{ fontWeight: 700 }}>
+                    Удалить урок
+                </Button>
+            </Box>
+        </Box>
     )
 }
 

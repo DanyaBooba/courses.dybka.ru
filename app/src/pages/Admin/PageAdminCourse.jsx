@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import Box from '@mui/joy/Box'
 import Button from '@mui/joy/Button'
-import Chip from '@mui/joy/Chip'
 import IconButton from '@mui/joy/IconButton'
 import Tab from '@mui/joy/Tab'
 import TabList from '@mui/joy/TabList'
@@ -13,8 +12,7 @@ import {
     ArrowDownIcon,
     ArrowSquareOutIcon,
     ArrowUpIcon,
-    EyeIcon,
-    EyeSlashIcon,
+    DotsSixVerticalIcon,
     FlagIcon,
     PlusIcon,
     TrashIcon,
@@ -24,6 +22,7 @@ import AdminTopBar from './AdminTopBar'
 import AdminState from './AdminState'
 import SaveStatus from './SaveStatus'
 import CourseForm from './CourseForm'
+import CourseStatus from './CourseStatus'
 import { notify } from '../../admin/notices'
 import AutoTextarea from '../../admin/editor/AutoTextarea'
 import BlockEditor from '../../admin/editor/BlockEditor'
@@ -34,11 +33,15 @@ import {
     deleteCourse,
     deleteLesson,
     moveLesson,
+    setCourseDate,
     updateCourse,
     useAdminCourse,
+    useCanPublish,
 } from '../../admin/store'
+import useDragSort, { dragSx } from '../../admin/useDragSort'
 import { FINAL_SLUG, getLessons } from '../../data/courses'
 import { lessonsLabel } from '../../data/plural'
+import { formatDate } from '../../admin/dates'
 import { getAccent, getInk } from '../../theme/accents'
 import useScheme from '../../theme/useScheme'
 
@@ -61,6 +64,7 @@ export default function PageAdminCourse() {
     const navigate = useNavigate()
     const [search, setSearch] = useSearchParams()
     const [removing, setRemoving] = useState(false)
+    const canPublish = useCanPublish()
     const tab = search.get('tab') === 'settings' ? 'settings' : 'page'
 
     useEffect(() => {
@@ -96,16 +100,7 @@ export default function PageAdminCourse() {
         <>
             <AdminTopBar crumbs={[{ label: 'Программы', to: '/admin' }, { label: course.title || 'Без названия' }]}>
                 <SaveStatus courseId={course.id} save={save} error={saveError} />
-                <Chip
-                    size="sm"
-                    variant="soft"
-                    color="neutral"
-                    startDecorator={course.disabled ? <EyeSlashIcon /> : <EyeIcon />}
-                    onClick={() => set({ disabled: !course.disabled })}
-                    sx={{ fontFamily: 'body' }}
-                >
-                    {course.disabled ? 'Скрыта — открыть' : 'Открыта — скрыть'}
-                </Chip>
+                <CourseStatus course={course} set={set} canPublish={canPublish} />
                 <Tooltip title="Открыть на сайте" size="sm" variant="soft">
                     <IconButton component="a" href={`/course/${course.id}`} target="_blank" size="sm" color="neutral" aria-label="Открыть на сайте">
                         <ArrowSquareOutIcon />
@@ -127,10 +122,21 @@ export default function PageAdminCourse() {
                     sx={{
                         px: { xs: 2, md: 3 },
                         bgcolor: 'transparent',
+                        // У активной вкладки — черта полного цвета, у остальных — бледная
                         '--Tab-indicatorThickness': '2px',
                         '--Tab-indicatorColor': 'var(--dd-palette-text-primary)',
-                        '& .MuiTab-root': { fontWeight: 500, bgcolor: 'transparent', color: 'text.tertiary' },
-                        '& .MuiTab-root:hover': { bgcolor: 'transparent', color: 'text.primary' },
+                        '& .MuiTab-root': {
+                            py: 1.25,
+                            fontWeight: 500,
+                            bgcolor: 'transparent',
+                            color: 'text.tertiary',
+                            boxShadow: 'inset 0 -2px 0 var(--dd-palette-page-border)',
+                        },
+                        '& .MuiTab-root:hover': {
+                            bgcolor: 'transparent',
+                            color: 'text.primary',
+                            boxShadow: 'inset 0 -2px 0 var(--dd-palette-text-tertiary)',
+                        },
                         '& .MuiTab-root.Mui-selected': { bgcolor: 'transparent', color: 'text.primary' },
                     }}
                 >
@@ -143,7 +149,7 @@ export default function PageAdminCourse() {
 
             {tab === 'settings' ? (
                 <Box sx={{ px: { xs: 2, md: 5 }, py: { xs: 3, md: 4 }, maxWidth: 1200 }}>
-                    <CourseForm course={course} onChange={(next) => set(next)} />
+                    <CourseForm course={course} onChange={(next) => set(next)} canPublish={canPublish} onDateChange={(date) => setCourseDate(course.id, date)} />
                 </Box>
             ) : (
                 <CoursePageEditor course={course} set={set} />
@@ -160,6 +166,10 @@ function CoursePageEditor({ course, set }) {
     const skin = accent[scheme] || accent.light
     const ink = getInk(accent, scheme)
     const lessons = getLessons(course)
+    // Итоговая страница всегда последняя: тащить можно только уроки
+    const sort = useDragSort(course.pages.length, lessons.length, (from, to) =>
+        moveLesson(course.id, course.pages[from].slug, to),
+    )
 
     const addLesson = () => {
         const slug = createLesson(course.id)
@@ -174,7 +184,9 @@ function CoursePageEditor({ course, set }) {
                     sx={{
                         display: 'grid',
                         gap: { xs: 3, md: 4.5 },
-                        gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) minmax(0, 340px)' },
+                        // Рядом с левым меню места мало: обложка встаёт сбоку с той же
+                        // ширины, что и программа курса, — с 1200px
+                        gridTemplateColumns: { xs: 'minmax(0, 1fr)', lg: 'minmax(0, 1fr) minmax(0, 340px)' },
                         alignItems: 'start',
                     }}
                 >
@@ -222,10 +234,15 @@ function CoursePageEditor({ course, set }) {
                             <Meta label="Сложность" color={skin.text}>
                                 <Difficulty value={course.difficulty} color={skin.text} size={17} sx={{ mt: '2px' }} />
                             </Meta>
+                            {course.updatedAt && (
+                                <Meta label="Обновлён" color={skin.text}>
+                                    <time dateTime={course.updatedAt}>{formatDate(course.updatedAt)}</time>
+                                </Meta>
+                            )}
                         </Box>
                     </Box>
 
-                    <CoverDrop src={course.image} onChange={(image) => set({ image })} ratio="4 / 3" sx={{ order: { xs: -1, md: 0 } }} />
+                    <CoverDrop src={course.image} onChange={(image) => set({ image })} ratio="4 / 3" sx={{ order: { xs: -1, lg: 0 } }} />
                 </Box>
             </Box>
 
@@ -264,10 +281,11 @@ function CoursePageEditor({ course, set }) {
                                 key={page.slug}
                                 course={course}
                                 page={page}
+                                index={index}
                                 number={lessons.indexOf(page) + 1}
                                 ink={ink}
-                                isFirst={index === 0}
-                                isLast={index === course.pages.length - 1}
+                                isLast={index === lessons.length - 1}
+                                sort={sort}
                             />
                         ))}
                     </Box>
@@ -298,8 +316,12 @@ function Meta({ label, color, children }) {
     )
 }
 
-/** Строка программы: ссылка в редактор урока, при наведении — сдвиг и удаление. */
-function LessonRow({ course, page, number, ink, isFirst, isLast }) {
+/**
+ * Строка программы: ссылка в редактор урока. Урок перетаскивается мышью
+ * (за «⠿» или за саму строку), при наведении — сдвиг кнопками и удаление.
+ * Место урока — его номер: после перестановки уроки нумеруются заново.
+ */
+function LessonRow({ course, page, index, number, ink, isLast, sort }) {
     const final = page.slug === FINAL_SLUG
 
     const remove = () => {
@@ -310,14 +332,33 @@ function LessonRow({ course, page, number, ink, isFirst, isLast }) {
     return (
         <Box
             component="li"
+            {...sort.itemProps(index)}
             sx={{
+                ...dragSx(sort.dropLine(index), sort.dragging(index), ink),
                 display: 'flex',
                 alignItems: 'center',
                 borderBottom: '1px solid',
                 borderColor: 'page.border',
-                '&:hover .lesson-tools, &:focus-within .lesson-tools': { opacity: 1 },
+                '&:hover .lesson-tools, &:focus-within .lesson-tools, &:hover .lesson-grip': { opacity: 1 },
             }}
         >
+            <Box
+                className="lesson-grip"
+                aria-hidden
+                sx={{
+                    // На телефоне уроки двигают кнопки: перетаскивание там неудобно
+                    display: { xs: 'none', md: 'flex' },
+                    ml: -2.5,
+                    width: 20,
+                    color: 'text.tertiary',
+                    cursor: final ? 'default' : 'grab',
+                    visibility: final ? 'hidden' : 'visible',
+                    opacity: 0,
+                    transition: 'opacity 0.15s ease',
+                }}
+            >
+                <DotsSixVerticalIcon size={16} weight="bold" />
+            </Box>
             <Box
                 component={RouterLink}
                 to={`/admin/course/${course.id}/lesson/${page.slug}`}
@@ -340,10 +381,10 @@ function LessonRow({ course, page, number, ink, isFirst, isLast }) {
             </Box>
 
             <Box className="lesson-tools" sx={{ display: 'flex', opacity: { xs: 1, md: 0 }, transition: 'opacity 0.15s ease' }}>
-                <IconButton size="sm" color="neutral" disabled={isFirst} onClick={() => moveLesson(course.id, page.slug, -1)} aria-label="Выше">
+                <IconButton size="sm" color="neutral" disabled={final || index === 0} onClick={() => moveLesson(course.id, page.slug, index - 1)} aria-label="Выше">
                     <ArrowUpIcon size={15} />
                 </IconButton>
-                <IconButton size="sm" color="neutral" disabled={isLast} onClick={() => moveLesson(course.id, page.slug, 1)} aria-label="Ниже">
+                <IconButton size="sm" color="neutral" disabled={final || isLast} onClick={() => moveLesson(course.id, page.slug, index + 1)} aria-label="Ниже">
                     <ArrowDownIcon size={15} />
                 </IconButton>
                 <IconButton size="sm" color="neutral" onClick={remove} aria-label="Удалить урок">

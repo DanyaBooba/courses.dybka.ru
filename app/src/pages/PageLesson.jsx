@@ -14,6 +14,7 @@ import LessonNavMobile from '../components/Course/LessonNavMobile'
 import Kbd from '../components/Ui/Kbd'
 import { fillGradient } from '../components/Ui/shine'
 import ShareButton from '../components/Ui/ShareButton'
+import CopyLessonMenu from '../components/Ui/CopyLessonMenu'
 import CourseState from '../components/Course/CourseState'
 import { LessonPageSkeleton } from '../components/Course/PageSkeletons'
 import PageNotFound from './PageNotFound'
@@ -130,17 +131,21 @@ export default function PageLesson() {
                             {course.title}
                         </Typography>
 
-                        <Typography
-                            sx={{
-                                fontFamily: 'code',
-                                fontSize: '11px',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.12em',
-                                color: ink,
-                            }}
-                        >
-                            {isFinal ? 'Итог курса' : `Урок ${index + 1} из ${lessonsTotal}`}
-                        </Typography>
+                        {/* Номер урока, справа — копирование урока в Markdown или HTML */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                            <Typography
+                                sx={{
+                                    fontFamily: 'code',
+                                    fontSize: '11px',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.12em',
+                                    color: ink,
+                                }}
+                            >
+                                {isFinal ? 'Итог курса' : `Урок ${index + 1} из ${lessonsTotal}`}
+                            </Typography>
+                            <CopyLessonMenu page={page} sx={{ flexShrink: 0 }} />
+                        </Box>
 
                         <Typography
                             level="h1"

@@ -53,18 +53,19 @@ export function AddBlockMenu({ onPick, label = 'Добавить блок ниж
     )
 }
 
-/** «⠿» на полях: превратить в другой блок, сдвинуть, дублировать, удалить. */
+/** «⠿» на полях: за него блок перетаскивают, а щелчок — превратить в другой блок, сдвинуть, дублировать, удалить. */
 export function BlockActionsMenu({ block, isFirst, isLast, onConvert, onMove, onDuplicate, onRemove }) {
     const { label, icon: Icon } = blockType(block.block)
     const convertible = TEXT_TYPES.includes(block.block)
 
     return (
         <Dropdown>
-            <Tooltip title={`${label}: действия`} placement="top" variant="soft" size="sm">
+            <Tooltip title={`${label}: потяните, чтобы передвинуть, или щёлкните`} placement="top" variant="soft" size="sm">
                 <MenuButton
                     slots={{ root: IconButton }}
                     slotProps={{
-                        root: { size: 'sm', variant: 'plain', color: 'neutral', sx: { ...gutterButtonSx, cursor: 'pointer' }, 'aria-label': `${label}: действия` },
+                        // Тянуть за «⠿» можно и пальцем: без touch-action жест прокрутил бы страницу
+                        root: { size: 'sm', variant: 'plain', color: 'neutral', sx: { ...gutterButtonSx, cursor: 'grab', touchAction: 'none' }, 'aria-label': `${label}: действия` },
                     }}
                 >
                     <DotsSixVerticalIcon size={18} weight="bold" />

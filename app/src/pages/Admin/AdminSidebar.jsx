@@ -2,17 +2,33 @@ import { useState } from 'react'
 import { Link as RouterLink, useMatch, useNavigate } from 'react-router-dom'
 import Box from '@mui/joy/Box'
 import Button from '@mui/joy/Button'
+import IconButton from '@mui/joy/IconButton'
 import Input from '@mui/joy/Input'
+import Tooltip from '@mui/joy/Tooltip'
 import Typography from '@mui/joy/Typography'
-import { EyeSlashIcon, FlagIcon, MagnifyingGlassIcon, PlusIcon, SignOutIcon, ArrowSquareOutIcon } from '@phosphor-icons/react'
+import {
+    ArrowSquareOutIcon,
+    EyeSlashIcon,
+    FlagIcon,
+    HourglassIcon,
+    MagnifyingGlassIcon,
+    PlusIcon,
+    SidebarSimpleIcon,
+    SignOutIcon,
+    UsersIcon,
+} from '@phosphor-icons/react'
 
-import { createLesson, useAdminCourse, useAdminCourses } from '../../admin/store'
+import { createLesson, deleteLesson, hasUnsaved, moveLesson, useAdminCourse, useAdminCourses } from '../../admin/store'
+import LessonMenu from './LessonMenu'
+import { setChromeHidden } from '../../admin/chrome'
+import { useAdminUsers } from '../../admin/users'
+import useDragSort, { dragSx } from '../../admin/useDragSort'
 import Bone from '../../components/Ui/Bone'
 import { groupBySection } from '../../data/sections'
 import { FINAL_SLUG, getLessons } from '../../data/courses'
 import { lessonsLabel } from '../../data/plural'
 import { getAccent } from '../../theme/accents'
-import { useProfile } from '../../api/courses'
+import { ACCESS, useProfile } from '../../api/courses'
 import { setToken } from '../../auth/session'
 
 const captionSx = {
@@ -32,6 +48,11 @@ export default function AdminSidebar() {
     const navigate = useNavigate()
     const { user } = useProfile()
     const [query, setQuery] = useState('')
+    const admin = Boolean(user) && user.access >= ACCESS.ADMIN
+    // Сколько новых пользователей ждут доступа — счётчик у «Пользователей»
+    const { users = [] } = useAdminUsers()
+    const waiting = users.filter((item) => item.access === ACCESS.NONE).length
+    const usersMatch = useMatch('/admin/users')
 
     const courseMatch = useMatch('/admin/course/:id/*')
     const lessonMatch = useMatch('/admin/course/:id/lesson/:slug')
@@ -39,6 +60,25 @@ export default function AdminSidebar() {
     const activeSlug = lessonMatch?.params.slug
     // Урок добавляется в загруженную программу — до загрузки кнопка неактивна
     const { course: activeCourse } = useAdminCourse(activeId)
+
+    // Уроки открытой программы перетаскиваются мышью. Номер урока — его адрес:
+    // если открытый урок сменил номер, переходим на новый адрес
+    const activePages = activeCourse?.pages ?? []
+    const activeLessons = getLessons(activeCourse)
+    const follow = (renamed) => {
+        if (renamed[activeSlug]) navigate(`/admin/course/${activeId}/lesson/${renamed[activeSlug]}`, { replace: true })
+    }
+    const sort = useDragSort(activePages.length, activeLessons.length, (from, to) =>
+        follow(moveLesson(activeId, activePages[from].slug, to)),
+    )
+
+    const removeLesson = (page) => {
+        if (!window.confirm(`Удалить урок «${page.short || page.title || page.slug}»?`)) return
+        const renamed = deleteLesson(activeId, page.slug)
+        // Удалили открытый урок — возвращаемся на страницу программы
+        if (page.slug === activeSlug) navigate(`/admin/course/${activeId}`, { replace: true })
+        else follow(renamed)
+    }
 
     const needle = query.trim().toLowerCase()
     const found = needle
@@ -58,9 +98,23 @@ export default function AdminSidebar() {
             sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}
         >
             <Box sx={{ px: 2.5, pt: 2.5, pb: 2 }}>
-                <Typography component={RouterLink} to="/admin" sx={{ ...captionSx, textDecoration: 'none', color: 'text.primary', fontWeight: 600 }}>
-                    courses.dybka.ru
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, minHeight: 28 }}>
+                    <Typography component={RouterLink} to="/admin" sx={{ ...captionSx, textDecoration: 'none', color: 'text.primary', fontWeight: 600 }}>
+                        courses.dybka.ru
+                    </Typography>
+                    {/* На телефоне меню и так прячется внутри программы */}
+                    <Tooltip title="Скрыть меню" size="sm" variant="soft">
+                        <IconButton
+                            size="sm"
+                            color="neutral"
+                            onClick={() => setChromeHidden('sidebar', true)}
+                            aria-label="Скрыть меню"
+                            sx={{ display: { xs: 'none', md: 'inline-flex' }, mr: -1, color: 'text.tertiary' }}
+                        >
+                            <SidebarSimpleIcon />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
                 <Typography level="h3" sx={{ mt: 0.5, fontWeight: 500, letterSpacing: '-0.02em' }}>
                     Панель управления
                 </Typography>
@@ -73,6 +127,30 @@ export default function AdminSidebar() {
                 >
                     Новая программа
                 </Button>
+
+                {admin && (
+                    <Button
+                        component={RouterLink}
+                        to="/admin/users"
+                        variant={usersMatch ? 'soft' : 'outlined'}
+                        color="neutral"
+                        startDecorator={<UsersIcon />}
+                        endDecorator={
+                            waiting > 0 && (
+                                <Box
+                                    component="span"
+                                    title="Ждут доступа"
+                                    sx={{ px: 0.75, minWidth: 20, fontSize: '11px', fontWeight: 700, lineHeight: '20px', textAlign: 'center', bgcolor: 'warning.solidBg', color: 'warning.solidColor' }}
+                                >
+                                    {waiting}
+                                </Box>
+                            )
+                        }
+                        sx={{ mt: 1, width: '100%', fontWeight: 500, justifyContent: 'flex-start', '& .MuiButton-endDecorator': { ml: 'auto' }, borderColor: 'page.border', bgcolor: usersMatch ? undefined : 'background.body' }}
+                    >
+                        Пользователи
+                    </Button>
+                )}
 
                 <Input
                     value={query}
@@ -149,7 +227,14 @@ export default function AdminSidebar() {
                                             </Typography>
                                             <Typography sx={{ mt: 0.25, fontSize: 'xs', color: 'text.tertiary', display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                                 {lessonsLabel(lessons.length)}
-                                                {course.disabled && (
+                                                {course.disabled && course.reviewRequestedAt && (
+                                                    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, color: 'warning.plainColor' }}>
+                                                        <span>·</span>
+                                                        <HourglassIcon size={12} />
+                                                        на проверке
+                                                    </Box>
+                                                )}
+                                                {course.disabled && !course.reviewRequestedAt && (
                                                     <>
                                                         <span>·</span>
                                                         <EyeSlashIcon size={12} />
@@ -162,16 +247,29 @@ export default function AdminSidebar() {
 
                                     {active && (
                                         <Box component="ol" sx={{ listStyle: 'none', m: 0, p: 0, pl: 2.25, pb: 1 }}>
-                                            {course.pages.map((page) => {
+                                            {course.pages.map((page, index) => {
                                                 const current = page.slug === activeSlug
                                                 const number = lessons.indexOf(page) + 1
                                                 return (
-                                                    <Box component="li" key={page.slug}>
+                                                    <Box
+                                                        component="li"
+                                                        key={page.slug}
+                                                        {...(activeCourse ? sort.itemProps(index) : {})}
+                                                        sx={{
+                                                            ...dragSx(sort.dropLine(index), sort.dragging(index), accent.solid),
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            '& .lesson-menu': { opacity: { xs: 1, md: 0 }, transition: 'opacity 0.15s ease' },
+                                                            '&:hover .lesson-menu, &:focus-within .lesson-menu, & .lesson-menu[aria-expanded="true"]': { opacity: 1 },
+                                                        }}
+                                                    >
                                                         <Box
                                                             component={RouterLink}
                                                             to={`/admin/course/${course.id}/lesson/${page.slug}`}
                                                             aria-current={current ? 'page' : undefined}
                                                             sx={{
+                                                                flex: 1,
+                                                                minWidth: 0,
                                                                 display: 'flex',
                                                                 alignItems: 'baseline',
                                                                 gap: 1,
@@ -194,6 +292,16 @@ export default function AdminSidebar() {
                                                                 {page.short || page.title || 'Без названия'}
                                                             </Box>
                                                         </Box>
+                                                        {activeCourse && (
+                                                            <LessonMenu
+                                                                className="lesson-menu"
+                                                                title={page.short || page.title || 'Без названия'}
+                                                                canUp={page.slug !== FINAL_SLUG && index > 0}
+                                                                canDown={page.slug !== FINAL_SLUG && index < activeLessons.length - 1}
+                                                                onMove={(step) => follow(moveLesson(activeId, page.slug, index + step))}
+                                                                onRemove={() => removeLesson(page)}
+                                                            />
+                                                        )}
                                                     </Box>
                                                 )
                                             })}
@@ -243,7 +351,11 @@ export default function AdminSidebar() {
                         variant="plain"
                         color="neutral"
                         startDecorator={<SignOutIcon />}
-                        onClick={() => setToken(null)}
+                        onClick={() => {
+                            // Без токена сервер не примет несохранённые правки
+                            if (hasUnsaved() && !window.confirm('Есть несохранённые правки — после выхода они пропадут. Выйти?')) return
+                            setToken(null)
+                        }}
                         sx={{ fontWeight: 500 }}
                     >
                         Выйти

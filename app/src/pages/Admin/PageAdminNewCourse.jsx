@@ -6,7 +6,8 @@ import Typography from '@mui/joy/Typography'
 
 import AdminTopBar from './AdminTopBar'
 import CourseForm from './CourseForm'
-import { blankCourse, courseIdError, createCourse, useAdminCourses } from '../../admin/store'
+import { blankCourse, courseIdError, createCourse, useAdminCourses, useCanPublish } from '../../admin/store'
+import { useProfile } from '../../api/courses'
 import toSlug from '../../admin/slug'
 
 /**
@@ -16,7 +17,9 @@ import toSlug from '../../admin/slug'
  */
 export default function PageAdminNewCourse() {
     const navigate = useNavigate()
-    const [course, setCourse] = useState(blankCourse)
+    const { user } = useProfile()
+    const canPublish = useCanPublish()
+    const [course, setCourse] = useState(() => blankCourse(user))
     const [idTouched, setIdTouched] = useState(false)
     const [submitted, setSubmitted] = useState(false)
     const [creating, setCreating] = useState(false)
@@ -76,6 +79,7 @@ export default function PageAdminNewCourse() {
                     course={course}
                     onChange={change}
                     idEditable
+                    canPublish={canPublish}
                     idError={shownIdError}
                     onIdChange={(id) => {
                         setIdTouched(true)
