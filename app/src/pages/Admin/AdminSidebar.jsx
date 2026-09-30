@@ -25,7 +25,7 @@ import { useAdminUsers } from '../../admin/users'
 import useDragSort, { dragSx } from '../../admin/useDragSort'
 import Bone from '../../components/Ui/Bone'
 import { groupBySection } from '../../data/sections'
-import { FINAL_SLUG, getLessons } from '../../data/courses'
+import { FINAL_SLUG, getLessons, getLessonTitle } from '../../data/courses'
 import { lessonsLabel } from '../../data/plural'
 import { getAccent } from '../../theme/accents'
 import { ACCESS, useProfile } from '../../api/courses'
@@ -73,7 +73,7 @@ export default function AdminSidebar() {
     )
 
     const removeLesson = (page) => {
-        if (!window.confirm(`Удалить урок «${page.short || page.title || page.slug}»?`)) return
+        if (!window.confirm(`Удалить урок «${getLessonTitle(page)}»?`)) return
         const renamed = deleteLesson(activeId, page.slug)
         // Удалили открытый урок — возвращаемся на страницу программы
         if (page.slug === activeSlug) navigate(`/admin/course/${activeId}`, { replace: true })
@@ -289,13 +289,13 @@ export default function AdminSidebar() {
                                                                 {page.slug === FINAL_SLUG ? <FlagIcon size={11} weight="fill" /> : String(number).padStart(2, '0')}
                                                             </Box>
                                                             <Box component="span" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
-                                                                {page.short || page.title || 'Без названия'}
+                                                                {getLessonTitle(page)}
                                                             </Box>
                                                         </Box>
                                                         {activeCourse && (
                                                             <LessonMenu
                                                                 className="lesson-menu"
-                                                                title={page.short || page.title || 'Без названия'}
+                                                                title={getLessonTitle(page)}
                                                                 canUp={page.slug !== FINAL_SLUG && index > 0}
                                                                 canDown={page.slug !== FINAL_SLUG && index < activeLessons.length - 1}
                                                                 onMove={(step) => follow(moveLesson(activeId, page.slug, index + step))}

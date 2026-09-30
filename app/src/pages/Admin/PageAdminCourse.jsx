@@ -39,7 +39,7 @@ import {
     useCanPublish,
 } from '../../admin/store'
 import useDragSort, { dragSx } from '../../admin/useDragSort'
-import { FINAL_SLUG, getLessons } from '../../data/courses'
+import { FINAL_SLUG, getLessons, getLessonTitle } from '../../data/courses'
 import { lessonsLabel } from '../../data/plural'
 import { readersLabel, viewsLabel } from '../../api/views'
 import { formatDate } from '../../admin/dates'
@@ -332,7 +332,7 @@ function LessonRow({ course, page, index, number, ink, isLast, sort }) {
     const final = page.slug === FINAL_SLUG
 
     const remove = () => {
-        if (!window.confirm(`Удалить урок «${page.short || page.title || page.slug}»?`)) return
+        if (!window.confirm(`Удалить урок «${getLessonTitle(page)}»?`)) return
         deleteLesson(course.id, page.slug)
     }
 
@@ -384,7 +384,7 @@ function LessonRow({ course, page, index, number, ink, isLast, sort }) {
                 <Box sx={{ fontFamily: 'code', fontSize: '11px', color: ink, minWidth: 22 }}>
                     {final ? <FlagIcon size={13} weight="fill" /> : String(number).padStart(2, '0')}
                 </Box>
-                <Box sx={{ fontSize: 'sm', lineHeight: 1.5, overflowWrap: 'anywhere' }}>{page.short || page.title || 'Без названия'}</Box>
+                <Box sx={{ fontSize: 'sm', lineHeight: 1.5, overflowWrap: 'anywhere' }}>{getLessonTitle(page)}</Box>
             </Box>
 
             <Box className="lesson-tools" sx={{ display: 'flex', opacity: { xs: 1, md: 0 }, transition: 'opacity 0.15s ease' }}>

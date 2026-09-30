@@ -20,7 +20,7 @@ import { LessonPageSkeleton } from '../components/Course/PageSkeletons'
 import PageNotFound from './PageNotFound'
 import { useCourse } from '../api/courses'
 import { useCourseView } from '../api/views'
-import { getPage, getNeighbours, getLessons, getShortTitle, FINAL_SLUG } from '../data/courses'
+import { getPage, getNeighbours, getLessons, getLessonTitle, getLessonHeading, getLessonNumber, FINAL_SLUG } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 import useSeo from '../seo/useSeo'
 import { lessonSeo } from '../seo/seo'
@@ -38,7 +38,7 @@ export default function PageLesson() {
     const resolved = mode === 'system' ? systemMode || 'light' : mode || 'light'
 
     // Номер урока: у завершающей страницы его нет
-    useSeo(page && course ? lessonSeo(course, page, slug === FINAL_SLUG ? 0 : index + 1) : null)
+    useSeo(page && course ? lessonSeo(course, page, getLessonNumber(course, page) ?? 0) : null)
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'auto' })
@@ -146,7 +146,7 @@ export default function PageLesson() {
                             >
                                 {isFinal ? 'Итог курса' : `Урок ${index + 1} из ${lessonsTotal}`}
                             </Typography>
-                            <CopyLessonMenu page={page} sx={{ flexShrink: 0 }} />
+                            <CopyLessonMenu page={{ ...page, title: getLessonHeading(course, page) }} sx={{ flexShrink: 0 }} />
                         </Box>
 
                         <Typography
@@ -160,7 +160,7 @@ export default function PageLesson() {
                                 fontSize: { xs: '30px', sm: '38px', md: '46px' },
                             }}
                         >
-                            {page.title}
+                            {getLessonHeading(course, page)}
                         </Typography>
 
                         <ContentBlocks blocks={page.content} ink={ink} />
@@ -217,7 +217,7 @@ export default function PageLesson() {
                                             color: 'text.primary',
                                         }}
                                     >
-                                        {getShortTitle(prev)}
+                                        {getLessonTitle(prev)}
                                     </Typography>
                                 </Box>
                             ) : (
@@ -268,7 +268,7 @@ export default function PageLesson() {
                                             textAlign: 'right',
                                         }}
                                     >
-                                        {getShortTitle(next)}
+                                        {getLessonTitle(next)}
                                     </Typography>
                                 </Box>
                             ) : (

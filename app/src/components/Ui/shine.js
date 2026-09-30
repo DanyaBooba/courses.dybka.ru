@@ -17,6 +17,12 @@ export function shineSx(fill, color = '#fff') {
         backgroundImage: fillGradient(fill),
         color,
         transition: 'filter 0.2s ease',
+        // Пока бежит блик, браузер выносит его на отдельный слой и рисует текст
+        // кнопки с другим сглаживанием — тоньше и ярче. После анимации слой
+        // пропадал, и текст «тускнел» обратно. Сглаживание задаём сразу такое,
+        // как во время блика, а слой блика держим всегда (will-change ниже)
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale',
         // Фон Joy перебиваем, а подсветку оставляем мыши: на тач-экранах
         // :hover «залипает» после тапа
         // Цвет текста держим во всех состояниях, чтобы Joy не подменял его на свой
@@ -46,6 +52,7 @@ export function shineSx(fill, color = '#fff') {
             width: '45%',
             pointerEvents: 'none',
             transform: 'translateX(0) skewX(-22deg)',
+            willChange: 'transform, opacity',
             background:
                 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 100%)',
             opacity: 0,

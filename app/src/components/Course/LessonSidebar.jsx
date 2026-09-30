@@ -15,7 +15,7 @@ import {
 import { Link as RouterLink } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 
-import { FINAL_SLUG, getShortTitle } from '../../data/courses'
+import { FINAL_SLUG, getLessonTitle } from '../../data/courses'
 import InlineText from '../Content/InlineText'
 import slugify from '../Content/slugify'
 
@@ -297,7 +297,7 @@ export default function LessonSidebar({
                                     className="lesson-title"
                                     sx={{ minWidth: 0, flex: 1, mr: 0.75, transition: 'margin-right 0.15s ease' }}
                                 >
-                                    {getShortTitle(page)}
+                                    {getLessonTitle(page)}
                                 </Box>
                                 {toggle ? (
                                     <Box
@@ -469,11 +469,11 @@ export default function LessonSidebar({
                 {course.pages.map((page, index) => {
                     const active = page.slug === activeSlug
                     return (
-                        <Tooltip key={page.slug} title={getShortTitle(page)} variant="soft" size="sm" placement="right">
+                        <Tooltip key={page.slug} title={getLessonTitle(page)} variant="soft" size="sm" placement="right">
                             <Box
                                 component={RouterLink}
                                 to={`/course/${course.id}/${page.slug}`}
-                                aria-label={getShortTitle(page)}
+                                aria-label={getLessonTitle(page)}
                                 aria-current={active ? 'page' : undefined}
                                 sx={{
                                     ...railItemSx,

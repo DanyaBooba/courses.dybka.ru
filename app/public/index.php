@@ -226,7 +226,9 @@ function lessonSeo($course, $page, $position)
 {
     $coursePath = '/course/' . $course['id'];
     $path = $coursePath . '/' . $page['slug'];
-    $title = ($page['title'] ?? '') ?: (($page['short'] ?? '') ?: 'Урок');
+    // С номером, как заголовок на странице урока: «2. Как устроен сайт»
+    $name = ($page['title'] ?? '') ?: (($page['short'] ?? '') ?: 'Урок');
+    $title = $position > 0 ? $position . '. ' . $name : $name;
     $description = describeBlocks($page['content'] ?? []) ?? (clip(plain($course['subtitle'] ?? '')) ?: SITE_DESCRIPTION);
 
     $firstImage = null;

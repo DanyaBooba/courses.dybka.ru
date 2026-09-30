@@ -17,7 +17,7 @@ import { CoursePageSkeleton } from '../components/Course/PageSkeletons'
 import ShareButton from '../components/Ui/ShareButton'
 import { useCourse } from '../api/courses'
 import { useCourseView, readersLabel, viewsLabel } from '../api/views'
-import { hasMedia, getLessons, getFinalPage, getShortTitle } from '../data/courses'
+import { hasMedia, getLessons, getFinalPage, getLessonTitle } from '../data/courses'
 import { getAccent, getInk } from '../theme/accents'
 import { lessonsLabel } from '../data/plural'
 import useSeo from '../seo/useSeo'
@@ -470,7 +470,7 @@ export default function PageCourse() {
                                             className="lesson-title"
                                             sx={{ fontSize: 'sm', lineHeight: 1.5, mr: 0.75, transition: 'margin-right 0.15s ease' }}
                                         >
-                                            {getShortTitle(page)}
+                                            {getLessonTitle(page)}
                                         </Box>
                                     </Box>
                                 </Box>
@@ -516,7 +516,7 @@ export default function PageCourse() {
                                             className="lesson-title"
                                             sx={{ fontSize: 'sm', lineHeight: 1.5, mr: 0.75, transition: 'margin-right 0.15s ease' }}
                                         >
-                                            {getShortTitle(finalPage)}
+                                            {getLessonTitle(finalPage)}
                                         </Box>
                                     </Box>
                                 </Box>

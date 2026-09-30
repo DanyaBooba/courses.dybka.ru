@@ -164,11 +164,13 @@ export function courseSeo(course) {
     }
 }
 
-/** Урок: учебный материал внутри курса и хлебные крошки. */
+/** Урок: учебный материал внутри курса и хлебные крошки. `position` — номер урока, 0 — итог курса. */
 export function lessonSeo(course, page, position) {
     const coursePath = `/course/${course.id}`
     const path = `${coursePath}/${page.slug}`
-    const title = page.title || page.short || 'Урок'
+    // С номером, как заголовок на странице урока: «2. Как устроен сайт»
+    const name = page.title || page.short || 'Урок'
+    const title = position > 0 ? `${position}. ${name}` : name
     const description = describeBlocks(page.content) ?? (clip(plain(course.subtitle)) || SITE_DESCRIPTION)
     const firstImage = (page.content ?? []).find((block) => block.block === 'img' && block.src)?.src
     const image = absoluteUrl(firstImage) ?? absoluteUrl(course.image) ?? absoluteUrl(DEFAULT_IMAGE)

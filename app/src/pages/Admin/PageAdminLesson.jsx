@@ -28,7 +28,7 @@ import AutoTextarea from '../../admin/editor/AutoTextarea'
 import BlockEditor from '../../admin/editor/BlockEditor'
 import { createLesson, deleteLesson, lessonSlugError, updateLesson, useAdminCourse } from '../../admin/store'
 import { useHiddenChrome } from '../../admin/chrome'
-import { FINAL_SLUG, getLessons, getNeighbours, getShortTitle } from '../../data/courses'
+import { FINAL_SLUG, getLessonHeading, getLessonNumber, getLessonTitle, getLessons, getNeighbours } from '../../data/courses'
 import { getAccent, getInk } from '../../theme/accents'
 import useScheme from '../../theme/useScheme'
 
@@ -98,12 +98,13 @@ function LessonPage({ id, slug }) {
     const ink = getInk(accent, scheme)
     const lessons = getLessons(course)
     const final = page.slug === FINAL_SLUG
+    const number = getLessonNumber(course, page)
     const preview = mode === 'preview'
 
     const set = (change) => updateLesson(course.id, page.slug, change)
 
     const remove = () => {
-        if (!window.confirm(`Удалить урок «${page.short || page.title || page.slug}»?`)) return
+        if (!window.confirm(`Удалить урок «${getLessonTitle(page)}»?`)) return
         deleteLesson(course.id, page.slug)
         navigate(`/admin/course/${course.id}`, { replace: true })
     }
@@ -114,7 +115,7 @@ function LessonPage({ id, slug }) {
                 crumbs={[
                     { label: 'Программы', to: '/admin' },
                     { label: course.title || 'Без названия', to: `/admin/course/${course.id}` },
-                    { label: page.short || page.title || 'Новый урок' },
+                    { label: page.title || 'Новый урок' },
                 ]}
                 // Настройки прилипают вместе с полосой: открываются там, где их позвали
                 below={settingsOpen && <LessonSettings course={course} page={page} set={set} />}
@@ -196,18 +197,22 @@ function LessonPage({ id, slug }) {
 
                     <Typography component={preview ? 'h1' : 'div'} level="h1" sx={titleSx}>
                         {preview ? (
-                            page.title || 'Без названия'
+                            getLessonHeading(course, page)
                         ) : (
-                            <AutoTextarea
-                                value={page.title}
-                                onChange={(title) => set({ title: title.replace(/\n/g, ' ') })}
-                                focus={titleFocus}
-                                placeholder="Название урока"
-                                aria-label="Название урока"
-                                onKeyDown={(event) => {
-                                    if (event.key === 'Enter') event.preventDefault()
-                                }}
-                            />
+                            // Номер ставится сам, как на сайте: в поле — только название
+                            <Box sx={{ display: 'flex' }}>
+                                {number && <Box component="span" sx={{ flexShrink: 0, color: 'text.tertiary' }}>{number}.&nbsp;</Box>}
+                                <AutoTextarea
+                                    value={page.title}
+                                    onChange={(title) => set({ title: title.replace(/\n/g, ' ') })}
+                                    focus={titleFocus}
+                                    placeholder="Название урока"
+                                    aria-label="Название урока"
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter') event.preventDefault()
+                                    }}
+                                />
+                            </Box>
                         )}
                     </Typography>
 
@@ -253,7 +258,7 @@ function NeighbourLink({ course, page, direction }) {
                 {next ? 'Следующий урок' : 'Предыдущий урок'}
                 {next && <CaretRightIcon size={14} weight="bold" />}
             </Box>
-            <Typography sx={{ mt: 0.75, fontFamily: 'display', fontWeight: 500, color: 'text.primary' }}>{getShortTitle(page)}</Typography>
+            <Typography sx={{ mt: 0.75, fontFamily: 'display', fontWeight: 500, color: 'text.primary' }}>{getLessonTitle(page)}</Typography>
         </Box>
     )
 }
@@ -292,7 +297,7 @@ function LessonFooter({ course, page, onRemove }) {
     )
 }
 
-/** Название для меню и адрес урока. Адрес меняется по Enter или при уходе из поля. */
+/** Название и адрес урока. Адрес меняется по Enter или при уходе из поля. */
 function LessonSettings({ course, page, set }) {
     const navigate = useNavigate()
     const [slug, setSlug] = useState(page.slug)
@@ -319,11 +324,11 @@ function LessonSettings({ course, page, set }) {
             }}
         >
             <FormControl>
-                <FormLabel>Короткое название</FormLabel>
+                <FormLabel>Название</FormLabel>
                 <Input
-                    value={page.short}
-                    onChange={(event) => set({ short: event.target.value })}
-                    placeholder={page.title || 'Для меню урока и программы курса'}
+                    value={page.title ?? ''}
+                    onChange={(event) => set({ title: event.target.value })}
+                    placeholder="Название урока"
                     sx={{ boxShadow: 'none' }}
                 />
             </FormControl>

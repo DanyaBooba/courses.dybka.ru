@@ -26,7 +26,8 @@
 //   author    — { name, email, telegram }
 //   certificate — путь до картинки сертификата или null
 //   about     — блоки контента для страницы курса
-//   pages     — уроки: [{ slug, title, short, certificate?, content: [блоки] }]
+//   pages     — уроки: [{ slug, title, certificate?, content: [блоки] }]
+//               title — название без номера: номер добавляется при выводе
 //               последней может лежать завершающая страница со слагом 'end' —
 //               это итог курса (тест, чек-лист), а не урок: в счётчике уроков
 //               она не участвует и в списках помечается отдельно
@@ -75,9 +76,26 @@ export function getFinalPage(course) {
     return course.pages.find((page) => page.slug === FINAL_SLUG) ?? null
 }
 
-/** Название урока для меню и программы: короткое, а если его нет — полное. */
-export function getShortTitle(page) {
-    return page.short || page.title || 'Без названия'
+/**
+ * Название урока — без номера: так оно стоит в меню и программе курса, где
+ * номера рисуются отдельно. Поле `short` осталось от старых данных, где
+ * названий было два; оно нужно, только пока `title` пустой.
+ */
+export function getLessonTitle(page) {
+    return page.title || page.short || 'Без названия'
+}
+
+/** Номер урока в курсе с единицы; у завершающей страницы номера нет — null. */
+export function getLessonNumber(course, page) {
+    if (!course || !page || page.slug === FINAL_SLUG) return null
+    const index = getLessons(course).findIndex((item) => item.slug === page.slug)
+    return index >= 0 ? index + 1 : null
+}
+
+/** Заголовок на странице урока: «2. Как устроен сайт». Итог курса — без номера. */
+export function getLessonHeading(course, page) {
+    const number = getLessonNumber(course, page)
+    return number ? `${number}. ${getLessonTitle(page)}` : getLessonTitle(page)
 }
 
 export function getPage(course, slug) {
