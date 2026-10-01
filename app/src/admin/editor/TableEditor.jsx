@@ -41,6 +41,7 @@ export default function TableEditor({ block, onChange, focus }) {
                             {fill(head, columns).map((cell, index) => (
                                 <th key={index} style={{ fontWeight: 700 }}>
                                     <AutoTextarea
+                                        inline
                                         value={cell}
                                         onChange={(value) => setHead(index, value)}
                                         focus={index === 0 ? focus : undefined}
@@ -57,6 +58,7 @@ export default function TableEditor({ block, onChange, focus }) {
                                 {fill(row, columns).map((cell, index) => (
                                     <td key={index}>
                                         <AutoTextarea
+                                            inline
                                             value={cell}
                                             onChange={(value) => setCell(rowIndex, index, value)}
                                             aria-label={`Строка ${rowIndex + 1}, столбец ${index + 1}`}

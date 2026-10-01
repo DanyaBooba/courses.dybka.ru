@@ -76,6 +76,7 @@ export default function ListEditor({ block, onChange, focus, keys, onPaste }) {
                         }}
                     >
                         <AutoTextarea
+                            inline
                             value={item.text}
                             onChange={(text) => setItem(index, { text })}
                             focus={itemFocusRequest}

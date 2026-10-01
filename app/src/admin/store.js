@@ -291,9 +291,15 @@ export function createLesson(courseId) {
 }
 
 export function updateLesson(courseId, slug, change) {
-    updateCourse(courseId, ({ pages }) => ({
-        pages: pages.map((page) => (page.slug === slug ? { ...page, ...change } : page)),
-    }))
+    updateCourse(courseId, ({ pages }) => {
+        const next = pages.map((page) => (page.slug === slug ? { ...page, ...change } : page))
+        if (change.slug !== FINAL_SLUG || slug === FINAL_SLUG) return { pages: next }
+
+        // Урок с адресом end становится итоговым — и уходит в конец программы
+        const from = next.findIndex((page) => page.slug === FINAL_SLUG)
+        const [final] = next.splice(from, 1)
+        return { pages: renumber([...next, final]).pages }
+    })
 }
 
 /**

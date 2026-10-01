@@ -141,6 +141,7 @@ export default function ImageEditor({ block, onChange, onExtraImages, selected, 
 
                 <Typography component="figcaption" sx={{ ...captionSx, display: selected || block.caption ? 'block' : 'none' }}>
                     <AutoTextarea
+                        inline
                         value={block.caption}
                         onChange={(caption) => onChange({ ...block, caption })}
                         focus={focus}

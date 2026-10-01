@@ -3,6 +3,7 @@ import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom'
 import Box from '@mui/joy/Box'
 import Button from '@mui/joy/Button'
 import FormControl from '@mui/joy/FormControl'
+import FormHelperText from '@mui/joy/FormHelperText'
 import FormLabel from '@mui/joy/FormLabel'
 import IconButton from '@mui/joy/IconButton'
 import Input from '@mui/joy/Input'
@@ -344,6 +345,16 @@ function LessonSettings({ course, page, set }) {
                     startDecorator={<Box component="span" sx={{ fontFamily: 'code', fontSize: 'sm', color: 'text.tertiary' }}>/{course.id}/</Box>}
                     sx={{ boxShadow: 'none', fontFamily: 'code' }}
                 />
+                <FormHelperText sx={{ '& code': { fontFamily: 'code' } }}>
+                    {error ??
+                        (slug === FINAL_SLUG ? (
+                            'Итог курса: всегда последний, без номера и не входит в счёт уроков.'
+                        ) : (
+                            <span>
+                                Адрес <code>end</code> — итог курса: последняя страница, без номера.
+                            </span>
+                        ))}
+                </FormHelperText>
             </FormControl>
         </Box>
     )

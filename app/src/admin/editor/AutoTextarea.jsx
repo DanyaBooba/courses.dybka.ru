@@ -8,8 +8,12 @@ import Box from '@mui/joy/Box'
  *
  * `focus` — запрос на фокус `{ caret: 'start' | 'end' | число, token }`:
  * каждый новый token ставит курсор в поле в указанное место.
+ *
+ * `inline` — подсвечивать `код` фоном, как на сайте. Само поле фон под частью
+ * текста не умеет, поэтому под ним лежит прозрачная копия текста с той же
+ * вёрсткой, и фон рисуется в ней — ровно под нужными символами.
  */
-export default function AutoTextarea({ value, onChange, focus, inputRef, sx, ...props }) {
+export default function AutoTextarea({ value, onChange, focus, inputRef, inline = false, sx, ...props }) {
     const ownRef = useRef(null)
     const ref = inputRef ?? ownRef
 
@@ -48,7 +52,7 @@ export default function AutoTextarea({ value, onChange, focus, inputRef, sx, ...
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [focus?.token])
 
-    return (
+    const field = (
         <Box
             component="textarea"
             ref={ref}
@@ -73,8 +77,61 @@ export default function AutoTextarea({ value, onChange, focus, inputRef, sx, ...
                 lineHeight: 'inherit',
                 textTransform: 'inherit',
                 '&::placeholder': { color: 'text.tertiary', opacity: 0.7 },
+                ...(inline && { position: 'relative' }),
                 ...sx,
             }}
         />
     )
+
+    // Обёртка — всегда, а не с первым `: иначе поле пересоздастся и потеряет фокус
+    if (!inline) return field
+
+    return (
+        <Box sx={{ position: 'relative' }}>
+            <Box aria-hidden sx={mirrorSx}>
+                {(value ?? '').split(CODE).map((part, index) =>
+                    index % 2 ? (
+                        <Box component="span" key={index} sx={codeMarkSx}>
+                            {part}
+                        </Box>
+                    ) : (
+                        part
+                    ),
+                )}
+                {/* Перенос в самом конце поле показывает пустой строкой — копия тоже */}
+                {value?.endsWith('\n') && ' '}
+            </Box>
+            {field}
+        </Box>
+    )
+}
+
+// Тот же шаблон `код`, что у InlineText; скобки оставляют код в split
+const CODE = /(`[^`]+`)/
+
+// Копия текста под полем: те же шрифт и переносы, что у textarea, но без цвета
+const mirrorSx = {
+    position: 'absolute',
+    inset: 0,
+    m: 0,
+    p: 0,
+    font: 'inherit',
+    letterSpacing: 'inherit',
+    lineHeight: 'inherit',
+    textTransform: 'inherit',
+    whiteSpace: 'pre-wrap',
+    overflowWrap: 'break-word',
+    color: 'transparent',
+    pointerEvents: 'none',
+    userSelect: 'none',
+}
+
+// Фон без отступов: отступ сдвинул бы текст копии относительно поля.
+// Чуть шире букв фон делает тень — она места не занимает
+const codeMarkSx = {
+    bgcolor: 'primary.softBg',
+    borderRadius: 'xs',
+    boxShadow: (theme) => `0 0 0 2px ${theme.vars.palette.primary.softBg}`,
+    boxDecorationBreak: 'clone',
+    WebkitBoxDecorationBreak: 'clone',
 }

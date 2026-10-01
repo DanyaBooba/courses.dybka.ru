@@ -14,6 +14,8 @@ export function headingSx(level) {
         fontWeight: 600,
         letterSpacing: '-0.02em',
         scrollMarginTop: '80px',
+        // Код в заголовке — шрифтом заголовка, а от текста отличается только фоном
+        '& code': { fontFamily: 'inherit', fontSize: 'inherit' },
     }
 }
 

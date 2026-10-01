@@ -37,6 +37,7 @@ export default function TextBlockEditor({ block, onChange, focus, keys, onPaste 
 
     const field = (
         <AutoTextarea
+            inline
             value={block.content}
             onChange={(content, { composing }) => onChange({ ...block, content }, { composing })}
             onCompositionStart={(event) => (beforeComposition.current = event.currentTarget.value)}
