@@ -94,6 +94,25 @@ function httpGet($url)
     return [$status, $body];
 }
 
+/**
+ * sitemap.xml собирает API — по курсам в базе. Отдаём его со своего домена:
+ * поисковики принимают карту только с того же хоста, что и страницы в ней.
+ */
+function sitemap()
+{
+    $file = sys_get_temp_dir() . '/courses-seo-sitemap.xml';
+    $cached = is_file($file) ? (string) file_get_contents($file) : '';
+    if ($cached !== '' && time() - filemtime($file) < CACHE_TTL) return $cached;
+
+    [$status, $body] = httpGet(API_URL . '/sitemap.xml');
+    if ($status !== 200 || strpos((string) $body, '<urlset') === false) {
+        return $cached !== '' ? $cached : null;
+    }
+
+    @file_put_contents($file, $body, LOCK_EX);
+    return $body;
+}
+
 // ── Помощники, как в seo.js ─────────────────────────────────────────────
 
 function absoluteUrl($path)
@@ -369,8 +388,22 @@ function renderTags($seo)
 
 // ── Ответ ───────────────────────────────────────────────────────────────
 
-$html = file_get_contents(__DIR__ . '/index.html');
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+if ($path === '/sitemap.xml') {
+    $xml = sitemap();
+    if ($xml === null) {
+        http_response_code(503);
+        header('Retry-After: 300');
+        exit;
+    }
+    header('Content-Type: application/xml; charset=utf-8');
+    header('Cache-Control: public, max-age=' . CACHE_TTL);
+    echo $xml;
+    exit;
+}
+
+$html = file_get_contents(__DIR__ . '/index.html');
 
 [$status, $seo] = resolve($path);
 

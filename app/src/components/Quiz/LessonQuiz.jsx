@@ -3,6 +3,7 @@ import Box from '@mui/joy/Box'
 import Typography from '@mui/joy/Typography'
 import Button from '@mui/joy/Button'
 import { CheckIcon, XIcon } from '@phosphor-icons/react'
+import InlineText from '../Content/InlineText'
 
 /**
  * Тест после уроков: несколько вопросов с вариантами ответа и разбор в конце.
@@ -139,14 +140,16 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
                     fontWeight: 600,
                     lineHeight: 1.35,
                     letterSpacing: '-0.015em',
+                    // Код в вопросе — шрифтом вопроса, выделен только фоном
+                    '& code': { fontFamily: 'inherit', fontSize: 'inherit' },
                 }}
             >
-                {item.question}
+                <InlineText text={item.question} />
             </Typography>
 
             <Box
                 role={multiple ? 'group' : 'radiogroup'}
-                aria-label={item.question}
+                aria-label={item.question.replace(/[`*_]/g, '')}
                 sx={{ mt: 2, display: 'flex', flexDirection: 'column' }}
             >
                 {item.options.map((option, index) => {
@@ -206,7 +209,7 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
                                     color: checked && (correct || chosen) ? 'text.primary' : 'inherit',
                                 }}
                             >
-                                {option}
+                                <InlineText text={option} />
                             </Box>
                         </Box>
                     )
@@ -226,7 +229,7 @@ function Question({ item, order, total, picked, checked, ink, onPick }) {
                         color: 'text.secondary',
                     }}
                 >
-                    {item.hint}
+                    <InlineText text={item.hint} />
                 </Typography>
             )}
         </Box>
@@ -290,8 +293,11 @@ export default function LessonQuiz({ quiz, ink = 'text.primary' }) {
                     borderColor: 'page.rule',
                 }}
             >
-                <Typography level="h2" sx={{ fontWeight: 500, letterSpacing: '-0.02em' }}>
-                    {quiz.title}
+                <Typography
+                    level="h2"
+                    sx={{ fontWeight: 500, letterSpacing: '-0.02em', '& code': { fontFamily: 'inherit', fontSize: 'inherit' } }}
+                >
+                    <InlineText text={quiz.title} />
                 </Typography>
                 <Box
                     component="span"
@@ -310,7 +316,7 @@ export default function LessonQuiz({ quiz, ink = 'text.primary' }) {
 
             {quiz.intro && (
                 <Typography sx={{ mt: 2, maxWidth: 640, color: 'text.secondary', lineHeight: 1.7 }}>
-                    {quiz.intro}
+                    <InlineText text={quiz.intro} />
                 </Typography>
             )}
 

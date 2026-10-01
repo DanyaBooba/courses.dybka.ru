@@ -3,4 +3,4 @@ Disallow: /admin
 Disallow: /login
 Disallow: /new
 
-Sitemap: https://api.courses.aquarium.org.ru/sitemap.xml
+Sitemap: https://courses.dybka.ru/sitemap.xml
