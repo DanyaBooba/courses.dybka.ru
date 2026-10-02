@@ -48,7 +48,7 @@ export default function CourseStatus({ course, set, canPublish }) {
     if (!course.disabled) {
         return (
             <Chip size="sm" variant="soft" color="neutral" startDecorator={<EyeIcon />} onClick={hide} sx={chipSx}>
-                Открыта — скрыть
+                Доступен читателям
             </Chip>
         )
     }
@@ -57,7 +57,7 @@ export default function CourseStatus({ course, set, canPublish }) {
         if (!pending) {
             return (
                 <Chip size="sm" variant="soft" color="neutral" startDecorator={<EyeSlashIcon />} onClick={() => set({ disabled: false })} sx={chipSx}>
-                    Скрыта — открыть
+                    Скрыт от читателей
                 </Chip>
             )
         }
